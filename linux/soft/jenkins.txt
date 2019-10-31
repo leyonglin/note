@@ -1,0 +1,27 @@
+
+使用文档：https://blog.51cto.com/14234542/2426676
+
+jenkins：
+1.安装
+	1.在官网下载镜像下载
+	2.官网下载war包
+		1.执行命令“java -jar jenkins.war”安装。注意：Jenkins 需要运行Java 5以及以上的版本。
+		2.将jenkins.war文件放入tomcat下的webapps目录下，启动tomcat时，会自动在webapps目录下建立jenkins目录
+2.配置文件，启动用户的家目录下的.jenkins目录中
+
+view视图在： ~/.jenkins/config.xml 
+job任务在： ~/.jenkins/jobs/job_name
+密钥和主机信息： ~/.jenkins/jenkins.plugins.publish_over_ssh.BapSshPublisherPlugin.xml  
+
+参数化构建: 1.选项/字符参数  2.Build  3.Post-build Actions(可以在后端主机进行操作)
+
+jenkins的三种部署方式
+jenkins触发式构建：用于开发环境部署，开发人员push代码或者合并代码到gitlab项目的master分支，jenkins就部署代码到对应服务器。
+jenkins参数化构建：用于测试环境预上线环境部署，开发push代码或者合并代码到gitlab项目的master分支之后，并不会部署代码，而是需要登录到jenkins的web界面，点击构建按钮，传入对应的参数（比如参数需要构建的tag，需要部署的分支）然后才会部署。
+jenkins定时构建：用于APP自动打包，定时构建是在参数化构建的基础上添加的，开发人员可以登录jenkins手动传入tag进行打包，如果不手动打包，那么jenkins就每天凌晨从gitlab拉取最新的APP代码打包。
+Gitlab的Webhook功能，通过Webhook的相关设置，可以实现代码Push后自动去触发jenkins上的构建动作，无需要人工干预去执行发版操作了
+
+添加slave节点
+
+pipeline：管道能通过脚本进行自动化构建多个jobs
+

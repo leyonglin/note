@@ -1,0 +1,83 @@
+
+
+安装(linux)：
+wget https://www.python.org/ftp/python/3.5.7/Python-3.5.7.tgz
+tar -xf Python-3.5.7.tgz 
+yum -y install libffi-devel gcc make,zlib* openssl-devel openssl
+cd Python-3.5.7/
+./configure --prefix=/opt/Python                    (默认路径是/usr/local/)
+make && make install
+ln -s /opt/Python/bin/python3.5 /usr/bin/python3
+ln -s /opt/Python/bin/pip3.5 /usr/bin/pip3
+python3 --version && pip3 --version && ansible --version
+
+虚拟环境：
+python3 -m  venv /opt/pyvenv
+source /opt/pyvenv/bin/activate
+
+ubuntu:
+	sudo apt install python3  python3-pip
+	system -- region&&language -- manage install languages -- install/remove language  --  chinese --apply  （设置input sources）
+	pycharm: ubuntu software  下载 pycharm
+		file -- settings -- editor(font/pyhton可以设置字体和注释(line comment))
+		file -- settings -- project:project_name --project interpreter（设置编译器）					
+	
+
+
+
+WINDOWS：
+sublime 配置 python3
+https://www.cnblogs.com/honkly/p/6599642.html
+tools --> build system --> new build system... --> 保存下列内容成 Python3.sublime-build（ 在 preferences--->brower packges    user目录下的SUBLIME-BUILD 文件）
+{
+    "cmd": ["C:/Users/63977/AppData/Local/Programs/Python/Python35/python.exe","-u","$file"],    #添加python路径，cmd ---> where python （进入改目录下执行python也能进入python交互界面）  
+    "file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+    "selector": "source.python", 
+	"encoding":"gbk",                                                                            #中文乱码
+	"env": {"PYTHONPATH": "C:/Users/63977/Desktop/python"},                                      #添加自定义模块路径
+}
+
+插件：
+   1.安装Package Control组件 ：View > Show Console”菜单打开控制台  
+   快捷键：C+S+p(下面这句只有一半)
+      import  urllib.request,os;pf='Package Control.sublime-package';ipp=sublime.installed_packages_path();urllib.request.install_opener(urllib.request.build_opener(urllib.request.ProxyHandler()));open(os.path.join(ipp,pf),'wb').write(urllib.request.urlopen('http://sublime.wbond.net/'+pf.replace(' ','%20')).read())
+  完整：import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)   
+
+   2. 交互
+    SublimeREPL: 安装插件 C+S+p ---> install package ---> sublimerepl (插件名称)      #交互：https://www.cnblogs.com/JackyXu2018/p/8821482.html    
+                          设置SublimeREPL运行的Python环境 : preferences --> browse packages...   ---> ..\SublimeREPL\config\Python\ Main.sublime-menu  -->  找到id 为 repl_python行，修改 "cmd": ["python", "-i", "-u","$file_basename"]
+    preferences--->key bindings        #设置快捷键
+       {
+       "keys": ["f5"],                                                 #这个需要C+b执行一下，不然识别不到最新的，并且每次都会新开启一个页面
+       "caption": "SublimeREPL: Python - RUN current file",
+       "command": "run_existing_window_command",
+       "args": {
+           "id": "repl_python_run",
+           "file": "config/Python/Main.sublime-menu"}
+       },
+       {
+       "keys": ["f8"],
+       "caption": "SublimeREPL: Python - PDB current file",
+       "command": "run_existing_window_command",
+       "args": {
+           "id": "repl_python_pdb",
+           "file": "config/Python/Main.sublime-menu"}
+       },   	
+	   	
+	   
+pip安装：1.在下载python的时候可以选择(记得选择)
+         2.https://pypi.org/project/pip/  ---> Installation	   
+           将下载下来的脚本执行(需在sublime里配置并能运行脚本)
+		   进入pip应用程序目录下下载模块：pip install pygame(cmd-->where pip)
+	    
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   
+	   

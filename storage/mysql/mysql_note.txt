@@ -1,0 +1,371 @@
+
+ 查看性能：https://www.cnblogs.com/fyy-hhzzj/p/9044166.html
+ mysqladmin status -uroot -p'admin' -P3306  -h127.0.0.1
+ mysqladmin -h127.0.0.1 -uroot -p'admin'  extended-status [--relative --sleep=1]
+  tps: Transactions Per Second，每秒事务数；   TPS=Com_commit/s + Com_rollback/s = Com_insert/s + Com_update/s + Com_delete/s  
+  qps: Queries Per Second每秒查询数；          QPS = mysqladmin extended-status --relative --sleep=1|grep -w Questions = Com_select/s + Com_insert/s + Com_update/s + Com_delete/s
+  Com_select/s = mysqladmin extended-status --relative --sleep=1|grep -w Com_select
+  Com_select/s：平均每秒select语句执行次数
+  Com_insert/s：平均每秒insert语句执行次数
+  Com_update/s：平均每秒update语句执行次数
+  Com_delete/s：平均每秒delete语句执行次数
+ 
+ 
+ 线上主从：
+ 数据库授权：在旧主库上授权	
+ grant replication slave on *.* to myrync@'103.248.20.34' identified by 'MyryncCloud';
+ 并刷新权限flush privileges;	   
+ 做 主（旧主库）从（新主库） 从（新从库）
+ 主从从思路：
+ 1.主从的时候，mysqldump---备份一下mysql库(有授权信息)
+ mysqldump -uroot -p -S /opt/data/data_16303/mysql.sock -P16303 -B mysql > /home/swadmin/mysql.sql
+ 2.每天有全备的，拷贝即可
+   /backup/data_back/full
+   innobackupex  --defaults-file=/opt/conf/my_16303.cnf  --use-memory=10G --compress --compress-threads=24  -uroot -p9tN6GFGK60Jk8BNkBJM611GwA66uDFeG  -S  /opt/data/data_16303/mysql.sock  /opt/src/upload/full
+ 3.同时拷贝旧站到新的主库和从库，
+ 4.恢复数据，(less /opt/src/upload/full/2018-05-20_12-33-46/xtrabackup_binlog_info)
+   停止新主备站mysql服务并清空新主备站的数据目录
+   解压：innobackupex --decompress --parallel=16 /opt/src/upload/full/2018-05-20_12-33-46/
+   应用：innobackupex --apply-log --use-memory=4G  /opt/src/upload/full/2018-05-20_12-33-46/ 
+   恢复：innobackupex --defaults-file=/opt/conf/my_slave_16303.cnf --use-memory=4G  --move(copy)-back  /opt/src/upload/full/2018-05-20_12-33-46/
+   注意：改权限swadmin
+   启动： mysqld --defaults-file=/opt/conf/my_16303.cnf  --user=swadmin &
+ 5.source  备份的mysql库 ，再flush privileges;
+ 6.新主从库先做主从 (在主库上show master status； 记住与上面步骤4的区别)
+   CHANGE MASTER TO
+   MASTER_HOST='154.223.1.77',
+   MASTER_USER='myrync',
+   MASTER_PASSWORD='MyryncCloud',
+   MASTER_PORT=16303,
+   MASTER_LOG_FILE='mysql-bin.000333',
+   MASTER_LOG_POS=379096239;
+ 7.再在线上主库和新主库上做主从(偏移量参考步骤4)
+ 
+ 
+ 
+ show variables like "%logs_days%";               查看变量
+ set global expire_logs_days=7;                   设置变量
+ flush logs;   &&  purge binary logs to 'bin.5';  &&   purge binary logs before '2017-05-01 13:09:51';    刷新binlogs日志&&删除bin.5之前日志&&删除指定时间之前日志 
+ 
+ select * from information_schema.innodb_trx;    (INNODB_TRX表主要是包含了正在InnoDB引擎中执行的所有事务的信息，包括waiting for a lock和running的事务)
+ 
+ select * from information_schema.innodb_lock_waits;  (INNODB_LOCKS表主要包含了InnoDB事务锁的具体情况，包括事务正在申请加的锁和事务加上的锁。)
+ 
+ select * from information_schema.innodb_lock_waits;  (INNODB_LOCK_WAITS表包含了blocked的事务的锁等待的状态)
+ 
+ 
+ show processlist；/ select * from information_schema.processlist  显示用户正在运行的线程,除了 root 用户能看到所有正在运行的线程外，其他用户都只能看到自己正在运行的线程，看不到其它用户正在运行的线程。除非单独个这个用户赋予了PROCESS 权限。
+ 按客户端 IP 分组，看哪个客户端的链接数最多
+ select client_ip,count(client_ip) as client_num from (select substring_index(host,':' ,1) as client_ip from processlist ) as connect_info group by client_ip order by client_num desc;
+ 查看正在执行的线程，并按 Time 倒排序，看看有没有执行时间特别长的线程
+ select * from information_schema.processlist where Command != 'Sleep' order by Time desc;
+ 找出所有执行时间超过 5 分钟的线程，拼凑出 kill 语句，方便后面查杀select concat('kill ', id, ';') from information_schema.processlist where Command != 'Sleep' and Time > 300 order by Time desc;
+ 
+ set global read_only=0; ----> show variables like '%read_only'; ---> read_only OFF 
+ 
+ 查看从库状态：
+ show slave status\G;
+ 
+ 测试授权用户连接：mysql  -u用户名  -h授权ip    -P端口 -p
+ 本地登陆：mysql  -uroot -p -S /opt/data/data_16303/mysql.sock [-P16303 -h127.0.0.1]
+ 导出全部数据库:mysqldump -uroot -p --all-databases > sqlfile.sql
+ 导出库：mysqldump -uroot -p -S /opt/data/data_16303/mysql.sock -P16303 -B gameplat_cms > /opt/src/upload/cms.sql
+       [--single-transaction --master-data=2 -opt]
+ 导入库：mysql -uroot -p -S /opt/data/data_16303/mysql.sock gameplat_cms < cms.sql
+ 导出表：
+ mysqldump -u 用户名 -p -S /opt/data/data_16303/mysql.sock 数据库名 表名 > 导出的文件名	
+ mysqldump -uxxx -pxxx -hxx.xx.xx.xx -P 16303 -B luckydb --tables t1 t2 >./1.log
+ mysql -uroot -D数据库名 -S /opt/data/data_16303/mysql.sock 表名
+ 
+ 
+ 查看授权：
+ select user,host from mysql.user;
+ show grants for user@host;
+ show grants;
+ 
+ 授权：grant  all(select ,update) on  库名(*).表名(*)  to  'user'@'%' identified by "passwd" [with grant option];         
+ 撤销：revoke all on *.* from dba@localhost; 
+ 
+ 删除授权
+ Delete FROM mysql.user Where User='gameplat_analysis_dev' and Host='$i';
+ Delete FROM mysql.user Where User='gameplat_analysis_dev' and Host='103.86.87.194';
+ 
+ 
+ 删除账户及权限：>drop user user@'%';
+ 
+ 从库取消主从：stop slave；reset slave all;
+ 
+ 主从授权：grant replication slave on *.* to myrync@'$i' identified by 'MyryncCloud';
+           flush privileges；
+ 
+ 查看信息：show master status;
+ 
+ MySQL中source命令   mysql> source *.sql;     //导入数据 
+ 
+ 删除一行记录
+ delete from db where localhost=103.86.87.193;
+ 删除表
+ drop table 表名；
+ 
+ Innobackupex
+ 全备文件：2018-05-20_12-33-46
+ 差异文件：/backup/data_back/incre/2018-05-20_12-33-46/*
+ 全备：innobackupex  --defaults-file=/opt/conf/my_16303.cnf  --use-memory=10G --compress --compress-threads=24  -uroot -p9tN6GFGK60Jk8BNkBJM611GwA66uDFeG  -S  /opt/data/data_16303/mysql.sock  /opt/src/upload/full
+ 差异备：innobackupex  --defaults-file=/opt/conf/my_16303.cnf  --use-memory=10G --compress --compress-threads=24  -uroot -p  -S  /opt/data/data_16303/mysql.sock  --incremental /backup/data_back/xtrabackup/incre/2018-05-20_12-33-46 --incremental-basedir /backup/data_back/xtrabackup/full/2018-05-20_12-33-46
+ 停止mysqld服务，清空data_16303/目录
+ 解压全备：innobackupex --decompress --parallel=16 /backup/data_back/full/2018-05-20_12-33-46/
+ 应用日志等待回滚：innobackupex --apply-log --use-memory=4G --redo-only /backup/data_back/full/2018-05-20_12-33-46/
+ 解压差异备份：innobackupex --decompress --parallel=16 /backup/data_back/incre/2018-05-20_12-33-46/2018-05-20_13-00-09/
+ 合并日志回滚：innobackupex --apply-log --use-memory=4G /backup/data_back/full/2018-05-20_12-33-46/  --incremental-dir=/backup/data_back/incre/2018-05-20_12-33-46/2018-05-20_13-00-09/
+ 可查看这个文件：less /backup/data_back/full/2018-05-20_12-33-46/xtrabackup_checkpoints---lsn是否最新(有变化)
+ 恢复数据：innobackupex --defaults-file=/opt/conf/my_16303.cnf --use-memory=4G  --copy(move)-back  /backup/data_back/full/2018-05-20_12-33-46/
+ 启动服务：mysqld --defaults-file=/opt/conf/my_16303.cnf  --user=swadmin &  （数据目录权限值得看一下）
+ 
+ 
+ 显示数据表结构:  desc 表名;   //   describe 表名;
+ 
+ 远程登陆mysql：mysql -hlocalhost -uroot -p -P3306 -S /opt/data/data_16303/mysql.sock
+ 使用gzip命令对备份文件进行压缩：：mysqldump phpbb_db_backup | gzip > /usr/backups
+ 
+ 
+ mysql授权表共有5个表：user、db、host、tables_priv和columns_priv。
+ user表列出可以连接服务器的用户及其口令，并且它指定他们有哪种全局（超级用户）权限。在user表启用的任何权限均是全局权限，并适用于所有数据库。例如，如果你启用了DELETE权限，在这里列出的用户可以从任何表中删除记录，所以在你这样做之前要认真考虑。
+ db表列出数据库，而用户有权限访问它们。在这里指定的权限适用于一个数据库中的所有表。
+ host表与db表结合使用在一个较好层次上控制特定主机对数据库的访问权限，这可能比单独使用db好些。这个表不受GRANT和REVOKE语句的影响，所以，你可能发觉你根本不是用它。
+ tables_priv表指定表级权限，在这里指定的一个权限适用于一个表的所有列。
+ columns_priv表指定列级权限。这里指定的权限适用于一个表的特定列。
+ 
+ 
+ mysql> help          帮助命令
+ mysql> help contents;  --->  help Account Management  --->  help CREATE USER  [查看库时命令 show create database ilanni;]  [关于主从：help transactions;]
+ mysql> system  cmd   
+ 命令行执行命令：mysqld_safe/mysql –defaults-file=  -u用户 -p -S 本地sock文件 -e "sql命令"
+ 初始化：mysql_install_db  –help(–basedir=bin路径  –datadir=数据目录 –user=mysql )
+ 密码：mysqladmin -uroot [旧密码-p123456} password 456789  / [help set password; 修改密码]
+ 查看授权：mysql> use information_schema; --->  desc user_privileges; --->  select privilege_type from user_privileges; / show privileges;
+ 
+ 索引：
+ alter table table_name add index index_name (column_list)/unique (column_list)/primary key (column_list) ;
+ create [unique] index index_name on table_name (column_list) ;
+ 删除索引:
+ drop index index_name on table_name ;
+ alter table table_name drop index index_name/primary key ;
+ 
+ 
+ for i in $ip;do
+ expect << EOF
+         spawn /opt/apps/mysql/bin/mysql -uroot -p -S /opt/data/data_16303/mysql.sock -e "    
+         grant all privileges on gameplat_analysis.* TO 'gameplat_analysis_dev'@'$i' identified by 'xjVXkB>Q6JpB61r${rand_pass}';
+         flush privileges;"
+         expect "Enter password:" {send "9tN6GFGK60Jk8BNkBJM611GwA66uDFeG\r"}
+         expect eof
+ EOF
+ done
+ 
+ 
+ 查库：show databases;   (库名区分大小写)
+ 位置：select database;
+ 建库：create database [if not exists] 库名 character set utf8;
+ 查看：show create database 库名;
+ 删库：drop database 库名; 
+ 进入指定库：use 库名;
+ 查表：show tables;
+ 查表:show create table 表名;
+ 建表：create table 表名(字段列表(字段名 数据类型, ...))character set utf8;
+ 删表：drop table 表名;
+ 表结构：desc 表名;
+ 插入：insert into 表名 values(值1),(值2)...;   或 insert into 表名(字段1,字段2,...) values(值1),(值2)...;
+ 查看: select *(字段,...) from 表名 where 条件(字段=(运算符)值,...);
+ 清空表中记录：delete from 表名;
+ 
+ 配置文件：
+	[mysqld]
+	charactr_set_server = utf8      #默认字符集
+ 
+ 数据类型：1.节省空间(varchar)    2.效率高(char)
+	数值类型宽度(显示宽度，不够用0补充)和存储没有关系[有/无符号signed/unsigned],decimal(m,n)整数部分和小数部分分开存储
+	字符类型宽度不够则无法存入
+	枚举 单选enum  多选set
+	时间 datetime(Null) = timestamp(系统时间) = date("年月日") + time("时分秒")
+ 
+ 日期时间函数：
+ now()				返回服务器当前时间
+ curldate()			当前日期
+ date("datetime")	提取年月日
+ time("datetime") 	提取时分秒
+ year("datetime")	提取年
+ 
+ 日期时间运算：where * from 表名 where 字段名 运算符(now()-interval 时间间隔单位(1 day));
+ 
+ 表字段操作:alter table 表名 操作(add/drop/modify/rename/change) 字段名 数据类型 位置(first/after 字段名)；
+ 表记录操作：
+	删除：delete from 表名 where 条件;
+	更新：update 表名 set 字段1=值1, ...where 条件(可以使用括号()); 
+ 
+ NULL：空值，只能用is、is not 去匹配
+ "":空字符串，只能用 =  != 去匹配
+ 模糊查询(like)
+	where 字段名 like 表达式
+	_:匹配单个字符   %:匹配0到多个字符
+	
+  集合函数：
+	avg(字段名)：平均值
+	sum   max  min   count
+	
+ 高级查询：表达式从行而下顺序结构
+	select ...聚合函数 from 表名
+	where  ...
+	group by ...:给查询的结果进行分组
+	having  ...：对查询结果进一步筛选
+	order by  字段名 ASC/DESC : 给查询结果排序 
+	limit [m,]n  ：显示查询记录的第m条开始，条数n
+
+ distinct:不显示字段的重复值。语法：select distinct 字段1, 字段2 from 表名；
+	distinct和from之间的所有字段值都相同才会去重
+ 
+ 约束constraint：保证数据的一致性，有效性
+	分类：1.默认约束(default)    2.非空约束(not null)
+ 
+ 索引：对数据库中表的一列或多列的值进行排序的一种结构(BTree)
+	优点：加快数据的检索速度
+	缺点：1.数据更新时，索引需要动态维护，降低数据的维护速度    2.索引需要占用物理存储空间
+ 1.索引运行时间检测： set profiling=1；(show variables like "profiling")
+ 2.执行查询语句：
+ 3.查看执行时间：show profiles;
+ 4.选择一个字段创建索引:create index name on t1(name);
+ 5.再次执行查询语句并查看执行时间，进行比较
+ 
+ 1.普通索引(index):1.可设置多个字段,字段值无约束   2.把经常用来查询的字段设置为索引字段   3.key标志：MUL
+		创建表时：create table t1(...,...,),index(name),index(id),...);
+		已有表中：create index 索引名  on  表名(字段名)；
+		查看：1.desc 表名;    2.show  index from 表名\G; 
+		删除：drop index 索引名 on 表名;
+ 2.唯一索引(unique)&&自增长(auto_increment):1.可设置多个字段   2.字段值不允许重复，但可以为空值   3.key标志：UNI
+		创建表时：create table t1(...,...,),unique(name),unique(id),...);
+		已有表中：create unique index 索引名  on  表名(字段名)；
+		查看：1.desc 表名;    2.show  index from 表名\G; 
+		删除：drop index 索引名 on 表名;
+ 3.主键索引(primary key):1.只能有一个字段为主键字段   2.字段值不允许重复，也不能为NULL  
+						 3.KEY标志：PRI    4.通常设置记录编号字段id，能够唯一锁定一条记录（自增长修改初始值：alter table 表名 AUTO_INCREMENT=10000;）
+		创建表时：... id int primary key auto_increment      复合主键(两个id与name同时相同才会报错)：id int auto_increment,name varchar(20),primary key(id,name)
+		已有表中:alter table 表名 add primary key(id);
+		删除：1.删除自增长属性modify:alter table 表名 modify id int  2.alter table 表名 drop primary key;
+ 4.外键(foreign key):让当前的字段值在另一张表的范围内去选择，主从表字段数据类型要一致，主表：被参考字段是主键
+		创建表时：...foreign key(参考字段名) reference 主表(被参考字段名) on delete 级联动作(cascade) on update 级联动作
+		已有表时：alter table 表名 add foreign key(参考字段名) reference 主表(被参考字段名) on delete 级联动作 on update 级联动作
+		删除外键：alter table 表名 drop foreign key 外键名;
+		查看外键: show create table 表名;
+		级联动作：1.cascade：数据级联删除，级联更新   2.restrict(默认)：从表中有相关联记录，不允许主表操作   3.set null：主表删除，更新，从表相关联记录字段值为NULL
+ 
+ 数据导入：把文件系统中内容导入到数据库中(.csv 可用execl表格打开)
+	语法格式：load  data infile "文件名"  into table 表名 fields terminated by "分隔符" lines terminated by "\n";
+	导入：1.在数据库中创建对应的表   2.1查看搜索路径show variables like "secure_file_priv"     2.2 执行数据导入,文件需在指定目录下
+ 数据导出：把输出到终端的数据表的记录导出到系统文件里
+	语法格式： select ... from 表名 into outfile "文件名" fields terminated by "分隔符" lines terminated by "\n";
+ 
+ 表的复制：
+	语法：create table 表名 select ... from 表名 where 条件;
+ 
+ 复制表结构：
+	语法：create table 表名 select ... from 表名 where false;
+ 
+ 嵌套查询(子查询)：把内层的查询结果作为外层的查询条件
+	语法：select ... from 表名 where 字段名 运算符 (select ... from 表名 where 条件);
+ 
+ 多表查询：
+	1.笛卡尔积：不加where条件
+		语法：select ... from 表1,表2;  
+	2.加where条件
+		语法: select ... from 表1,表2 where 条件;
+ 
+ 连接查询：多张表(比多表查询效率高)
+	1.内连接(inner join)
+		语法格式: select 字段名列表 from 表1 inner join 表2 on 条件 inner join 表2 on 条件 ...;
+	2.外连接：没匹配到的用NULL填充
+		2.1 左连接(left join):以左表为主，显示查询结果
+			select 字段名列表 from 表1 left join 表2 on 条件 left join 表2 on 条件;			
+		2.2 右连接(right join)：以右表为主显示查询结果
+			select 字段名列表 from 表1 a right outer join 表2 on 条件;
+			
+ 锁：解决客户端并发访问的冲突问题
+	分类：
+		锁类型：读锁(共享锁)：有读锁时，无法更改      写锁(互斥锁，排他锁)：有写锁时，无法查与更新
+		锁粒度：行级锁row：Innodb          表级锁：MyISAM
+ 
+ 存储引擎(engine：处理表的处理器):
+	查看所有：show engines;
+	查看已有表：show create table 表名;
+	指定：create table ... engine=myisam charset=utf8;  或 alter table 表名 engine=myisam;
+  InnoDB:
+		1.支持事务、外键、行级锁    
+		2.共享表空间
+			表名.frm:表结构和索引信息
+			表名.idb:表记录
+  Myisam：
+		1.支持表级锁
+		2.独享表空间
+			表名.frm:表结构
+			表名.MYD:表记录
+			表名.MYI:索引信息
+  Memory：数据存于内存中，重启表数据消失，表结构还在硬盘
+  
+	执行查询操作多的表使用Myisam     执行写操作多的表使用innodb
+ 
+	账号管理：授权连接
+		grant 权限列表 on 库名.表名 to "用户名"@"%(ip)" identified by "密码"  with grant option;
+		权限列表：all privileges、select 库表.表名、update 库表.表名
+ 
+	数据备份：命令行
+		完整备份：mysqldump -u用户名 -p 源库名 > **.sql
+			源库名：--all-databases         #所有库
+					库名      				#单个库
+					-B 库名1 库名2 ...      #多个库
+					库名 表1 表2 ...		#多表
+		恢复：mysql -u用户名 -p 目标库名 < **.sql		(恢复指定库需要先从库)
+			mysql -u用户名 -p --one-database 库名 < **.sql (从全部备份中恢复一个库，先创建库)
+			恢复库时，要先创建，如果已有库恢复，同名表数据会被覆盖，新增表不会被删除
+		增量备份：
+
+	调优：1.创建索引：(select where order by常涉及到的字段)
+		2.选择合适存储引擎：执行查询操作多的表使用Myisam     执行写操作多的表使用innodb
+		3.sql语句优化(避免全表扫描)
+			1.where 子句尽量不适用 !=  ，否则全表扫描
+			2.尽量避免NULL判断is null，否则全表扫描
+				解决方法：字段设置not null/默认值0
+			3.尽量避免用or连接条件，否则全表扫描
+				解决方法：sql语句用union all拼接
+			4.模糊查询尽量避免使用前置%  ,否则全表扫描
+			5.尽量避免使用in和not in,否则全表扫描	
+				优化前：select id from t1 where id in(1,2,3);
+				优化后: select id from t1 where id between 1 and 4;
+			6.不要使用select * ...
+				解决方法：用具体字段代替* , 不返回用不到的字段
+	事务和事务回滚：
+		事务：一件事从开始发生到结束的整个过程，确保数据的一致性
+		应用：1.begin;(自动关闭autocommit)    2. sql命令...      3.commit;(提交)/rollback;(回滚)
+
+	图形化管理工具：workbench
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

@@ -1,0 +1,82 @@
+
+8个视频分别为不同内容
+
+视频1
+版本控制工具git
+
+视频2
+版本控制工具git
+
+视频3
+正则表达式：
+
+视频4
+版本控制工具git
+
+视频5
+mysql项目
+
+视频6
+注册登陆项目
+
+
+视频7
+pip使用
+	管理python的标准第三方库中第三方软件包
+	常用命令：
+		pip3  install   第三方库名  		  #安装第三方库
+		pip3  list                            #查看清单
+		pip3  search    package               #搜索
+		pip3  show      package               #查看包的信息   
+		pip3  install   --upgrade  package	  #升级
+		pip3  uninstall package      		  #卸载
+		pip3  freeze > requirements.txt       #导出python环境
+		pip3  install  -r  requirements.txt   #根据文件自动安装环境
+		
+		
+PDB模块调试
+	功能：断点设置，单步执行，查看代码，查看函数，跟踪变量等
+import pdb
+pdb.set_trace()  		#代码段配置进入pdb调试模式
+python3 -m pdb *.py		#命令行直接进入pdb调试模式运行
+	命令:
+		b break  		设置断点
+		c continue  	继续执行
+		n next    		单步执行
+		s step 			单步执行，可以进入函数内部
+		l list			查看代码段
+		pp				查看某个变量值
+		exit			退出pdb调试
+		help			帮助
+
+
+视频8：承接视频7
+httpserver 
+	获取http请求
+	解析http请求
+	将请求发送给webframe
+	从webframe接收反馈数据
+	将数据组织为response格式发送给客户端
+
+webframe
+	从httpserver接收具体请求
+	根据请求进行逻辑处理和数据处理
+		静态页面
+		逻辑数据
+	将需要的数据反馈给httpserver
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

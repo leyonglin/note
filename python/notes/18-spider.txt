@@ -1,0 +1,860 @@
+
+
+01： 爬虫的基础 分类 用途 法律风险 爬取网站前的准备工作 爬虫的广度优先简介 深度
+优先策略 
+
+django部署：
+	uwsgi:web服务器与web框架之间一种简单而通用的接口
+		1.确保Django项目能够运行
+			python3 manager.py runserver 0.0.0.0:8888
+		2.安装web服务器
+			1.安装
+			2.启动
+			3.验证：访问127.0.0.1
+		3.安装uwsgi
+			1.安装：pip3 install uwsgi
+			2.验证: uwgsi --http :9000 --chdir project_path --module project_Directory/wsgi.py
+				访问：127.0.0.1:9000
+	
+	项目部署
+		1.配置uwsgi(配置文件)和nginx通信端口  启动端口
+			1.在项目根目录(manager.py所在目录)中新建uwsgi启动文件:pro_nameUwsgi.ini
+				cat fruitdayUwsgi.ini
+					[uwsgi]
+					#指定和nginx通信端口
+					socket=127.0.0.1:8001
+					#项目路径
+					chdir=根目录
+					#wsgi.py路径
+					wsgi-file=project_Directory/wsgi.py
+					#进程数
+					processes=4
+					#线程数
+					thread=2
+					#uwsgi自身占用端口
+					stats=127.0.0.1:8080
+			2.配置nginx配置文件
+				cat uwsgi.conf
+					server{
+						listen 80;
+						server_name www.uwsgi.com;
+						#指定字符集
+						charset utf-8;
+						#指定收集静态文件路径
+						location /static{
+							alias 项目根目录/static;
+						}
+						#和uwsgi通信端口和通信文件
+						localtion /{
+							include uwsgi_params;
+							uwsgi_pass 127.0.0.1:8001;
+						}
+					}
+				拷贝uwsgi_params到项目根目录
+				修改默认访问路径并启动服务
+				
+			3.收集静态文件
+				1.在setting.py文件中添加路径(STATIC_ROOT)
+					STATIC_ROOT="项目根目录/static"
+				2.python3 manager.py collectstatic
+	
+			4.uwsgi启动项目
+				cd 项目根目录
+				uwsgi --ini  project_Directory/pro_nameUwsgi.ini
+
+
+1.网络爬虫
+	1.网络蜘蛛/网络机器人，抓取网络数据的程序
+	2.总结：用python程序模仿人类去访问网站，模仿的越逼真越好
+	3.用途：数据分析
+		python：请求模块，解析模块丰富成熟，强大的scrapy框架
+		java：代码笨重，代码量大
+		php：对多线程，异步支持不是很好
+		c++：效率高但代码成型慢
+	4.爬虫分类
+		1.通用网络爬虫(搜索引擎，遵守robots协议)
+			robots协议：https://www.taobao.com/robots.txt
+			1.搜索引擎如何获取1个新网址的url
+				1.网站主动向搜索引擎提供(百度站长平台)
+				2.和DNS服务商(万网)合作，快速收录新网站
+		2.聚焦网络爬虫
+			面向需求的爬虫：自己写的爬虫程序
+	5.数据爬取步骤
+		1.确定要爬取的url地址
+		2.向网站发请求获取相应的html页面
+		3.提取html页面中有用的数据
+			1.所需数据，保存
+			2.页面中新的url，继续第二步
+	6.Anaconda和spyder
+		1.Anaconda：科学计算的继承开发环境(集成多个库)
+		2.spyder：开发工具(编辑器)
+			常用快捷键
+				1.注释/取消注释：C+1
+				2.运行程序：F5
+				3.自动补全：tab
+	7.chrome插件
+		JSONView
+		Proxy SwitchyOmega
+		XPath Helper
+	8.GET和POST
+		1.GET：查询参数会在URL地址上显示，进行拼接
+		2.POST：查询参数和需要提交的数据隐藏在Form表单中，不会在URL中显示
+		3.url：  #瞄点   ?后面带参数   &参数分隔号
+		4.User-Agent
+			记录了用户的浏览器，操作系统等
+	9.请求模块：
+		1.模块：urllib.request
+		2.常用方法：
+			1.urllib.request.urlopen("url地址")
+				作用：向网站发起一个请求，并获取响应
+			2.urllib.request.Request({User-Agent})
+				1.使用流程
+					1.利用Request()方法构建请求对象
+					2.利用urlopen()方法获取响应对象
+					3.利用响应对象的read().decode("utf-8")获取内容
+				2.参数
+					1.url
+					2.headers = {"User-Agent":" "}
+			3.响应对象(res)的方法
+				1.res.read():读取服务器响应的内容
+				2.res.getcode():返回HTTP的响应码
+				3.geturl()
+					返回实际数据的URL
+		3.urllib.parse模块：url编码模块
+			作用：将url的汉字进行编码，使浏览器能识别，有多个参数，会自动用&拼接
+			1.urlencode(字典)：{"wd":"美女"}
+				例如：urllib.parse.urlencode({"wd":"美女","pn":50})
+			2.quote("字符串")
+			3.unquote("字符串")
+
+
+
+请求方式及参数
+	GET：查询参数会在URL地址上显示
+	POST
+		1.特点：URL地址无变化，数据是在Form表单中
+		2.data：表单数据要以bytes类型提交，不能是string
+		3.处理表单数据为bytes数据类型
+			1.把form表单数据定义为1各大字典
+			2.urlencode(data).encode("utf-8")
+				先编码得到字符串，再转码得到bytes数据类型
+	JSON模块
+		1.json.loads(json格式的字符串)
+			把json格式的字符串转为python中的字典
+			json.loads("key":"value")
+
+正则表达式(re解析模块)
+	1.re使用流程
+		1.re使用方法1
+			1.创建编译对象：p = re.compile(r'正则表达式')
+				转义实例：或者直接加r就行了
+					import re
+					#理解1：首先python会对'\\\\'进行转义，得到正则表达式"\\"，在正则表达式里，要匹配\是要转义，即正则表达式要是"\\"
+					#理解2：要匹配字符串中的"\",由于"\"是特殊字符，因此正则表达式必须是"\\"才能匹配的上。但是，由于"\"在python中也是特殊字符，需要对每个"\"转义,因此变成"\\\\"
+					rlist=re.findall('\\\\',"aaa\dbbb")
+					print(rlist)
+					#得到结果是['\\']，即匹配成功(python输出"\"，由于"\"是特殊字符，因此python输出时会对"\"进行转义)
+			2.匹配字符串：rlist=p.findall("key":"value")
+		2.re使用方法2
+			rlist=re.findall(r'正则表达式',html)
+	2.表达式
+		a  						单个字符，包括汉字    
+		|  						或(已匹配过的字符，就不会再匹配)
+		.  						匹配除换行外的任意字符
+		^  						匹配字符串的开始位置
+		$  						匹配字符串的结束位置
+		*  						匹配前一个字符出现0次或多次
+		+  						匹配前一个字符出现1次或多次
+		？ 						匹配前一个字符出现0次或1次
+		{n}						匹配n次重复次数
+		{m,n}       			匹配m到n次重复次数(包含mn)
+		.+/.*       			匹配全部
+		[字符集]    			匹配字符集中任意一个字符([_a-zA-Z0-9])
+		[^字符集]   			过滤，即除字符集外的任意字符
+		\d == [0-9]				匹配任意数字字符
+		\D == [^0-9]			匹配任意非数字字符
+		\w                      普通字符(字母数字下划线及汉字)
+		\W						非普通字符
+		\s						匹配任意空字符[\r\t\n\v\f ]
+		\S                      匹配任意非空字符
+		\A == ^                 匹配字符串的开始位置
+		\Z == $                 匹配字符串的结束位置
+		\b						匹配单词边界位置(普通字符和非普通字符交界认为是单词边界)
+		\B						匹配非单词边界位置
+
+		匹配所有字符的方式:
+			[\s\S]*
+			.*,re.S(作用：匹配\n在内的所有字符)
+
+
+
+
+
+
+
+02： HTTPS协议解析 用抓包工具抓取分析网络数据包 BeautifulSoup XPath 
+
+1.数据分类
+	1.结构化的数据
+		特点：有固定的格式(html/xml/json)
+	2.非结构化数据
+		一般为二进制
+2.常用匹配:
+	p = re.compile(r"正则表达式",re.S)
+	robj = p.match(html)              #匹配字符串开头
+	r = r.group()
+3.常用方法：
+	1.findall(html)      所有全部匹配，返回1个列表
+	2.match(html)        匹配字符串开头，返回对象
+	3.search(html)       从开始匹配，匹配到第一个结束
+	4.对象.group()       从match或search返回对象中取结果
+
+
+4.CSV模块使用流程
+	1.打开csv文件
+		with open("测试.csv","w",newline="",encoding="") as f:
+	2.初始化写入对象
+		writer=csv.writer(f)
+	3.写入数据
+		writer.writerow(列表)
+		...
+5.数据持久化存储
+	1.mongodb
+	2.mysql
+	3.Anaconda安装
+		conda install pymongo
+6.远程连接数据库
+	1.bind-address = 0.0.0.0
+	2.添加用户
+		grant all privileges on *.* to "user@ip" identified by "passwd" with grant option;
+	3.防火墙
+
+
+
+
+
+03： HTTP协议的GET POST方法在爬虫中的使用 动态网站的Selenium+浏览器方案抓取 代理服务器的使用 
+
+http协议是一种无连接协议，客户端和服务端交互仅局限于请求/响应，为了维护连接，客户端在cookie保存用户信息
+	cookie：客户端信息保存用户身份
+	session：服务端信息确认用户身份
+	headers = {"User-Agent":"Mozilla/5.0"
+		"cookie":""
+		}
+
+
+requests模块(第三方模块)
+	1.常用方法
+		1.get(url,headers=headers)
+	2.响应对象res属性
+		1.encoding：响应编码
+		  res.encoding = "utf-8"
+		2.text  :字符串
+		3.content ：bytes(非结构化数据/二进制)
+		4.status_code:HTTPS响应码
+		5.url:返回实际数据的URL地址
+	3.get()方法中参数
+	res = requests.get(url,params,headers,proxies,auth,verify)
+		1.查询参数:字典
+			网址：https://www.baidu.com/s?wd=美女&pn=90
+				params = {
+					"wd":key,
+					"pn":pn,
+					}   				#会自动编码和拼接
+				res = requests.get(url,params=params,headers=headers)
+				
+		2.使用代理(proxies)
+			快代理/全网代理
+			透明/高匿
+			1.格式： 			
+			#普通代理
+				proxies = proxies={"协议":"协议://IP:端口号"}
+			#私密代理
+				proxies = {"http":"http://用户名:密码@IP地址:端口号"}
+			验证：http://httpbin.org/get	
+		3.web客户端验证(auth)
+			1.auth = ("用户名","密码")
+
+		4.SSL证书认证(verify)
+			1.verify = True(默认)：进行CA证书认证
+			2.verify = False: 不进行认证      #参数为True进行认证，访问https网站(没有进行CA认证)，抛出异常：SSLError
+
+	4.post
+		1.requests.post(url,data=data,headers=headers,...)    #其它get参数也可以用
+			data:字典，Form表单数据，不用编码，不用转码
+		
+xpath工具(解析)
+	1.在XML文档中查找信息的语言，同样适用于HTML文档的搜索
+	2.xpath辅助工具
+		1.Chrome插件：XPath Helper
+			打开/关闭:C+S+x
+		2.Firefox插件：XPath Checker
+		3.XPath编辑工具：XML quire(不常用)
+			1.//:从整个文档中查找节点
+			2.@:选取某个节点的属性值
+				//title[@lang="en"] 或者 //tite[@lang] 或者 //title/@lang
+			3.匹配多路径
+				1.xpath表达式1 | xpath表达式2
+				2.获取所有book节点下的title子节点和price子节点
+					//book/title | //book/price
+			4.函数
+				1.contains():匹配一个属性值中包含某些字符串的节点
+					//title[contains(@lang,"e")]
+				2.text()：获取标签之间文本(<a href="/" id="channel">新浪社会</a>的新浪社会)
+					//title[contains(@lang,"e")]/text()
+
+			
+				#查找所有book节点一下的title子节点中，lang属性为"en"的节点
+					//book/title[@lang="en"]  
+				#查找bookstore下的第2个book节点下的title子节点
+					/bookstore/book[2]/title
+	
+lxml库及xptath使用
+	1.使用流程
+		1.导模块
+			from lxml import etree
+		2.创建解析对象
+			parseHtml=etree.HTML(html)
+		3.调用xpath
+			rlist=parseHtml.xpath('xpath表达式')
+			
+			
+
+抓包工具fiddler
+	1.配置：Tools -- HTTPS -- 1.Decrypt HTTPS traffic(抓取https包)/Actions(信任root证书) -- 2.from browsers only(只抓取浏览器的包) -- 3.connections(代理端口)
+		右半边---Inspectors --1. Headers(请求头数据)  -- 2.webforms(post) -- 3.raw(将请求头转换成纯文本)
+	2.浏览器配置：switchyomega(浏览器插件) -- 选项 --新建情景模式 -- 代理服务器和代理端口 -- 应用选项  然后，在插件出选择新建的情景模式
+		如果关闭fiddler的时候，需要将switchyomega切换成系统代理
+
+
+
+ubuntu防火墙：ufw
+
+
+
+
+04： Cookie Session的使用 Cookiejar的管理 表单提交 
+
+Handler处理器(urllib.request)
+	1.使用流程
+		1.创建Handler对象
+			phandler = urllib。request。Proxy Handler({字典})
+		2.创建opener对象
+			opener = urllib.request.build_opener(phandler)
+		3.发请求获响应
+			req = urllib.request.Request(url,headers=headers)
+			res=opener.open(req)
+	2.分类
+		1.ProxyHandler({普通代理字典})
+		2.ProxyBasicAuthHandler(密码管理器对象)
+		3.HTTPBasicAuthHandler(密码管理器对象)
+		4.流程
+			1.密码管理器对象操作
+				1.pwdmg = urllib.request.HTTPPassword...
+				2.pwding.add_password(None,{"http":"IP:端口"},"user","pwd"
+
+
+
+
+
+
+05： 数据的持续化存储 数据库的使用 多进程 多线程在爬虫框架中的使用 
+
+
+Ajax动态加载
+	1.抓包工具：WebForms -> QueryString
+	2.parmas = {QueryString一堆查询参数}
+	3.URL地址：抓包工具Raw下的GET地址
+
+
+
+selenium + phantomjs/chromedriver 强大网络爬虫组合
+	1.selenium(模块)
+		1.web自动化测试工具，应用于web自动化测试
+		2.特点：
+			1.可以运行在浏览器，根据指定命令操作浏览器，让浏览器自动加载页面
+			2.需要与第三方浏览器结合使用
+	2.phantomjs（应用程序）
+		1.无界面浏览器(无头浏览器)
+		2.特点：
+			1.把网站加载到内存进行页面加载
+			2.运行高效
+	3.chromedriver可设置有/无界面（程序）
+		chromdriver.storage.googleapis.com(需要与谷歌浏览器版本一致)
+	4.打开百度/发送文字并点击，最后获取页面截图
+	5.浏览器对象(driver)的方法
+		1.driver.get(url):发请求，或响应
+		2.driver.page_source:获取html源码
+		3.driver.page_source.find('字符串'):从源码找字符串，查找失败返回-1
+	6.单元素查找（节点对象，只查找第一个search）
+		1.driver.find_element_by_id('')
+		2.driver.find_element_by_name('')
+		3.driver.find_element_by_class_name('')
+		4.driver.find_element_by_xpath('')
+	7.多元素查找
+		1.driver.find_elements_by_id('')
+		2.driver.find_elements_by_name('')
+		3.driver.find_elements_by_class_name('')
+		4.driver.find_elements_by_xpath('')
+		返回值是一个列表
+	8.节点对象.send_keys('')     #发送文字
+	9.节点对象.click()			 #点击
+	10.chromdriver参数
+		百度  "ChromeOptions()"
+
+
+
+
+06： Scrapy框架的使用以及如何对爬虫进行分页 去重 
+
+进程：系统正在运行的一个程序
+	1个cpu在同一时间只能执行一个进程
+线程：一个进程可包含多个线程
+	GIL(全局解释锁)导致1个cpu只能运行一个线程
+	
+1.队列(from queue import Queue)
+	put()
+	get()
+	Queue.empty():是否为空
+	Queue.join():如果队列为空，执行其它程序
+2.线程(import threading)
+	threading.Thread(target=...)
+
+
+BeautifulSoup解析
+	1.定义：HTML或XML的解析器，依赖于lxml
+	2.安装：python -m pip install beautifulsoup4
+	3.使用流程：
+		1.导模块
+			from bs4 import BeautifulSoup
+		2.创建解析对象
+			soup = BeautifulSoup(html,'lxml')
+		3.查找节点对象(列表)
+			soup.find_all("div",attrs={"class":"test"})
+	4.BeautifulSoup支持的解析库
+		1.lxml:soup = BeautifulSoup(html,"lxml")  #筛选速度快，容错率强
+		2.html.parser:python标准库				  #一般
+		3.xml：速度快								
+	5.节点选择器
+		1.选择节点并获取内容
+			节点对象.节点名.string
+	6.find_all():返回列表
+
+
+scrapy框架
+	1.定义：异步处理框架，可配置和可扩展程度非常高
+	2.scrary startproject pro_name
+	3.scrapy组件：
+		 爬虫程序：发送url，解析返回内容
+		1.scrapy引擎(engine):框架的核心
+		2.调度器(scheduler):接收从引擎发过来的URL，入队列
+		3.下载器(downloader):获取网页源码，返回爬虫程序
+		4.下载器中间件(downloader middlewares)）：在引擎去往下载器的中间
+			蜘蛛中间件(spider middlewares)：在引擎返回爬虫程序的中间
+		5.项目管道(item pipeline):数据处理
+
+	4.制作scrapy爬虫项目的步骤
+		1.新建项目,执行命令
+			scrapy startproject pro_name
+		2.明确目标(items.py)
+			编辑items.py文件
+				name = scrapy.Field()
+		3.制作爬虫程序
+			进入导spiders文件夹中，执行命令:
+				scrapy genspider 文件名 "域名"
+		4.处理数据(pipelines.py)
+		5.配置settings.py
+		6.运行爬虫程序
+			1.scrapy crawl 爬虫名
+			2.保存为csv文件：scrapy crawl 爬虫名 -o 文件名.csv
+			
+	5.scrapy项目文件讲解
+
+		Baidu/   						#执行命令scrapy startproject Baidu
+		├── Baidu                       #项目目录
+		│   ├── __init__.py
+		│   ├── items.py				#定义爬取的数据结构
+		│   ├── middlewares.py			#下载器中间件和蜘蛛中间件
+		│   ├── pipelines.py			#管道文件，处理数据
+		│   ├── settings.py				#项目全局配置
+		│   └── spiders					#文件夹，存放爬虫程序
+		│       ├── baiduspider.py		#爬虫程序，执行命令：scrapy genspider baiduspider  "www.baidu.com"
+		│       └── __init__.py
+		└── scrapy.cfg					#基本配置文件，一般不用改
+
+	6.运行流程
+		1.Engine想spider索要URL(爬虫文件的第一个start_urls)
+		2.交给Scheduler入队列
+		3.scheduler出队列，通过downloader middlewares交给downloader
+		4.下载完成，通过spider middlewares给spider
+		5.spider做数据提取
+			1.把数据交给Item Pipeline 
+			2.把需要跟进url交给scheduler入队列
+		6.当scheduler中没有任何request请求后，程序结束
+		
+
+
+
+
+
+
+07： 爬虫项目实战：猫眼 豆瓣电影数据抓取 腾讯招聘网站数据抓取 淘女郎图片抓取
+
+yield：把一个函数当成一个生成器使用，通过对象.__next__()一个一个取出
+
+
+	网址：https://blog.csdn.net/qq_39305249/article/details/102628783
+	爬取标题  时间  数量
+	xpath:
+		//h1[@class="title-article"]/text()
+		//div[@class="article-bar-top"]/span[@class="time"]/text()
+		//div[@class="article-bar-top"]/span[@class="read-count"]/text()
+
+
+
+1.scrapy startproject Csdn
+2.cd Csdn/Csdn
+3.scrapy genspider csdn blog.csdn.net
+4.修改items.py（爬取数据）
+5.修改csdn.py（start_urls）及自定义类匹配出值并return给pipelines.py
+6.修改setting.py
+7.常见begin.py执行文件(与items同级目录)	
+	from scrapy import cmdline
+	cmdline.execute('scrapy crawl tengxun'.split())
+	cmdline.execute('scrapy crawl tengxun -o 文件名.csv'.split())
+
+
+
+
+1.extract():获取选择器对象中的文本内容
+	response.xpath('')  --> 结果:[<selector ...,data='文本内容'>]
+	response.xpath('').exreact()[0]  -->结果：文本内容
+2.爬虫程序中，start_urls必须为列表
+3.pipelines.py中必须有1个函数叫：
+	def process_item(self,item,spider):
+		pass(处理item的)
+
+4.58招聘项目(数据持久化存储)
+	1.网站：https://bj.58.com/kefu/
+			https://bj.58.com/kefu/  pn1/
+	2.xpath匹配
+		表达式：//ul[@id="list_con"]/li
+		岗位：//span[@class="name"]
+		地点：//span[@class="address"]		
+		薪资：//p[@class="job_salary"]
+		待遇：//div/span[2]
+		链接：//a/@href
+
+5.日志级别及保存日志文件
+	LOG_LEVEL=""
+	LOG_FILE='文件名.log'
+		LOG_ENABLED 默认: True，启用logging	
+		LOG_ENCODING 默认: ‘utf-8’，logging使用的编码	
+		LOG_FILE 默认: None，在当前目录里创建logging输出文件的文件名
+		LOG_LEVEL 默认: ‘DEBUG’，log的最低级别
+	5层警告级别
+		CRITICAL - 严重错误
+		ERROR - 一般错误
+		WARNING - 警告信息
+		INFO - 一般信息
+		DEBUG - 调试信息
+
+ajax：可以查看F12的xhr
+	有一些跳转的url是和ajax中的值进行拼接而成的，同时有着其它的信息
+
+
+6.保存为csv或json文件
+	保存为csv/json文件：scrapy crawl 爬虫名 -o 文件名.csv/json
+	settings.py
+		FEED_EXPORT_ENCODING = 'utf8'   设置导出格式
+	设置导出空行问题：修改源码(百度)
+
+
+7.盗墓笔记：http://www.daomubiji.com/dao-mu-bi-ji-1
+	基准：
+		response.xpath('//article/a/text()').extract()
+		for r in []:
+			标题
+			章节数
+			章节名称
+			链接 '//article/a/@href'[i]
+			yield item
+
+
+8.scrapy shell
+	1.用法：scrapy shell URL
+		response.headers
+		request.headers：请求头
+		response.text：string类型
+		response.body：bytes类型
+		request.xpath('')
+	2.scrapy.Request()常用参数:
+		request.meta
+			定义代理等参数相关信息
+			不同请求之间传递数据
+		dont_filter:是否忽略域组限制
+			默认False：检查allowed_domains
+		encoding:默认utf-8
+		callback: 指定解析函数
+9.下载器中间件（随机User-Agent）
+	1.setting.py(适合少量)
+		1.User_Agent
+		2.DEFAULT_REQUEST_HEADERS={}
+	2.middlewares.py设置中间件
+		1.创建一个新的存放user_agent的python文件
+		2.在middlewares.py中导入并自定义类并重写process_request方法
+		3.在settings.py注册
+10.下载器中间件（随机代理）
+		1.创建一个新的存放user_agent的python文件
+        2.在middlewares.py中导入并自定义类并重写process_request方法(和useragent是一样的方法)
+        3.在settings.py注册
+
+11.CrawlSpider类
+	1.Spider的派生类
+		from scrapy.spiders import CrawlSpider
+		定义一些规则来提取跟进链接，从爬取的网页中提取链接并继续爬取
+	2.提取链接的流程(LinkExtractor)
+		1.scrapy shell URL
+		2.from scrapy.linkextractors import LinkExtractor
+		3.LinkExtractor(allow='').extract_links(response)
+	3.创建爬虫文本模板（CrawlSpider类）
+		cd Baidu/Baidu(不要与原模版文件名及name重名)
+		scrapy genspider -t crawl 爬虫名 域名
+12.scrapy redis-key
+	
+https://github.com/rmax/scrapy-redis
+	
+        
+
+视频4与视频3顺序颠倒
+	
+
+
+
+分布式原理(共享爬取队列)
+	安装scrapy_redis
+	1.redis_key使用
+		1.爬虫文件
+			from scrapy_redis.spiders import RedisCrawlSpider
+			class MyCrawler(RedisCrawlSpider):
+			将 start_urls 替换成 redis_key = 'mycrawler:start_urls'
+	2.把项目拷贝到分布式的不同服务器上，
+		运行项目scrapy crawl mycrawler_redis
+		或者 cd spiders && scrapy runspider mycrawler_redis.py
+	3.进入windows的redis,发送redis_key
+		redis-cli -hIP
+		>>lpush mycrawler:start_urls URL
+	
+setting.py配置
+	重新配置各模块
+		SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+	去重
+		DUPEFILTER_CLASS="scrapy_redis.dupefilter.RFPDupeFilter"
+	保持调度器队列，断点续爬（不会清空指纹）
+		SCHEDULER_PERSIST = True
+	管道：数据处理
+		ITEM_PIPELINES = {
+			'scrapy_redis.pipelines.RedisPipeline': 400,
+		}
+	配置redis数据库链接地址
+		REDIS_HOST='127.0.0.1'
+		REDIS_PORT=6379
+
+
+redis是非关系型数据库，key-value形式存储，结构灵活
+redis集合，存储每个request的指纹(加密存储，相同的值不进行第二次存储)
+
+
+
+验证码处理
+	1.OCR(Optical Character Recognition):光学字符识别
+		通过字符性值 --> 电子文本
+	2.tesseract-ocr(谷歌维护的OCR开源库，不能import)
+		1.windows安装
+			下载网址：https://sourceforge.net/projects/tesseract-ocr-alt/files/
+			安装完成后添加到环境变量
+			验证：tesseract test1.png aaa
+		2.python模块：pytesseract
+			pip/conda install pytesseract
+		3.pytesseract使用示例
+			s=spytesseract.image_to_string(图像对象)
+	3.打码平台
+		1.tesseract-ocr识别率很低，很多文字变形，干扰，识别率不高
+		2.在线打码：识别率高
+			1.云打码：http://www.yundama.com/apidoc/
+			
+
+获取图片：
+	https://image.so.com/zjl?ch=photography&t1=226&listtype=new&temp=1&sn=60
+	sn=0，获取1-30图片
+	sn=30，获取31-60图片
+
+	ch: photography
+	t1: 226
+	sn: 90
+	listtype: new
+	temp: 1
+
+
+
+
+
+
+
+
+
+6-11是一个django项目
+
+php：web端，不需要编译，编写完成就能直接看到效果，不稳，交易系统基本不用
+java:笨重但是稳,交易系统会用。hadoop使用java写的
+数据库物理删除和逻辑删除
+token：账号密码时间戳等进行哈希计算   表/浏览器cookie/网站cookie/session
+
+tornado：天生异步
+flask：小巧灵活
+django：大而全，并且很多东西都内置
+
+
+
+二手车网站
+
+	了解项目，了解项目流程，了解项目功能
+	判断可行性
+	通过UI设计图分析功能
+	通过大体实现方案，设计表	
+
+
+项目简介
+进入２１世纪以来，随着国家经济的飞速发展，国民生活水平的不断提高，人们对于生活质量有了更高的需求，汽车对于一个家庭来说可以提供更高的生活上的便利，提高生活的水平，满足日常家庭出行的需求、公司办公需要等，所以中国汽车保有量逐年呈增长趋势，销量有大幅提升。随着汽车数量的不断增加，随之而来的是汽车相关产业井喷式发展。汽车配件，维修，二手车交易等相关产业的觉醒，带来了庞大的需求团体。基于此庞大的市场需求，
+本平台系统将依托于互联网技术搭建一个oto(online to offline,让互联网成为线下交易的平台)模式的二手车自助交易平台,替代原有传统二手车交易市场.将原有纯线下交易模式革新为线上线下相结合,以满足二手车进行线上公开透明交易,线下进行实体汽车交付的需求.使得二手车交易过程变得更加安全、公开、透明、公正。
+
+项目需求
+设计一个二手车交易平台，满足用户进行按角色注册个人信息，交易的车辆信息，可登录查看相关汽车信息，并可进行在线出价，在线交易，查看相关交易信息。
+
+项目流程
+用户浏览网站系统二手车信息（页面展示），查看二手车详细信息（详情页），包括汽车图片、型号、价格、里程、手续资料（ＰＤＦ上传）等等（汽车相关信息），对于有卖车意向的用户（卖家角色），进行在线注册（注册，加密），登录（登录，验证码），完善个人信息（上传资料），上传汽车信息（上传图片，上传资料），完善汽车信息（上传信息），等待平台审核（平台角色，审核功能），等待买家出价（买家角色，出价功能），确定价格，成功交易（成交撮合）。对于有购买意愿的用户（买家角色），注册，登录，完善个人信息，绑定银行卡（绑定银行卡），进行验证（银行卡验证），平台审核，对与有意向的车辆进行出价，双方达成成交，线下交易。生成相关订单文件（生成ＰＤＦ）。
+
+
+结合UI设计图分析功能			 	设计表
+	首页展示						汽车表	
+	列表页展示                      汽车表
+	详情页展示                      汽车表
+	买家卖家角色区分                用户表
+	卖家注册                        用户表
+	验证码
+	邮箱验证，手机号验证
+	完善汽车信息                    汽车表
+	上传图片                        汽车表
+	更改汽车审核状态                汽车表
+	买家注册                        用户表
+	购买出价功能                    出价表
+	银行卡绑定                      银行卡表
+	撮合功能
+	订单功能
+	登陆	
+	生成PDF，打印
+	消息功能
+	卖车列表
+	个人信息展示
+	个人信息修改
+	服务保障
+	在线保障
+	轮播图
+	汽车分类
+	最近浏览
+	
+	新车数据来源(爬虫)
+
+	
+卖家流程：
+	用户注册>登陆>完善个人信息>完善卖车信息>等待审核>发布卖车>确认买家>生成订单
+	
+买家流程：
+	用户注册>登陆>完善个人信息>浏览首页>浏览列表页>浏览详情页>出价>等待撮合>生成订单
+平台
+	审核发布信息，审核订单
+
+
+设计表（记录 --- 删除 --- 时间戳）
+	由依赖以及功能决定
+
+
+
+新建项目
+django-admin startproject pro_name
+新建app(按照功能流程分类/角色分类)方便以后重复使用和多人合作
+python3 manage.py startapp app_name
+
+python3 manage.py startapp userinfo
+python3 manage.py startapp buy
+python3 manage.py startapp sale
+python3 manage.py startapp front
+python3 manage.py startapp pay
+
+每个app添加urls.py
+在settings.py中INSTALLED_APPS的添加应用
+
+在主urls.py中include其它应用url
+
+启动项目
+python3 manage.py runserver 0.0.0.0:8001
+修改setting.py中的允许访问的列表 ALLOWED_HOSTS = ['*']
+
+新建静态页面目录static（放在一个app中就行，有利于前后端分离）
+setting中配置目录添加：STATICFILES_DIRS = os.path.join(BASE_DIR,'static')
+
+创建数据库：create(远程登陆：防火墙，授权及修改bing-address)
+配置数据库:setting.py
+
+配置pymysql
+usercar中的__init__.py
+
+配置models.py
+	继承自django自带的auth认证表
+在setting.py指定auth(user表)使用那张表AUTH_USER_MODEL='userinfo.UserInfo'
+
+初始化m&m
+python3 manage.py makemigrations
+python3 manage.py migrate
+创建超级管理员
+python3 manage.py createsuperuser
+	root  123456
+
+在admin.py中注册数据库
+	admin.site.register(UserInfo)
+	
+
+
+10-01:26
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

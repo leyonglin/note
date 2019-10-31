@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Title</title>
+    <!-- a,get -->
+    <!-- <script>
+        function getXhr(){
+            if(window.XMLHttpRequest){ 
+                return new XMLHttpRequest();              
+            }else{
+                return new  ActiveXObject("Microsoft.XMLHTTP")
+        }
+    }
+    </script> -->
+    <!-- <script src="/static/js/common.js"></script> -->
+</head>
+<body>
+    <!-- a,get -->
+    <!-- <button onclick="console.log(getXhr())">创建xhr</button> -->
+    <!-- a,带参数get -->
+<!--     <p>
+        用户名：<input type="text" id="uname">
+        <br>
+        <button onclick=btnAjax()>发送AJAX请求</button>
+    </p>
+    <div id="show"></div>
+    <script src="/static/js/common.js"></script>
+    <script>
+        //在js中，可以用  alert("我是一个警告框！")  进行调试
+        function btnAjax(){
+            var xhr = getXhr();
+            var uname = document.getElementById('uname').value;
+            var url = "/03-server?uname="+uname;
+            xhr.open('get',url,true);
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4 && xhr.status == 200){
+                    document.getElementById('show').innerHTML = xhr.responseText;
+                }
+            }
+            xhr.send(null)
+        }
+    </script> -->
+    <!-- post请求 -->
+ <!--    <button onclick="btnAjax()">发送POST请求</button>
+    <div id="show"></div>
+    <script src="/static/js/common.js"></script>
+    <script>
+        function btnAjax(){
+            var xhr = getXhr();
+            xhr.open('post','/04-server',true);
+            xhr.onreadystatechange = function(){
+                if(xhr.readyState == 4 && xhr.status == 200){
+                    document.getElementById('show').innerHTML = xhr.responseText;
+                }
+            }
+            xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded")
+            params="uname=wangwc&age=35"
+            xhr.send(params);
+        }
+    </script> -->
+
+<!-- 鼠标焦点 -->
+<!-- <script>
+    $(function)(){
+        $("[name='loginname']").blur(function){
+            // this表示dom对象，dom是用.value，jquery使用value方法
+            var lname = this.value
+        }
+    }
+</script> -->
+
+<!-- json -->
+<!-- 这个js是随便导入的一个，结果不是很多 -->
+<!-- <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script>
+    var arr = [
+    {
+        "name":"jiayao",
+        "age":17,
+        "gender":"女"
+    },
+    {
+        "name":"jiayao1",
+        "age":18,
+        "gender":"女"
+    },
+    {
+        "name":"jiayao2",
+        "age":19,
+        "gender":"女"
+    }
+    ];
+    $(function(){
+        $("#btnShow").click(function(){
+            var html = "";
+            // 循环遍历arr中的每个元素以及每个属性，将遍历出来的内容拼接到html之后
+            $.each(arr,function(i,obj){
+                html += "<tr>";
+                    html += "<td>"+obj.name+"</td>";
+                    html += "<td>"+obj.age+"</td>";
+                    html += "<td>"+obj.gender+"</td>";
+                html =+ "</tr>";
+            });
+            console.log(html);
+            $("#content").html(html);
+        });
+    });
+</script>
+<button id="btnShow">显示</button>
+<table whidth="400" border="1">
+    <thead>
+        <tr>
+            <th>姓名</th>
+            <th>年龄</th>
+            <th>性别</th>
+        </tr>
+    </thead>
+    <tbody id="content">
+        <tr>
+        </tr>
+    </tbody>
+</table> -->
+
+
+
+
+
+
+
+</body>
+</html>

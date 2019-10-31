@@ -1,0 +1,729 @@
+
+01： 对象和类
+	模块包含类，类被导入的时候，和函数被导入是一样的。
+面向过程编程：基本单位是函数
+面向对象编程object-oriented programming：一种将一切看作物体的思维，以类为单位
+面向对象：把一切看成对象(实例)，用各种对象之间的关系来描述事务
+	对象的特征：1.对象有很多的属性    2.对象有很多的行为(动作)
+类：拥有相同属性和行为的对象分为一组，即为一个类。是用来描述对象的工具，用类可以创建此类的对象(实例)
+	类的创建语句class语句
+		语法：
+			class 类名(继承列表):
+				'''文档字符串'''
+				实例方法定义
+				类变量定义
+				类方法定义(@classmethod)
+				静态方法定义(@staticmethod)
+		作用：1.创建一个类   2.用于描述对象的行为和属性    3.用于创建此类的一个或多个对象(实例)
+			说明：1.类名必须为标识符(建议首字母大写)    2.类名实质上就是变量，它绑定一个类
+		
+	构造函数(对象)
+		构造函数调用表达式：
+			类名([创建传参列表])
+		作用：创建这个类的实例对象，并返回此实例对象的引用关系
+		说明：实例有自己的作用域和名字空间，可以为该实例添加实例变量(属性)
+			  实例可以调用类方法和实例方法
+			  实例可以访问类变量和实例变量
+	对象有两种特征: 1.实例属性   2.实例方法(描述行为 )		  
+	实例方法(method)
+		语法：
+			class 类名(继承列表):
+				def 实例方法名(self, 形参名1, 形参名2, ...):
+					'方法文档字符串'
+					语句块
+		作用：用于描述一个对象的行为，让此类型的全部对象都拥有相同的行为
+		说明：实例方法实质是函数，是定义在类内的函数
+			  实例方法至少有一个形参，第一个形参用来绑定调用这个方法的实例，一般命名为'self'
+		实例方法的调用语句：
+			实例.实例方法名(调用传参)     #实例方法名 = 类内的函数名
+			或
+			类名.实例方法名(实例,调用传参)
+	实例属性attribute(实例变量)：每个实例可以有自己的变量用来保存对象自己的数据，称为实例变量(属性)
+		语法：
+			实例.属性名
+		赋值规则同变量的赋值规则：
+			1.首次为属性赋值则创建此属性    
+			2.再次为属性赋值则改变属性的绑定关系
+		作用：记录每个对象自身的数据
+		实例：
+			class Dog:                                                   #创建类
+				def eat(self, food):                                     #创建实例方法(共性),self被赋值为实例对象
+					print(self.color, '的', self.kinds, '正在吃', food)   #可以调用实例属性
+					self.food=food                                       #实例属性赋值(个性)，保存对象自己的数据，该属性由dog1.eat('骨头')传参执行后赋值的，和dog1.kinds='二哈'作用是一样的
+				def show_food(self):
+					# print(self.color, '的', self.kinds, '正在吃1', food) #会失败，显示food未定义。kinds和color不会报错，在外面已经进行实例属性赋值了  
+					print(self.color, '的', self.kinds, '上次吃的是', self.food)
+			
+			dog1=Dog()                                                   #创建实例对象
+			dog1.kinds='二哈'                                            #实例属性赋值
+			dog1.color='白色'                                            #实例属性赋值
+			print(dog1.color, '的', dog1.kinds)                          
+			dog1.eat('骨头')                                             #传递参数，并通过self.food=food 进行实例属性赋值       
+			dog1.show_food()                                             
+
+	del 语句：可以删除对象(实例)的属性
+		语法：del 对象.实例变量名
+		1.删除变量 2.删除列表的元素   3.删除字典的键   4.删除对象的属性
+
+	初始化方法：对新创建的对象添加属性
+		语法格式：
+			class 类名(继承列表):
+				def __init__(self, [形参列表]):     #color为形参
+					语句块                          #self.color=color初始化实例赋值
+		说明：
+			1.初始化方法名必须为'__init__'不可改变
+			2.初始化方法会在构造函数创建实例后自动调用，且将实例自身通过第一个参数self传入__init__方法
+			3.构造函数的实参将通过__init__方法的参数列表传入到__init__方法中
+			4.实例化方法内如果需要return语句返回，则只能返回None
+	析构方法：
+		class 类名(继承列表):
+			def __def__(self):
+				语句块
+		析构方法在对象被销毁(实例绑定关系改变或实例被删除或程序退出)时被自动调用，可以释放资源(python语言建议不要在对象销毁时做任何事情)
+					
+	预置实例属性：
+		__dict__属性 ：绑定一个存储此实例自身变量字典(存放实例属性)
+
+		__class__属性：绑定创建此实例的类
+			作用：可以借助此属性来访问创建此实例的类
+
+	用于类的函数：
+		isinstance(obj,class_or_tuple) 返回这个对象obj是否是某个类的对象或者某些类中的一个类的对象，如果是则返回True，否则返回False
+		type(obj)  返回对象的类型
+			实例:isinstance(3.14, (int, Dog, float))
+				 type(3.14)("12.34")      
+
+
+
+
+02： 函数重写 str/repr函数重写示例
+
+变量可以使用dir()查看
+类变量是类的属性，此属性属于类，不属于此类的实例
+	作用：通常用来存储该类创建对象的共有属性(类里面的不经初始化方法且非函数全局变量)
+	说明：1.类变量可以通过该类直接访问,可以通过该访问方式(第一种和第三种)修改    2.类变量可以通过类的实例直接访问   3.类变量可以通过此类的对象__class_属性间接访问
+	示例：
+		class Human:
+			man_count = 0          			 #类变量，可以被方法调用
+			def __init__(self):
+				self.__class__.man_count +=1  	 #可被调用
+		h1 = Human()
+		h1.man_count=1000          			 #为示例添加示例属性，不会更改类变量，直接调用则会调用类变量
+		print(Human.man_count)     			 #直接访问类变量，类似 模块名.变量名
+		h1.__class__.man_count +=1 			 #改变类变量
+		
+类的文档字符串：1.可以通过help()查看   2.绑定在类的__doc__属性上   3.第一个没有赋值给任何变量的字符串为类的文档字符串
+
+类的__slots__列表：
+		1.限定一个类创建的实例只能有固定的属性(实例变量)
+		2.不允许对象添加列表以外的实例属性(实例变量)
+		3.防止用户因错写属性名而发生程序错误
+	说明：__slots__属性绑定一个字符串列表
+		含有__slots__属性的类所创建的实例对象没有__dict__属性，即此实例不用字典来存储对象的实例属性	 
+	示例：  
+		class Human:
+			__slots__=[变量列表]      #如果出现其他变量，会报错
+
+类方法:类方法是用于描述类的行为的方法，类方法属于类，不属于类的实例对象，不需要实例化，直接类名.方法名()来调用
+	说明：
+		类方法需要使用@classmethod装饰器定义，目的用来操作类变量
+		类方法至少有一个形参，第一个形参用于绑定类，约定写为'cls'
+		类和该类的实例都可以调用类方法
+		类方法不能访问此类创建的对象的实例属性
+	示例：
+		class A:
+			v=0                    #类变量(属性)
+			@classmethod
+			def get_v(cls):
+				return cls.v         #用cls访问类变量v
+			@classmethod
+			def set_v(cls,a):
+				cls.v=a
+				# print(cls.color)   #类方法不能访问此类创建的对象的实例属性
+		print('A.v=', A.get_v())   #调用类方法得到类变量的值
+		A.set_v(100)               #使用方法调用改变类变量的值
+		print('A.v=', A.get_v())
+		a = A()          
+		print(a.v)      			#实例可以直接访问类变量
+		a.v=200        				 #无法改变类变量，改变的是实例属性
+		print(a.v)     
+		print(A.v)    
+		
+	
+	静态方法@staticmethod:
+		静态方法是定义在类的内部的普通函数，此函数的作用域是类的内部
+		说明：
+			静态方法需要使用@staticmethod装饰器定义
+			静态方法与普通函数定义相同，不需要传入self示例参数和cls类参数
+			静态方法只能凭借该类或类创建的实例调用
+			静态方法不能(也不需要)访问类变量和实例变量
+	实例：
+		class A:
+			@staticmethod            #静态方法
+			def myadd(a, b):         #第一个形参不用是self,就像普通函数一样
+				return a+b
+		print(A.myadd(100,200))      #调用方式：类名.函数()
+		a=A()
+		print(a.myadd(1,20))
+
+
+继承inheritance 和派生derived:方向不同
+	1.继承是从已有的类中派生出新的类，新类具有原类的数据属性和行为，并能拓展新的行为
+		继承的目的是延续旧类的功能
+	2.派生类就是从一个已有的类中衍生出新的类，在新类的基础上添加新的属性和行为	
+		派生的目的是在旧类的基础上改变原有的功能
+	名词：
+		基类(base class)/超类(super class)/父类(father class)
+		派生类(derived class)/子类(child class)
+	单继承：
+		语法：
+			class 类名(基类名):
+				  语句块
+	说明：单继承是指派生类有一个基类衍生出来的新类
+	示例：
+		class Human:
+			def say(self, what):
+				print("说", what)
+		class Student(Human):
+			def study(self, subject):
+				print("正在学习", subject)
+		h1=Student()
+		h1.say("good")
+		h1.study("python")
+	继承派生机制的作用：
+		1.可以将一些共有功能加上基类中，实现代码共享
+		2.在不改变基类的基础上改变原有的功能
+	继承说明：
+		python3任何类都直接或间接的继承自object类，object类是一切类的超类
+	类的__base__属性：用来记录此类的基类
+	python内建的类：help(__builtins__)
+
+覆盖override:
+	指在有继承关系的类中，子类中实现了与基类同名的方法，在子类的实例调用该方法时，实际调用的是子类中的覆盖版本
+	super函数：
+		super(cls, obj)返回绑定超类的实例(obj必须为cls类型的实例)
+		super()返回绑定超类的实例，等同于super(__class__,实例方法的第一个参数，必须在方法内调用)
+		作用：借助super()返回的实例间接调用父类的覆盖方法
+		示例：
+			class A:
+				def work(self):
+					print("A.work被调用")
+			class B(A):
+				def work(self):
+					print("B.work被调用!!!")
+				def super_work(self):
+					self.work()                  #调用B类方法
+					super(B, self).work()        #调用方法
+					super().work()               #必须在方法内调用
+			
+			
+			b=B()
+			b.work()              #B被调用
+			super(B, b).work()    #A.work被调用
+
+显式调用基类的初始化方法：
+	当子类中实现了__init__方法，基类的构造方法并不会被调用，此时需要显示调用
+	示例：
+		class Human:
+			def __init__(self, n, a):
+				self.name = n
+				self.age = a
+				print("Human类的初始化方法被调用...")
+			def infos(self):
+				print("姓名", self.name)
+				print("年龄", self.age)
+		class Student(Human):
+			def __init__(self, n, a, s=0):                #s1=Student('张飞', 15, 80)调用该初始化方法，默认覆盖父类同名方法
+				super(Student, self).__init__(n,a)        #将n，a传到父类初始化方法并调用
+				self.score=s
+				print("Student的初始化方法被调用...")
+		
+		s1=Student('张飞', 15, 80)
+		s1.infos()
+
+
+
+
+03： 继承(inheritance) 和 派生(derived) 封装 多态
+
+用于类的函数：
+	issubclass(cls, class_or_tuple)判断一个类cls是否继承自其它的类class_or_tuple，如果此类cls是class或tuple中一个派生子类则返回True，否则返回False
+
+封装enclosure：
+	指隐藏类的实现细节，让使用者不关心这些细节
+	封装的目的是让使用者通过尽可能少的方法(属性)操作对象
+私有属性和方法(对象)
+	python类中，以双下划线('__')开头，不以双下划线结尾的标识符为私有成员，私有成员只能使用该类的方法进行访问和修改
+	1.以__开头的属性为私有属性    2.以__开头的方法为私有方法
+	实例：
+		class A:
+			def __init__(self):
+				self.__p1 = 100     #私有属性
+				# self._p2 = 200      #不是私有属性
+				# self.__p3__ = 300   #不是私有属性
+			def show_info(self):
+				print(self.__p1)    #此对象的实例方法可以访问和修改私有属性
+				self.__m()            #调用私有方法
+			def __m(self):
+				print("A类对象的__m方法被调用")			
+		a = A()
+		a.show_info()     #只能使用该类的方法进行访问和修改
+		# print(a.__p1)   #外部不允许访问私有属性
+		# print(a._p2)    #可以访问
+		# print(a.__p3__) #可以访问
+		# a.__m()         #无法直接访问私有方法
+	注意：python的封装是假的封装(模拟的封装)  --->  a._A__p1  可以访问到(查看dir(obj))
+		class Per_num():
+			text = 1
+			__data = 0
+			def __init__(self):
+				Per_num.__data += 1         #类.类变量名，每创建一个对象，都会自增1
+			def countnum(self):
+				return self.__data
+		
+		if __name__ == '__main__':
+			person2 = Per_num()
+			person1 = Per_num()
+			print('text',person1.text)
+			# print('data',person1.__data)     #私有属性外部无法访问
+			print('all object:',person1.countnum())
+			
+
+多态polymorphic:
+	指在有继承/派生关系的类中，调用基类对象的方法，实际能调用子类的覆盖方法的现象叫多态
+	状态：静态(编译时状态)   动态(运行时状态)
+	说明：1.多态调用的方法与对象相关，不写类型相关   2.python全部对象都只有"运行时状态(动态)"，没有c++语言里的编译时状态(静态)
+	示例：
+		class Shape:
+			def draw(self):
+				print("Shape的draw()被调用")
+		class Point(Shape):
+			def draw(self):
+				print('正在画一个点！')
+		class Circle(Point):
+			def draw(self):
+				print('正在画一个圆！')
+		def my_draw(s):
+			s.draw()     #c++等语言有静态(编译时状态)，编译时会根据s的类型调用相应方法，python是弱类型的，因此只能在运行时，根据对象才能决定调用那个方法
+		
+		s1=Circle()
+		my_draw(s1)
+		
+面向对象编程语言的特征： 继承   封装   多态
+
+多继承：
+	指一个子类继承自两个或两个以上的基类
+	语法: class 类名(基类名1, 基类名2, ...)
+	说明：
+		一个子类同时继承自多个父类，父类中的方法可以同时被继承下来
+		如果两个父类中有同名的方法，而在子类中又没有覆盖此方法时，调用结果难以确定
+	多继承的MRO(Method Resolution Order)
+		python3的类的__mro__属性：
+			用来记录类的方法查找顺序  --->  A.__mro__
+		super()函数就是根据__mro__来调用上层的方法(super(B, b).play()--->B上层类的方法)
+
+函数重写overwrite：
+	在自定义的类内添加相应的方法，让自定义的类创建的实例能够使用内建函数进行操作
+对象转字符串函数：
+	repr(x)返回一个能表示python对象的表达式字符串，通常eval(repr(obj)) == obj
+	str(x)通过给定的对象返回一个字符串
+	示例：
+		s="I'm Teacher"
+		print(str(s))   #I'm Teacher
+		print(repr(s))	#"I'm Teacher"
+对象转字符串函数的重写方法：
+	repr()函数的重写方法：
+		def __repr__(self):
+			return 字符串
+	str()函数的重写方法：
+		def __str__(self):
+			return 字符串
+	示例：		
+		class MyNumber:
+			def __init__(self, val):
+				self.data = val
+			def __str__(self):                           #原有的str返回的是<__main__.MyNumber object at 0x00A7FF70>
+				return "自定义数字： %d" % self.data
+			def __repr__(self):                          #此方法返回来的字符串一定是能表示self对象的表达式字符串
+				return "MyNumber(%d)" % self.data
+				
+		
+		n1 = MyNumber(100)
+		print('str(n1) =', str(n1))
+		print(n1.__str__())
+		print(n1)                   					 #在print内部会将n2用str(x)转为字符串再写到sys.stdout
+		print('repr(n1 =', repr(n1))
+		
+	str(obj)函数调用方法说明：
+		1.str(obj)函数先查找obj.__str__(方法)，调用此方法并返回结果
+		2.如果obj.__str__()方法不存在，则调用obj.__repr__方法并返回结果
+		3.如果obj.__repr__方法不存在，则调用object类的__repr__实例方法显示<__main__.MyNumber object at 0x0389FF70>字符串
+	上述示例：
+		没有 __str__ 和 __repr__  返回值：
+			str(n1) = <__main__.MyNumber object at 0x00A7FF70>
+			<__main__.MyNumber object at 0x00A7FF70>
+			<__main__.MyNumber object at 0x00A7FF70>
+			repr(n1 = <__main__.MyNumber object at 0x00A7FF70>
+		有__str__ 和 __repr__  返回值：
+			str(n1) = 自定义数字： 100
+			自定义数字： 100
+			自定义数字： 100
+			repr(n1 = MyNumber(100)
+
+
+
+内建函数重写：使所有对象(实例)都能像使用内建函数一样使用str(obj)，但是返回的类型需要一致(str()<--->__str__())
+		方法名                                   	 函数名
+		def__abs__(self):							abs(obj)函数调用
+		def__len__(self):							...
+		def__reversed__(self):						...
+		def__round__(self):							...
+	示例：
+		class MyList:
+			def __init__(self, iterable=()):
+				self.__data = [x for x in iterable]     #私有属性
+			def __repr__(self):
+				return 'MyList(%s)' % self.__data
+			def __len__(self):                          #返回与被重写函数一致的数据
+				return len(self.__data)
+		myl = MyList([1, 0, 2, -1])
+		print(myl)
+		print(len(myl))                                #len()内建函数，需要上面的函数重写，自定义的类创建的实例才能够使用内建函数进行操作
+数值转换函数的重写：
+	complex    int    float   bool
+
+布尔测试函数的重写：
+	格式：
+		def __bool__(self):
+			...
+	作用：1.用于bool(obj)函数取值   2.用于if语句真值表达式中   3.用于while语句的真值表达式中
+	说明：当自定义类内有__bool__方法时，此方法的返回作为bool(x)的返回值，
+		  不存在，调用__len__方法返回值是否为零判断，不存在__len__方法时，则直接返回True
+	
+对象的属性管理函数：
+	getattr(obj, name[,default])
+		从一个对象用字符串name得到对象的属性，getattr(x, 'y')等同于x,y;当属性不存在时，如果给定default参数则返回default，如果没有给出default，则触发AttributeError错误
+	hasattr(obj, name)
+		用给定的name字符串返回obj是否有此属性，此种做法可以避免在getattr(obj, name)时引发错误
+	setattr(obj, name, value)
+		给对象obj的名为name的属性设置相应的值value,setattr(x,y,x)等同于x.y=v
+	delattr(obj,name)
+		删除对象obj中的name属性del(x,'y')等同于del x.y
+	示例：
+		class Dog:
+			pass
+		d=Dog()
+		setattr(d,'color','白色')   #等同于d.color='白色'
+
+迭代器(高级)：
+	由iter(x)函数返回，可以通过next(it)函数取值的对象就是迭代器
+迭代器协议：
+	指对象能够使用next()函数获取下一项数据，在没有下一项数据时触发一个StopIteration异常来终止迭代的约定
+迭代器协议的实现方法：此方法需要实现迭代器协议
+	def __next__(self):
+		...	
+可迭代对象：
+	指能用iter(obj)函数返回迭代器的对象(实例)
+	可迭代对象内部要定义__iter__(self)方法来返回迭代器对象
+	示例：
+	此示例将自定义的类MyList创建的对象制作称为可迭代对象
+		class MyList:                                  	   #该类创建的对象是可迭代对象(有__iter__方法，并且返回迭代器)
+			def __init__(self, iterable=()):
+				self.__data = [x for x in iterable]      	 #私有属性
+			def __repr__(self):
+				return 'MyList(%s)' % self.__data
+			def __iter__(self):        						 #此方法用于创建并返回一个能访问self对象的迭代器
+				print("被调用")
+				return MyListIterator(self.__data)      	#返回迭代器(MyListIterator(self.__data))，是因为由__next__方法
+		class MyListIterator:             					 #迭代器(有__next__方法),此类用来描述能够访问MyList类型的对象的迭代器，独立的，不一定要经过 it = iter(myl)
+			def __init__(self,lst):
+				self.data_lst=lst 
+				self.cur_index=0         					 #迭代器访问的起始位置
+			def __next__(self):         					  #此方法用来实现迭代器协议
+				if self.cur_index >= len(self.data_lst):
+					raise StopIteration
+				r = self.data_lst[self.cur_index]
+				self.cur_index += 1
+				return r
+		
+		myl = MyList([1, 0, 2, -1])
+		it = iter(myl)               						 #调用方法，等同于调用it=myl.__iter__()，返回的是MyListIterator(self.__data)
+		print(next(it))										 #上两条语句可以替换成执行it = MyListIterator([1, 0, 2, -1])，再执行print(next(it))，结果也是一样的，不能用for，会报错'MyListIterator' object is not iterable
+		#it = MyListIterator([1, 0, 2, -1])
+		#print(next(it))		
+		for x in myl:               						  
+			print(x)
+
+##个人小结：有一个类，有实例方法__iter__，则该类创建的实例就是可迭代对象，实例调用__iter__方法的时候，返回迭代器(类，有__next__方法)
+
+
+
+04： 异常高级 运算符重载
+
+异常(高级)
+	with 语句块      #异常处理语句
+	语法：
+		with 表达式1 [as 变量1], 表达式2 [as 变量2], ...:
+			语句块
+	作用：
+		使用于对资源进行访问的场合，确保使用过程中不管是否发生异常都会执行必须的'清理'操作，并释放资源
+			如：文件打开后自动关闭，线程中锁的自动获取和释放等
+	说明:
+		as 子句中的变量用于绑定表达式执行后生成的对象
+		with 语句并不会改变异常的状态
+	异常相关的语句：
+		try-except
+		try-finally
+		raise
+		assert
+		with
+	示例：
+		with open("a.txt") as f:          #文件打开后，当跳出with语句之外的时候会自动关闭
+			for l in f:
+				x = int('a')              #报错文件也会自动关闭
+				print(l)
+环境资源管理器：
+	1.类内有__enter__和__exit__实例方法的类创建的对象被称为环境管理器
+	2.能够用with语句进行管理的对象必须是环境管理器
+	3.__enter__方法将在进入with语句时被调用,由as变量绑定返回的对象
+	4.__exit__方法将在离开with语句时被自动调用，且可以通过参数来判断离开with语句时是否有异常发生
+	
+	示例：
+		class A:                                    #此类的对象可以用于with语句进行管理
+			def __enter__(self):                    #第一步，进入with语句
+				print("此方法是在with语句内执行的")  
+				return self                         #self将被with中的as变量绑定,一般都返回self给as绑定
+			def __exit__(self, exc_type, exc_val, exc_tb):           #一定会有这三个形参，形参名随意
+			'''exc_type 用来绑定错误类型，当没有异常发生时绑定None   #文档字符串
+			   exc_val用来绑定错误对象，当没有发生异常时绑定None
+			   exc_tb 用来绑定TraceBack对象，当没有发生异常返回None'''
+			    if exc_tyoe is None:						#是否正常离开
+					print("您已正常离开with语句")           #第三步，退出with语句
+				else:
+					print(exc_type, exc_val, exc_tb)
+					
+		with A() as a:                              #实例，能用with语句，必然有__enter__和__exit__
+			print("这是with语句内部输出")           #第二步
+		print("程序正常执行")                       #第四步
+
+运算符重载：
+	让自定义的类生成的对象(实例)能够使用运算符进行操作
+	作用：
+		让自定义类的实例像内建对象一样进行运算符操作
+		让程序简洁易读
+		让自定义对象将运算符赋予新的规则
+算术运算符的重载：L1 = L * 3(优先于反向算术运算符)
+	方法名                  	运算符和表达式          
+	__add__(self, rhs)			self + rhs 				
+	__sub__(self, rhs)			self - rhs 				
+	__mul__(self, rhs)			self * rhs 				
+	__truediv__(self, rhs)		self / rhs 				
+	__floordiv__(self, rhs)		self // rhs 			
+	__mod__(self, rhs)			self % rhs 	(取模/求余) 			
+	__pow__(self, rhs)			self ** rhs (幂运算)	
+	
+	二元运算符的重载方法格式：
+		def __xxx__(self, other):
+			语句块
+
+	示例：
+		class MyNumber:
+			def __init__(self, v):
+				self.data = v      #self.data用来保存对象的数据
+			def __repr__(self):
+				return "MyNumber(%d)" % self.data
+			# def add(self, other):          #定制self+other的规则
+			# 	v = self.data + other.data
+			# 	return MyNumber(v)
+			def __add__(self, other):          #特殊的方法名，是n3 = n1 + n2，能执行并且不报错
+				return MyNumber(self.data + other.data)
+		
+		n1 = MyNumber(100)
+		n2 = MyNumber(200)
+		# n3 = n1.add(n2)
+		n3 = n1 + n2   #等同于n3=n1.__add__(n2)，rhs(right hand side) 右手边
+		print(n3)
+	说明：运算符重载方法及参数已经有固定的含义，不建议修改原有的运算符的含义及参数的意义
+	
+反向算术运算符的重载：当__add__报错才会执行该方法
+	当运算符的左侧为内建类型时，右侧为自定义类型进行算术运算符运算时会出现TypeError错误，因无法修改内建类型的代码实现运算符重载，此时需要使用反向算术运算符重载
+反向算术运算符的重载：  L1 = 3 * L
+	方法名                  	运算符和表达式          
+	__radd__(self, lhs)		    lhs +  self		
+	__rsub__(self, lhs)		    lhs -  self		
+	__rmul__(self, lhs)		    lhs *  self		
+	__rtruediv__(self, lhs)	    lhs /  self		
+	__rfloordiv__(self, lhs)    lhs // self	
+	__rmod__(self, lhs)		    lhs %  self  (取模/求余) 			
+	__rpow__(self, lhs)		    lhs ** self  (幂运算)	
+
+复合赋值算术运算符的重载
+	以复合赋值算术运算符 x += y 为例，此运算符会优先调用x.__iadd__(y)方法，如果没有__iadd__方法时会将复合赋值运算拆解为：x = x + y
+	然后调用x = x.__add__(y)方法，如果不存在__add__方法则会触发TypeErrot类型的错误异常
+
+复合算术运算符的重载：help(list)  列表才有？
+	方法名                  	运算符和表达式          
+	__iadd__(self, rhs)			self += rhs 				
+	__isub__(self, rhs)			self -= rhs 				
+	__imul__(self, rhs)			self *= rhs 				
+	__itruediv__(self, rhs)		self /= rhs 				
+	__ifloordiv__(self, rhs)	self //= rhs 			
+	__imod__(self, rhs)			self %= rhs 	(取模/求余) 			
+	__ipow__(self, rhs)			self **= rhs    (幂运算)
+
+比较运算符的重载：比较运算符通常返回布尔值True 或 False
+	方法名                  	运算符和表达式          
+	__lt__(self, rhs)			self < rhs 		
+	__le__(self, rhs)			self <= rhs 	
+	__gt__(self, rhs)			self > rhs 	
+	__ge__(self, rhs)			self >= rhs 	
+	__eq__(self, rhs)			self == rhs 	
+	__ne__(self, rhs)			self != rhs 	
+
+位运算符重载：集合
+	方法名                  	运算符和表达式      说明      
+	__and__(self, rhs)			self & rhs 			位与
+	__or__(self, rhs)			self | rhs 			位或
+	__xor__(self, rhs)			self ^ rhs 			位异或
+	__lshift__(self, rhs)		self << rhs 		左移
+	__rshift__(self, rhs)		self >> rhs 		右移
+
+反向位运算符重载：集合
+	方法名                  	运算符和表达式      说明      
+	__rand__(self, lhs)		    lhs  &  self		位与
+	__ror__(self, lhs)		    lhs  | 	self		位或
+	__rxor__(self, lhs)		    lhs  ^ 	self		位异或
+	__rlshift__(self, lhs)	    lhs  <<	self		左移
+	__rrshift__(self, lhs)	    lhs  >>	self		右移
+
+复合位运算符重载：集合
+	方法名                  	运算符和表达式      说明      
+	__iand__(self, rhs)			self &=  rhs 		位与
+	__ior__(self, rhs)			self |=  rhs 		位或
+	__ixor__(self, rhs)			self ^=  rhs 		位异或
+	__ilshift__(self, rhs)		self <<= rhs 		左移
+	__irshift__(self, rhs)		self >>= rhs 		右移
+
+一元运算符的重载：
+	方法名                  	运算符和表达式      说明   
+	__neg__(self)				- self				负号
+	__pos__(self)				+ self    			正号
+	__invert__(self)			~ self 				取反
+
+	语法：
+		class 类名:
+			def __xxx__(self):
+				...
+	示例：
+		class MyList:
+			def __init__(self, iterable=()):
+				self.data = [x for x in iterable]  
+			def __repr__(self):
+				return 'MyList(%s)' % self.data
+			def __neg__(self):                  #负号运算符重载
+				G = (-x for x in self.data)
+				return MyList(G)
+		
+		L1 = MyList([1,-2,3,-4,5])
+		L2 = -L1
+		print(L2)
+
+三元运算符：x if x> y else y  (不支持重载)
+
+
+in / not in 运算符重载
+	格式：
+		def __contains__(self, e):
+			语句			
+	当重载了__contains__后，in 和 not in 运算符都可用，in / not in 返回布尔值 True/False
+	示例：
+		class MyList:
+			def __init__(self, iterable=()):
+				self.data = [x for x in iterable]  
+			def __repr__(self):
+				return 'MyList(%s)' % self.data
+			def __contains__(self,e):
+				return True if e in self.data else False
+		
+		L1=MyList([1,-2,3,-4,5])
+		if 1 in L1:                  #等同于if not L1.__contains__(4)
+			print("2在L1内")
+		else:
+			print('2不在L1内')
+
+索引和切片运算符重载方法：让自定义的类型的对象能够支持索引和切片操作, i的值有可能是slice类型，即type(i) is slice
+	方法名                  	运算符和表达式          说明
+	__getitem__(self,i)   		x = self[i]             索引/切片取值
+	__setitem__(self,i,v)		self[i]=v 				索引/切片赋值
+	__delitem__(self,i)			del self[i]				del语句删除索引/切片
+	
+	示例：
+		class MyList:
+			def __init__(self, iterable=()):
+				self.__data = list(iterable)               #可以用别的数据类型
+			def __repr__(self):
+				return "MyList(%s)" % self.__data
+			def __getitem__(self, i):
+				print('i的值是：', i)
+				return self.__data[i]
+			# def __setitem__(self,i,v):  
+			#     print("call __setitem__", i, v)
+			#     self.__data[i] = v
+			# def __delitem__(self,i):
+			#     self.__data.pop(i)
+		
+		L = MyList([1, -2, 3, 5, 6])
+		# x = L[1]                                            #调用__getitem__方法
+		# print(x)
+		# print(L)
+		# L[3] = 400                                          #调用__getitem__方法
+		# print(L)
+		# del L[3]
+		# print(L)                                            #调用__delitem__方法
+		print(L[::2])                                         #等同于printL[slice(None, None, 2)]
+slice函数：help(slice)
+	作用:用于创建一个slice对象，此对象用于切片操作的传值
+	格式:
+		slice(start=None, stop=None, step=None)
+
+			
+特性属性@property
+	实现其它语言所拥有的getter 和 setter功能
+	作用：用来模拟一个属性，通过@property装饰器，可以对模拟属性的赋值和取值加以控制
+		  Python内置的@property装饰器就是负责把一个方法变成属性调用的：
+	示例：
+		class Student:
+			def __init__(self, s):
+				self.__score=s
+			@property
+			def score(self):			#getter用来获取数据
+				print("getter被调用")   #作用和getscore的函数一样
+				return self.__score
+			# def getscore(self):         #获取数据
+			# 	return self.__score 	
+			@score.setter
+			def score(self, s):      #此方法使用setter，用来设置值加以限制以保证数据的准确性
+			# def setscore(self, s)
+				print("setter被调用")
+				if 0<= s <= 100:
+					self.__score=s
+
+		s = Student(50)
+		# s.setscore(100)
+		score = s.score                 #访问特性属性score,看似直接操作类变量，实质是调用原s.getscore()
+		print('成绩是：', score)
+		s.score=100                     #修改特性属性score的值,看似直接操作类变量，实质是调用原s.setscore()
+		print('成绩是：', score)
+
+
+PEP8编码规范
+
+
+
+
+
+
+
+
+
+
