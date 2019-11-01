@@ -82,7 +82,7 @@ CSS 预处理器：让css能编程
 前端--node.js--后端     node.js后端技术，能作为前端中间件,方便前端开发应用
 
 
-
+tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路径会自动去webapps(资源根目录)下找）
 
 
 
