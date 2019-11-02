@@ -19,12 +19,14 @@
  proxy：设置代理参数
  upstream：负载均衡（upstream七层 和 stream四层）
  
+ worker connection(连接数) = worker * worker processes / 2请求数(或者4请求书)
  
  
  
  
+	sendfile(文件传输)：零拷贝，直接略过用户空间，在两个文件描述符(内核层)之间交换(传统文件经过四次复制操作(多次上下文切换),磁盘/file -- 内核buffer cache -- 用户空间buffer cache --socket缓冲(内核) -- 协议引擎)
+ 优点：1.高并发(io多路复用/异步非阻塞)-高性能(cpu亲和性)   2.可拓展性好(代码模块化)   3.高可靠性   4.热部署(master/worker 多进程模式,工作进程是相互隔离的，进程间通过主进程交互)   5.BSD许可证
  
- 优点：1.高并发-高性能   2.可拓展性好   3.高可靠性   4.热部署   5.BSD许可证
  组成：1.nginx二进制可执行文件：由各模块源码编译出的一个文件
        2.nginx.conf配置文件：控制nginx的行为
  	  3.access.log访问日志：记录每一条http请求信息
@@ -233,13 +235,53 @@
 
 
 
+location /down/ {
+alias /home/wwwroot/lnmp/test/;
+autoindex on;
+}
+需要注意root和alias的区别：
+alias 设置的目录是准确的，可以理解为linux的 ln命令创建软连接，location就是软连接的名字。如上面2.2例子访问 http://域名/down/vpser.txt 是直接访问的/home/wwwroot/lnmp/test/下面的vpser.txt文件。
+root 设置的目录是根目录，locatoin里所指定名称的目录，必须在root设定下的目录有相同名字的目录。如果将上面2.2例子里的alias改成root 访问 http://域名/down/vpser.txt 是直接访问的的/home/wwwroot/lnmp/test/down/ 目录下的vpser.txt文件。
+需要注意的是alias目录必须要以 / 结尾且alias只能在location中使用。root可以在server中使用
 
 
+通常情况下缓存是用来减少后端压力，将压力尽可能往前推，减少后端压力，提高并发延时
+工具：压测：http-tools -- ab   正则匹配：pcre-tools -- pcretest
+ uri：域名后面的那部分
+下载站点：autoindex
+状态监控：stub_status
+日志：nginx内置变量 
+连接(tcp)限制：limit_conn    #一次tcp连接可以有多次http请求
+请求(http)限制：limit_req(503)    #可针对同一ip相同/不同url进行限制，这个更有效
+区域限制：geo
+访问控制：access(allow deny 403)  
+用户认证：1.auth_basic(401)  2.lua   3.nginx_auth_ldap
+真实ip：（remote_attr是代理ip）  代理服务器和后端配置http_x_forwarded_for会获取一层层ip
 
+静态资源(服务器端)：1.sendfile on  2.tcp_nopush on(sendfile打开下，打包注重效率)  3.tcp_nodelay(keepalive连接下注重实时性) 
+		  4.gzip压缩(动态压缩，会消耗cpu)  5.gzip_static(预压缩，直接读取已经压缩好的文件)
+静态资源浏览器缓存：浏览器是否缓存：expires  cache-control(no-cache容易被攻击)   #如果修改图片,换一个名字就能重新加载
+					向服务器询问是否资源修改：Etag(hash)  last-modified(最近修改时间)
 
+跨域请求：add_header Access-Control-Allow-Origin(被跨域请求中设置)
+防盗链：http_refer
 
+代理：proxy_pass    代理缓存proxy_buffer/跳转重定向/proxy_set_head 头信息传递 /超时/tem_file   #可以将配置卸载一个文件,在proxy_pass下面include 文件名；
+正向代理：resolver + proxy_pass
+SLB(Server Load Balance):七层upstream(代理到upstream池)(状态值down和分配策略ip_hash)
+						  四层stream：ssh/mysql
+动静分离：location
+分流：$http_user_agent   #不同浏览器不同页面
 
+代理缓存:proxy_cache _path(路径) _valid(根据状态缓存) _key(维度)
+配置部分不缓存：proxy_no_cache(结合变量)
+日志记录缓存：自定义日志格式 + '"$upstream_cache_status"'（这个变量要自己定义set，在proxy_cache配置下设置记录日志） 
+缓存清理：ngx_cache_purge    #访问缓存路径的url域名后面添加/purge，感觉没啥用
 
+rewrite重写：1.访问跳转(https)  2.SEO优化：方便搜索引擎录入  3.维护：后台维护，流量转发  4.安全：伪静态，真实动态页面进行伪装
+	flag：last(重新发起请求，旧url)  break(不会重新请求，旧url)  redirect(302,新url)  permanent(301,新url)
+
+https: ssl + 参数(ssl_session_cache ssl_session_timeout)  ats协议（2017.1.1苹果的https）
 
 
 

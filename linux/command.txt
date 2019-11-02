@@ -1,6 +1,9 @@
 
 Ctrl+R  快捷键让你对命令历史进行搜索
 
+egrep "(nginx|tomcat)$"
+mkdir -pv {a,b,d/e}
+
  traceroute   linux  路由追踪  windows(tracert)
  mtr  -r/-rn/–report  域名   确定网络状况
  tcpdump 抓包

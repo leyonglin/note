@@ -1,7 +1,9 @@
 
 http://www.rpmfind.net/linux/RPM/index.html
 
+
 sed -i "s/SELINUX=enforcing/SELINUX=disabled/g" /etc/selinux/config
+LANG=zh_CN.UTF-8            #有些文档能识别为中文
 rm -rf /etc/yum.repos.d/*
 systemctl stop postfix
 systemctl disable postfix

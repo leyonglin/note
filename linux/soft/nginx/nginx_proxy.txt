@@ -34,7 +34,7 @@ http {
 
 
     #1.负载均衡,分配策略有 1.轮询，2.权重, 3.ip_hash根据urlhash分配，即同一url访问同一台主机
-       #4.fair按后端响应时间分配请求
+       #4.fair按后端响应时间分配请求，还有
    # upstream myserver {
    #     ip_hash;
    #     server 192.168.3.3:8080 weight=1;
@@ -56,7 +56,10 @@ http {
        }
        location /image {
            root   /data/;
+		   #下载站点
            autoindex  on;
+		   autoindex_exact_size on;
+		   autoindex_localtime off;
        }
 
        #2.负载均衡
