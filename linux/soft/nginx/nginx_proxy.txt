@@ -1,6 +1,9 @@
 
 #user  nobody;
-worker_processes  1;
+worker_processes  auto;    ##自动识别CPU，分配进程
+worker_cpu_affinity  auto; ##充分利用多核cpu
+worker_rlimit_nofile 65535; ##指定单个进程可打开的文件数量，系统需配置好
+
 
 #error_log  logs/error.log;
 #error_log  logs/error.log  notice;
@@ -11,26 +14,32 @@ worker_processes  1;
 
 events {
     worker_connections  1024;
+	use epoll;
 }
 
 
 http {
     include       mime.types;
+	include  vhosts/*.conf;
     default_type  application/octet-stream;
-
+	charset utf-8;
+	
+	#日志会增加读写，可以考虑优化
     #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
     #                  '$status $body_bytes_sent "$http_referer" '
     #                  '"$http_user_agent" "$http_x_forwarded_for"';
 
     #access_log  logs/access.log  main;
-
+	server_tokens off;
     sendfile        on;
-    #tcp_nopush     on;
+    #tcp_nopush     on;  #静态资源的时候打开
 
     #keepalive_timeout  0;
+	#tcp_nodelay       on;   #动态资源的时候打开
     keepalive_timeout  65;
 
     #gzip  on;
+	#gzip_disable "MSIE [1-6]\."; #将不支持压缩的浏览器关闭压缩
 
 
     #1.负载均衡,分配策略有 1.轮询，2.权重, 3.ip_hash根据urlhash分配，即同一url访问同一台主机

@@ -9,7 +9,7 @@
  
  ./configure --prefix=/opt/apps/nginx --with-http_stub_status_module --with-http_ssl_module --with-http_geoip_module --with-http_gzip_static_module --with-ipv6 --with-http_realip_module  --user=swadmin --group=swadmin --add-module=../upload/ngx_tcpwrappers/
  配置ngx_lua-waf  隐藏nginx版本   限速limit及限制单个IP单位时间访问次数  IP黑名单及GeoIP 访问IP限制/白名单  referer模块  设置后缀名处理方法 ip2location(第三方模块)  
- 自动识别CPU,分配进程	自动识别CPU,分配进程	优化buffer      fastcgi网站加速(网站静态缓存加速方案)   gzip压缩配置  最大打开文件数(与内核配合)
+ 自动识别CPU,分配进程	自动识别CPU,分配进程	服务器域名的散列表大小  client header     fastcgi网站加速(网站静态缓存加速方案)   gzip压缩配置  最大打开文件数(与内核配合)
  设置proxy_cache缓存    proxy_pass   upstream/stream(反代)
  自定义日志格式 搭建虚拟机(include)监听多个端口  自定义错误返回页面
  
@@ -236,12 +236,12 @@
 
 
 location /down/ {
-alias /home/wwwroot/lnmp/test/;
+alias /test/;
 autoindex on;
 }
 需要注意root和alias的区别：
-alias 设置的目录是准确的，可以理解为linux的 ln命令创建软连接，location就是软连接的名字。如上面2.2例子访问 http://域名/down/vpser.txt 是直接访问的/home/wwwroot/lnmp/test/下面的vpser.txt文件。
-root 设置的目录是根目录，locatoin里所指定名称的目录，必须在root设定下的目录有相同名字的目录。如果将上面2.2例子里的alias改成root 访问 http://域名/down/vpser.txt 是直接访问的的/home/wwwroot/lnmp/test/down/ 目录下的vpser.txt文件。
+alias 设置的目录是准确的，可以理解为linux的 ln命令创建软连接，location就是软连接的名字。如上面2.2例子访问 http://域名/down/vpser.txt 是直接访问的/test/vpser.txt
+root 设置的目录是根目录，locatoin里所指定名称的目录，必须在root设定下的目录有相同名字的目录。如果将上面2.2例子里的alias改成root 访问 http://域名/down/vpser.txt 是直接访问的的/test/down/vpser.txt
 需要注意的是alias目录必须要以 / 结尾且alias只能在location中使用。root可以在server中使用
 
 
@@ -266,9 +266,9 @@ root 设置的目录是根目录，locatoin里所指定名称的目录，必须�
 跨域请求：add_header Access-Control-Allow-Origin(被跨域请求中设置)
 防盗链：http_refer
 
-代理：proxy_pass    代理缓存proxy_buffer/跳转重定向/proxy_set_head 头信息传递 /超时/tem_file   #可以将配置卸载一个文件,在proxy_pass下面include 文件名；
+代理：proxy_pass    代理缓存proxy_buffer / 跳转重定向 / proxy_set_head 头部字段 变量 /超时/tem_file  #proxy_set_head必须设置，可以将配置配置成一个文件,在proxy_pass下面include 文件名；
 正向代理：resolver + proxy_pass
-SLB(Server Load Balance):七层upstream(代理到upstream池)(状态值down和分配策略ip_hash)
+SLB(Server Load Balance):七层upstream(代理到upstream池)(状态值down和分配策略ip_hash)           #proxy_set_head必须设置代理头部信息
 						  四层stream：ssh/mysql
 动静分离：location
 分流：$http_user_agent   #不同浏览器不同页面
@@ -283,6 +283,21 @@ rewrite重写：1.访问跳转(https)  2.SEO优化：方便搜索引擎录入  3
 
 https: ssl + 参数(ssl_session_cache ssl_session_timeout)  ats协议（2017.1.1苹果的https）
 
+php:https://www.xuliangwei.com/bgx/1024.html   缓存：opcache
+
+lua：1.结合memcache灰度发布  2.防火墙ngx_lua_waf:https://github.com/loveshell/ngx_lua_waf   #sql注入: ' or 1=1#''
+
+优化：架构 soa：一个功能一组集群服务器  #高内聚低耦合
+	  性能与安全
+	  压测  #httpd-tools  压测宝
+	  指标: 网络流量/丢包   服务硬件    服务：请求/连接/文件数(*/user/process)优化  程序：接口性能/处理速度/程序执行效率   数据库 
+
+location优先级看精度，越精确优先级越高
+
+try_files $uri $uri/ /index.jsp;   #先匹配uri，再$uri/，最后/index.jsp 即逐级寻找文件是否存在
+
+awk统计  piwiki  百度/站长/谷歌统计  自己开发的统计脚本
+pv(日志记录数) > ip(统计ip数) > uv(24小时一台电脑客户端)
 
 
 

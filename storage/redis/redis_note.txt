@@ -1,4 +1,7 @@
 
+expire：设置过期时间  1.限时优惠  2.定时更新(排行榜)   3.手机验证码   4.限制访问(1分钟内登陆三次)
+setnx：解决分布式锁
+incr/decr：计数器/统计(原子性)
 
 清redis数据
 redis-cli -h 127.0.0.1 -p 17693
@@ -8,3 +11,26 @@ flushall
 查询
 redis-cli -h 127.0.0.1 -p 17693 -a "9tN6GFGK60Jk8BNkBJM611GwA66uDFeG" -n 7 get config_name_system_config_lucky_bg_api_url
 redis-cli -h 127.0.0.1 -p 17693 -a "9tN6GFGK60Jk8BNkBJM611GwA66uDFeG" -n 7 get config_name_system_config_chat_api_ur
+
+c语言编写，基于内存，单线程，具有原子性，可部署集群，能持久化，支持多种数据结构
+热点数据：经常被查询，但不经常被修改或者删除的数据
+
+解压
+make
+make PREFIX=/usr/local/redis install
+将解压目录下的redis.conf拷贝到/usr/local/redis目录下
+配置：bind  daemonize  pidfile  port  timeout  databases  log  save rdbcompression(压缩) dbfilename+dir   requirepass
+	  maxclients   maxmemory(1/2或1/4)                    
+	  append   vm-enabled vm-swap-file
+	  slaveof  masterauth  
+	  内存管理策略：1.超时时间   2.  lru
+启动客户端./redis-cli和服务端redis-server /path/redis.conf
+关闭：1.kill  2.  进入后shutdown 
+redis常用命令：set(存在则覆盖) setnx get del  dump(序列化)  exists    ttl  PERSIST(移除过期时间) rename  move  type keys */?
+          expire：设置过期时间  1.限时优惠  2.定时更新(排行榜)   3.手机验证码   4.限制访问(1分钟内登陆三次)
+key不宜太长和太短，key区分大小写，使用统一规范如 user:id:name password
+
+string类型是二进制安全的，即redis的string可以包换任何数据，最大可以存储512MB
+二进制安全特点：1.编码/解码都是在客户端完成，执行效率高   2.不需要频繁的编解码，不会出现乱码
+string常用命令：setnx  getrange(string截取)  getset(查旧值赋新值(登陆的时候))  strlen(string长度)
+	incr(自增1(计数器)) decr(自减1(计数器)) incrby(自增指定步长) decrby    还有string拼接

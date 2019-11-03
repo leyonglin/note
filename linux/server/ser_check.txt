@@ -1,7 +1,7 @@
 
 服务器检查
 	#dmidecode | egrep -i 'manufacturer|product|vendor|system' | uniq
-	lscpu          #Socket 具体是指的主板上 CPU 的插槽数量,称为路。Core 具体是指 CPU 的核心。thread 是指的每个 Core 的硬件线程数，超线程。逻辑 CPU 的数量就是 Socket * Core * Thread
+	lscpu / lscpu | grep "CPU(s)"          #Socket 具体是指的主板上 CPU 的插槽数量,称为路。Core 具体是指 CPU 的核心。thread 是指的每个 Core 的硬件线程数，超线程。逻辑 CPU 的数量就是 Socket * Core * Thread
 	ip -4 a
 	timedatectl
 	df -hT
