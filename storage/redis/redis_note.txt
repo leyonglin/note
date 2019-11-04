@@ -1,7 +1,17 @@
 
 expire：设置过期时间  1.限时优惠  2.定时更新(排行榜)   3.手机验证码   4.限制访问(1分钟内登陆三次)
-setnx：解决分布式锁
-incr/decr：计数器/统计(原子性)
+
+publish:发布订阅的通信模式
+
+setnx(string)：解决分布式锁
+incr/decr(string)：计数器/统计(原子性)
+lrange(list)：分页
+rpoplpush(list):任务队列（下单流程）
+sismember/spop/srandmember(set)：是否存在及抽奖     高级命令：共同关注，二度好友，唯一性
+zadd(zset):排序/以时间为score进行排序/权重队列
+
+事务：商品秒杀/转账(多条命令必须同时执行)
+
 
 清redis数据
 redis-cli -h 127.0.0.1 -p 17693
@@ -30,7 +40,109 @@ redis常用命令：set(存在则覆盖) setnx get del  dump(序列化)  exists 
           expire：设置过期时间  1.限时优惠  2.定时更新(排行榜)   3.手机验证码   4.限制访问(1分钟内登陆三次)
 key不宜太长和太短，key区分大小写，使用统一规范如 user:id:name password
 
-string类型是二进制安全的，即redis的string可以包换任何数据，最大可以存储512MB
+5中重要数据类型：string // hash // list // set // zset
+string(set)类型是二进制安全的，即redis的string可以包换任何数据，最大可以存储512MB
 二进制安全特点：1.编码/解码都是在客户端完成，执行效率高   2.不需要频繁的编解码，不会出现乱码
 string常用命令：setnx  getrange(string截取)  getset(查旧值赋新值(登陆的时候))  strlen(string长度)
 	incr(自增1(计数器)) decr(自减1(计数器)) incrby(自增指定步长) decrby    还有string拼接
+
+hash(hset/hmset)是一个string类型的field和value的映射表，每个hash可以存储2的32次方-1，占用空间少
+	hash适合存储用户信息对象数据(数据表表中所有字段)  hset和hmset存储有一定区别
+
+list：插入：lpush rpush lpushx rpushx  取出：lrange   长度：llen   lindex   删除：lpop  rpop  blpop    修减：ltrim
+	  修改：lset  linsert     高级：rpoplpush(将第一个list1最后数据删除并添加到list2中最后面，list1循环)
+	  对数据量大的集合进行操作，分页功能/热点新闻top5
+
+set：string类型的无序集合，集合成员不能重复 
+	常用命令：增加：saad    成员数：scard   集合中所有成员：smembers   是否存在：sismember    随机返回:srandmember
+	          删除：srem    移除并返回：spop    指定set1成员到set2中：smove
+		高级：差集：sdiff   交集：sinter    并集：sunion
+
+zset：有序集合，和set一样，但是每个元素都关联一个double类型的分数，分数可以重复，并以此进行排序
+	命令：zadd  zcard  zrevcard  zcount(指定条件统计)  zrange  zrank(指定成员索引) 
+		zrem(删除指定成员)  zremrangebyrank(移除有序集合中给定排名区间的所有成员)  zremrangebuscore(分数区间)
+
+
+发布订阅的通信模式:构建实时消息系统/粉丝关注/微信公众号
+	subscribe channel         #订阅一个或多个频道信息
+	psubscribe pattern        #订阅一个或多个符合给定模式的频道
+	publish channelmessage    #将信息发送给指定的频道
+	unsubscribe channel       #退订给定的频道
+	punsubscribe pattern
+
+库数据操作：select  move  flushdb/flushall
+
+redis事务：允许在一次单独步骤中一次执行多个命令，按顺序的串行化执行，执行中不会被其它命令插入，即不许加塞
+	批量操作在发送exec命令前被放入队列缓存，收到exec命令后进入事务执行，事务中任意命令执行失败，其余命令依然被执行
+		1.redis会将一个事务中的所有命令序列化，然后按顺序执行  2.执行中不会被其它命令插入，不许出现加塞行为
+	三个阶段：1.开始事务multi   2.命令入队  3.执行事务exec
+	错误处理：1.某个命令出现报告错误，执行时整个的所有队列都会被取消(例如：命令写错，会回滚，也称"报告错误")
+			  2.命名执行失败，改命令不执行，其它命令依旧执行(逻辑错误，不会回滚)
+事务命令：
+	multi：用于开启一个事务
+	exec：触发并执行事务中的所有命令
+	discard：取消事务
+	watch:监视一个key，在事务执行之前key被修改，则事务将失败
+	unwatch:
+
+持久化：
+	rdb(默认)相当于使用内存快照到硬盘.db文件中(二进制数据)，保存的是一种状态
+		优点：保存数据极快，恢复数据极快
+			条件：1.shutdown  2.满足配置文件save策略
+		缺点：小内存机器不适合使用
+	aof：每收到一个写命令都通过write函数追加到文件.aof中(策略：fsync)
+		缺点：文件会越来越大并且有些命令是多余的(点赞100次，只关注总数)
+		 
+redis和数据库一致性
+	实时同步：更新缓存时，先更新数据库，再将缓存设置过期(这样会查询不到数据库，不至于所有都查询数据库，直接删除会导致不存在直接查询数据库)
+	异步队列：对于并发程度较高的，可采用异步队列的方式同步，可采用kafka等消息中间件处理消息生产和消费
+	阿里的同步工具canal：模拟主从同步机制
+	UDF自定义函数(触发器)：增删改操作会触发一个已写好的函数
+	定时任务/lua脚本
+
+缓存预热
+缓存穿透：查询一个不存在数据   			 解决方法：数据库查询不到返回空
+缓存雪崩：缓存失效，发生大量缓存穿透	 解决方法：加锁 限流(如一个key只允许一个线程查询和写缓存)
+Hystrix - 基于本地缓存的 fallback 降级机制
+
+
+高并发指标：响应时间  吞吐量(单位时间内处理的请求数量)  每秒查询率QPS(每秒响应请求书)   并发用户数
+	拓展：
+		垂直拓展(scale up)：提升单机硬件，使用cache/异步/无锁数据结构，减少io/排队
+		水平拓展(scale out)：
+redis主从复制与读写分离:主与从的配置文件修改：在从中修改 1.port  2.slaveof 主ip 主port   3.主从配置文件配置密码
+
+redis集群搭建方案：
+	1.twitter的twemproxy
+	2.豌豆荚codis
+	3.redis官网redis-clister(3.0版本之后)
+
+redis官网redis-clister(至少3master + 3slave)
+	1.无中心结构，每个节点保存数据和整个集群状态，从不能写入
+	2.所有redis节点彼此互联，内部使用二进制协议优化传输速度和带宽
+	3.节点的fail是通过集群中超过半数的节点监测失效时才生效
+	4.客户端与redis任一节点直连即可，不需要中间proxy层
+	5.redis-cluster把所有的物理节点映射到[0-16383]slot(哈希槽)上，不一定平均分配，cluster负责维护
+	6.集群不可用：1.当前集群存在master没有slave 2.超半数master挂掉
+
+通过自定义redis.conf  #单机多实例将7001改变7002
+	bind port daemonize  pidfile  logfile  dir 
+	cluster-enabled yes  #开启集群
+	cluster-node-timeout 15000  #集群超时时间
+	protected-mode no   #公网能访问redis cache
+	cluster-config-file nodes-7000.conf  #配置每个节点的配置文件
+	配置持久化策略db/aof
+
+集群使用命令:redis-trib.rb(使用rvm安装依赖ruby,) 
+	curl -sSL https://get.rvm.io | bash -s stable
+	redis-cli -h 127.0.0.1 -c -p 7001  #-c访问集群
+
+
+
+
+
+
+
+
+
+
