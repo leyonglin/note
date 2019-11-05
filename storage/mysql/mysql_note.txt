@@ -107,7 +107,8 @@
  删除表
  drop table 表名；
  
- Innobackupex
+ Innobackupex：https://www.percona.com/downloads/[Percona-XtraBackup-LATEST/]
+ 增量备份的基础是InnoDB引擎使用了LSN机制，非InnoDB引擎不存在增量备份的说法，每次都是全备。
  全备文件：2018-05-20_12-33-46
  差异文件：/backup/data_back/incre/2018-05-20_12-33-46/*
  全备：innobackupex  --defaults-file=/opt/conf/my_16303.cnf  --use-memory=10G --compress --compress-threads=24  -uroot -p9tN6GFGK60Jk8BNkBJM611GwA66uDFeG  -S  /opt/data/data_16303/mysql.sock  /opt/src/upload/full
@@ -120,7 +121,11 @@
  可查看这个文件：less /backup/data_back/full/2018-05-20_12-33-46/xtrabackup_checkpoints---lsn是否最新(有变化)
  恢复数据：innobackupex --defaults-file=/opt/conf/my_16303.cnf --use-memory=4G  --copy(move)-back  /backup/data_back/full/2018-05-20_12-33-46/
  启动服务：mysqld --defaults-file=/opt/conf/my_16303.cnf  --user=swadmin &  （数据目录权限值得看一下）
+ 增量备份：
+	innobackupex --user=root --password=123456 --no-timestamp --incremental-basedir=/backup/mysql/full --incremental /backup/mysql/01
+	innobackupex --user=root --password=123456 --no-timestamp --incremental-basedir=/backup/mysql/01 --incremental /backup/mysql/02
  
+ 时点恢复:结合binlog将Mysql数据库恢复到指定时间点
  
  显示数据表结构:  desc 表名;   //   describe 表名;
  
@@ -349,21 +354,162 @@
 
 
 
+ mysql逻辑架构：1.连接层  2.服务层  3.引擎层  4.存储层
+	
+ 机读： from // on + join // where // group by // having // select // distinct // order by
+ sql join: inner  left  right  
+ 
+ 	join连接：  1.左连接建右表索引，右连接建左表索引。2.尽可能减少join语句中的nestedloop的循环总次数："永远用小结果集驱动大的结果集" (个人觉得是explain中的rows) 
+				3.保证join语句中被驱动表上join条件字段已经被索引   2.内存资源充足的前提下，使用joinbuffer的设置
+	
+ 
+ 数据只进行逻辑删除：1.数据分析  2.方便索引
+ 索引(排序(按Seq_in_index进行排序)+检索/查询)能高效获取数据的数据结构。目的在于提高查询效率(B+树/多路搜索树)      #按Seq_in_index从小到大挨个关联进行排序)+检索/查询 利用索引这句话是本质
+	索引分类：1.单值索引   2.唯一索引   3.复合索引		索引结构：1.Btree索引  2.Hash索引   3.full-text全文索引   4.R-Tree索引
+	在数据之外，数据库系统维护着满足特定查找算法的数据结构，这些数据结构以某种方式引用(指向)数据
+		索引一般也很大，不能全部存储在内存中，因此索引往往以索引文件的形式存储在磁盘上
+		索引依据：1.频繁查找的字段应该建立索引  2.主键自动建立唯一索引  3.where条件里用不到的字段不建立索引   4.高并发下倾向于建立组合索引
+				  5.查询中排序的字段，排序字段若通过索引去访问将大大提高速度  8.查询中统计或分组字段
+				  1.经常更新的数据不适合做索引   2.表数据太少  3.重复内容多的数据列
+		索引的建立根据业主而变化，是一个持续的过程
+			优势：降低io和cpu消耗，提高效率和降低成本  缺点：增加存储空间，降低更新操作
+		重构索引：
+		覆盖索引：所查数据只需从索引中便能获取，即所查字段少于或等于复合索引个数 并且顺序一致
+		
+		
+ expain：语法：explain sql语句;
+		1.表的读取顺序  2.数据读取操作的操作类型  3.哪些索引可以使用  4.哪些索引被实际使用  5.表之间的引用  6.每张表有多少行被优化器查询
+		2.各字段解释
+		  | id   | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra |
+		    id：id相同，从上往下顺序执行，id不同，值越大，优先级越高，越先执行   # null表示从临时表取数据  <derived2>:id为2的衍生表(临时表：会增加负担，如两个数据交换) 
+			  select_type：1.simple    2.primary    3.subquery   4.derived   5.union   6.union result ...
+			  table：
+		    type：    NULL       >   system   >  const    >     eq_ref       >       ref        >  range >   index  >  ALL        #最好是ref
+			      不用查表/索引	   一行数据    主键=常量    唯一性索引扫描     非唯一性索引扫描    范围    索引扫描   全表扫描
+			  possible_keys：指出MySQL能使用哪个索引在表中找到记录(如果是覆盖索引，则不会显示在这里)
+		    Key：实际用到的索引(null为没建立索引或者索引失效)
+			  key_len:不损失精确性(条件的多少)的情况下，长度越短越好 
+			  ref:显示索引的那一列被使用，如果可能的话，是一个常数(const)，哪些列或常量被用于查找索引列上的值
+			rows：表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数(每张表有多少行被优化器查询)
+			extra:包含不适合在其它列中显示但十分重要的额外信息
+				Using filesort：MySQL中无法利用索引完成的排序操作称为“文件排序”（很危险）            #order by要么不建索引，要么和索引的顺序和个数一致 Seq_in_index
+				Using temporary：表示MySQL需要使用临时表来存储结果集，常见于排序和分组查询（最危险） #group by要么不建索引，要么和索引的顺序和个数一致 Seq_in_index
+				Using index：select的数据列值用从索引中就能够取得，不必读取数据行(覆盖索引，相当好)
+				Using where：索引被用来执行索引键值的查找
+				Using join buffer：使用了连接缓存
+				impossible where:where子句的值总是false，不能用来获取任何元组
+	
+	创建：create index idx_article_ccv on article(id,comments,views);
+    显示：show index from article;                                        # 按Seq_in_index进行排序，即1排序完成再排序2...，保证所查字段排序与索引排序一致
+    删除：drop index idx_article_ccv on article
+	创建：alter table 'book' add index u('card');
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+	索引原则：
+		1.全值匹配:常量=并且索引都用上
+		2.最佳左前缀法则：索引了多列，要遵守最左前缀法则，即查询从索引的最左前列开始并且不跳过索引中的列
+		3.不在索引列上做任何操作(计算/函数/or/类型转换..)会导致索引失效而转向全表扫描
+		4.存储引擎不能使用索引中范围条件右边的列（中间条件使用范围条件,范围条件以后字段就无法索引）
+		5.尽量使用覆盖索引：查询字段与索引字段一致或顺序一部分，少用select *
+		6.mysql使用!=或者<>的时候无法使用索引会导致全表扫描
+		7.is null , is not null 也无法使用索引
+		8.like 使用通配符('%abc...') 索引失效，会变成全表扫描的操作 (可以使用覆盖索引解决)
+		9.字符串不加单引号索引失效：即char/varchar要需要加'',原因是在索引上做了操作(类型转换)
+		10.少用or，用它连接时会索引失效
+		
+		
+	分析诊断工具：
+		1.慢日志的开启并捕获(调优时开启)
+		2.explain + 慢日志查询 
+		3.show profile查询sql在mysql服务器里面的执行细节和生命周期情况
+		4.sql数据库服务器的参数优化
+	
+	
+	永远小表驱动大表：查询总次数一定情况下：使连接次数最少，一次连接查询次数最多
+		select * from A where id in (select id from B)             			 #返回真正的数据
+			等价于 1.for select id from B  2.for select * from A where A.id = B.id
+			当B表的数据集必须小于A表的数据集时，用in优于exists
+		select * from A where exists (select 1 from B where B.id = A.id)     #1代表常量，可以是别的。返回True/False 
+			等价于 1.fro select * from A  2.for select * from B where B.id = A.id
+			当A表的数据集必须小于B表的数据集时，用exists优于in
+		A表和B表的ID字段应建立索引
+	exists语法：将主查询的数据，放到子查询中做条件验证，根据验证结果(True/False)来决定主查询的数据结果是否得以保留
+	
+	
+	order by子句：尽量使用index方式排序，避免使用FileSort方式排序            #mysql有两种排序，using index 和 filesort，filesort有双路排序(扫描两次磁盘)和单路排序(一次io,在内存排序) #单路排序有可能一次性取不完，即sort_buffer_size(会导致创建临时文件)和max_length_for_sort_data太小
+				尽可能在索引列上完成排序操作，遵照索引建的最佳左前缀	
+	
+	group by实质是先排序后进行分组，准找索引的最佳左前缀
+	where 高于 having ，能现在where限定的条件不要去having限定
+	
+	
+	慢日志：show variables like "%slow_query_log%";
+			set global slow_query_log=1;  					#开启
+			show variables like "long_query_time%";   		#大于该秒数记录慢日志，重开会话才能看到修改值 , select sleep(n);
+			show global status like "%Slow_queries%";  	#查询当前系统中有多少条慢查询日志
+	
+	日志分析工具：mysqldumpslow
+		s:排序方式  c:访问次数   l:锁定时间  r返回记录  t：查询时间  al:平均锁定时间  ar:平均返回记录数  at:平均查询时间  t:返回前面多少天的数据  g:搭配正则，忽略大小写 
+		得到返回记录集最多的10个sql 						 mysqldumpslow -s -r -t 10 filename.log
+		得到访问次数最多的10个sql      						 mysqldumpslow -s c -t 10 filename.log
+		得到按照时间的前10条里面含有左连接的查询语句		 mysqldumpslow -s t -t 10 -g "left join" filename.log
+	
+	批量数据脚本
+		函数和存储过程都是用sql脚本语言写的编程
+			区别：函数有返回值，存储过程没有返回值
+		show variables like 'log_bin_trust_function_creators';
+	delimiter ;  #定义以;结尾则执行sql语句
+	
+	
+	show profile:参数默认是关闭状态，并保存最近15次的运行结果
+		1.show variables like 'profiling';
+		2.set profiling=on;
+		3.运行sql
+		4.查看结果：show profiles;               #获取Query_ID
+		5.show profile cpu,block io,memory for query  Query_ID;  #诊断sql:能得到整个sql语句执行周期
+		6.重要指标
+			1.converting HEAP to MyISAM     #查询结果太大，内存不够用了，往磁盘上搬了
+			2.creating tmp table            #创建临时表 1.拷贝数据到临时表 2.用完再删除(order by)
+			3.copying to tmp table on disk  #把内存中临时表复制到磁盘，危险！！！
+			4.locked
+	
+	全局查询日志：太耗费资源，只能在测试环境使用（模拟一段时间内的sql执行，出错的过程）
+		general_log = 1                    #开启,之后编写的sql语句，将会记录到mysql库里的general_log表
+		general_log_file = /path/logfile   #记录日志文件的路径
+		log_output = file				   #输出日志
+	
+	
+	锁是计算机协调多个进行或线程并发访问某一资源的机制
+	分类：从对数据操作的类型：读锁(共享锁)和写锁(排它锁)
+		  从对数据操作的粒度：行锁和表锁
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 
 

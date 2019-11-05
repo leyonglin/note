@@ -13,19 +13,10 @@ zadd(zset):排序/以时间为score进行排序/权重队列
 事务：商品秒杀/转账(多条命令必须同时执行)
 
 
-清redis数据
-redis-cli -h 127.0.0.1 -p 17693
-auth 密码
-flushall
-
-查询
-redis-cli -h 127.0.0.1 -p 17693 -a "9tN6GFGK60Jk8BNkBJM611GwA66uDFeG" -n 7 get config_name_system_config_lucky_bg_api_url
-redis-cli -h 127.0.0.1 -p 17693 -a "9tN6GFGK60Jk8BNkBJM611GwA66uDFeG" -n 7 get config_name_system_config_chat_api_ur
-
 c语言编写，基于内存，单线程，具有原子性，可部署集群，能持久化，支持多种数据结构
 热点数据：经常被查询，但不经常被修改或者删除的数据
 
-解压
+下载并解压：https://redis.io/
 make
 make PREFIX=/usr/local/redis install
 将解压目录下的redis.conf拷贝到/usr/local/redis目录下
@@ -41,13 +32,14 @@ redis常用命令：set(存在则覆盖) setnx get del  dump(序列化)  exists 
 key不宜太长和太短，key区分大小写，使用统一规范如 user:id:name password
 
 5中重要数据类型：string // hash // list // set // zset
+	参考文档：http://doc.redisfans.com/
 string(set)类型是二进制安全的，即redis的string可以包换任何数据，最大可以存储512MB
 二进制安全特点：1.编码/解码都是在客户端完成，执行效率高   2.不需要频繁的编解码，不会出现乱码
 string常用命令：setnx  getrange(string截取)  getset(查旧值赋新值(登陆的时候))  strlen(string长度)
 	incr(自增1(计数器)) decr(自减1(计数器)) incrby(自增指定步长) decrby    还有string拼接
 
 hash(hset/hmset)是一个string类型的field和value的映射表，每个hash可以存储2的32次方-1，占用空间少
-	hash适合存储用户信息对象数据(数据表表中所有字段)  hset和hmset存储有一定区别
+	hash适合存储用户信息对象数据(数据表表中所有字段)  hset和hmset存储有一定存储区别
 
 list：插入：lpush rpush lpushx rpushx  取出：lrange   长度：llen   lindex   删除：lpop  rpop  blpop    修减：ltrim
 	  修改：lset  linsert     高级：rpoplpush(将第一个list1最后数据删除并添加到list2中最后面，list1循环)
@@ -137,8 +129,14 @@ redis官网redis-clister(至少3master + 3slave)
 	curl -sSL https://get.rvm.io | bash -s stable
 	redis-cli -h 127.0.0.1 -c -p 7001  #-c访问集群
 
+清redis数据
+redis-cli -h 127.0.0.1 -p 17693
+auth 密码
+flushall
 
-
+查询
+redis-cli -h 127.0.0.1 -p 17693 -a "9tN6GFGK60Jk8BNkBJM611GwA66uDFeG" -n 7 get config_name_system_config_lucky_bg_api_url
+redis-cli -h 127.0.0.1 -p 17693 -a "9tN6GFGK60Jk8BNkBJM611GwA66uDFeG" -n 7 get config_name_system_config_chat_api_ur
 
 
 
