@@ -82,12 +82,83 @@ CSS 预处理器：让css能编程
 前端--node.js--后端     node.js后端技术，能作为前端中间件,方便前端开发应用
 
 
+
+https://tomcat.apache.org/  -- Archives
 tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路径会自动去webapps(资源根目录)下找）
+	1.启动服务状态查看：manager
+		修改conf/tomcat-users.xml
+		修改manager/META-INF/context.xml    #allow允许访问地址
+	2.内存调优：bin/catalina.sh  -- 111行			
+		export JAVA_OPTS="-Dfile.encoding=UTF-8 -server -Xms1200m -Xmx1200m -Xmn500m(-Xss512k线程栈大小) 
+						  -XX:+UseConcMarkSweepGC -XX:SurvivorRatio=8 -XX:CMSInitiatingOccupancyFraction=70 -XX+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=5 -XX:+HeapDumpOnOutOfMemoryError"
+						  -XX:+AggressiveOpts(自动加载新特性) -XX:+UseBiasedLocking(高并发时自动优化) -XX:PermSize=128M -XX:MaxPermSize=256M(这两个好像和依赖包有关系) -XX:+DisableExplicitGC -XX:MaxTenuringThreshold(老年区)=31 -Djava.awt.headless=True(避免需要使用某些图像的时候错乱)
+						  不用设置的：-XX:MaxNewSize 交给 jdk 去做
+						  
+		export JAVA_OPTS="-server -Xms1600M -Xmx1600M -Xss512k -XX:+AggressiveOpts -XX:+UseBiasedLocking -XX:PermSize=128M -XX:MaxPermSize=256M
+						  -XX:+DisableExplicitGC -XX:MaxTenuringThreshold=31 -XX:+UseConcMarkSweepGC -XX:+UseParNewGc -XX:+CMSParalleRemarkEnabled 
+						  -XX:+UseCMSCompactAtFullCollection -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -Djava.awt.headless=True"      
+						  #-XX:PermSize和-XX:MaxPermSize在jdk1.8中被弃用了,参数正确应为：–XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m，替代有+/-的表示启用/禁用，后面不带值，没有的后面会带值
+						  				  
+						  
+	3.并发优化
+		修改：conf/server.xml
+		    <Connector port="8080" protocol="HTTP/1.1"   #协议修改protocol="org.apache.coyote.http11.Http11NioProtocol"     bio < nio < apr
+				maxThreads="600"                         #最大线程数/并发数(单机:600-900)
+				minSpareThreads="100"					 #最小备用线程数
+				maxSpareThreads="500"					 #最大备用线程数，一旦创建的线程超过这个值，tomcat就会关闭不需要的socket线程
+				acceptCount="700"						 #最大连接数,即超过maxThreads的请求会被放入一个等待队列，超过该数的请求返回refuse connection
+				URIEncoding="UTF-8"
+				enableLookups="false"                    #不允许dns查询，即不反差域名
+				disableUploadTimeout="true" 			 #不给上传的附件单独做超时设置
+				minProcessors							 #最小的处理线程数，即空闲时线程等待数
+				maxProcessors							 #最大的处理线程数，超过则等待
+				useURIValidationHack					 #减少对url的不必要检查
+				compression="on"						 #压缩 GZip
+				compressionMinSize="2048"
+				compressableMimeType="type压缩类型"
+			   connectionTimeout="20000"				 #单位毫秒，-1表示永不超时
+               redirectPort="8443" />
+	4.conf/server.xml
+		<session-timeout>30</session-timeout>
+	
+
+运行中的日志catalina.out：tomcat的标准输出(stdout)和标准出错(stderr)和应用里使用其他的日志框架，配置了向Console输出的
+访问日志信息localhost_access_log：内部代码丢出的日志和记录的访问的时间，IP，访问的资料等相关信息
 
 
+apr: http://apr.apache.org/download.cgi (apr-1.5.2  apr-iconv-1.2.1   apr-util-1.5.4)
+编译：
+	./configure --prefix=/opt/apr
+	./configure --prefix=/opt/apr-iconv --with-apr=/opt/apr
+	./configure --prefix=/opt/apr-util --with-apr=/opt/apr --with-apr-iconv=/opt/apr-iconv/bin/apriconv
+	https://tomcat.apache.org/whichversion.html -- Download page下载原生tomcat ：https://archive.apache.org/dist/tomcat/tomcat-connectors/native/
+	cd tomcat-native-1.1.3/jni/native/   &&  ./configure --with-apr=/opt/apr
+配置：
+	vim +2 catalina.sh   添加 LD_LIBRARY_PATH=SLD_LIBRARY_PATH://path/apr/lib  export LD_LIBRARY_PATH
+		和内存回收参数
+	vim conf/server.xml 
+		<Connector port="8080" protocol="org.apache.coyote.http11.Http11APRProtocol"
+			maxThreads="2000"                    
+			minSpareThreads="100"				
+			maxConnections="10000"				
+			acceptCount="2000"
+			URIEncoding="UTF-8"
+			enableLookups="false"               
+			disableUploadTimeout="true" 												
+			compression="on"					
+			compressionMinSize="2048"
+			compressableMimeType="text/html,text/xml,text/javascript,text/css,text/plain"
+			connectionTimeout="20000"			
+			redirectPort="8443" />
 
 
+lsof -i:8080
+ps -ef | grep tomcat
+jmap -heap tomcat_PID
 
+WebService是一种跨编程语言和跨操作系统平台的远程调用技术
+webserver
+appserver
 
 
 
