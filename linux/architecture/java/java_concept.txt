@@ -83,7 +83,8 @@ CSS 预处理器：让css能编程
 
 
 
-https://tomcat.apache.org/  -- Archives
+下载：https://tomcat.apache.org/  -- Archives
+文档：http://localhost:8080/docs/config
 tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路径会自动去webapps(资源根目录)下找）
 	1.启动服务状态查看：manager
 		修改conf/tomcat-users.xml
@@ -94,11 +95,10 @@ tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路�
 						  -XX:+AggressiveOpts(自动加载新特性) -XX:+UseBiasedLocking(高并发时自动优化) -XX:PermSize=128M -XX:MaxPermSize=256M(这两个好像和依赖包有关系) -XX:+DisableExplicitGC -XX:MaxTenuringThreshold(老年区)=31 -Djava.awt.headless=True(避免需要使用某些图像的时候错乱)
 						  不用设置的：-XX:MaxNewSize 交给 jdk 去做
 						  
-		export JAVA_OPTS="-server -Xms1600M -Xmx1600M -Xss512k -XX:+AggressiveOpts -XX:+UseBiasedLocking -XX:PermSize=128M -XX:MaxPermSize=256M
-						  -XX:+DisableExplicitGC -XX:MaxTenuringThreshold=31 -XX:+UseConcMarkSweepGC -XX:+UseParNewGc -XX:+CMSParalleRemarkEnabled 
-						  -XX:+UseCMSCompactAtFullCollection -XX:LargePageSizeInBytes=128m -XX:+UseFastAccessorMethods -XX:+UseCMSInitiatingOccupancyOnly -Djava.awt.headless=True"      
-						  #-XX:PermSize和-XX:MaxPermSize在jdk1.8中被弃用了,参数正确应为：–XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m，替代有+/-的表示启用/禁用，后面不带值，没有的后面会带值
-						  				  
+		export JAVA_OPTS="-server -Xms1600M -Xmx1600M -Xss512k -XX:+UseBiasedLocking -XX:+DisableExplicitGC -XX:MaxTenuringThreshold=31 -XX:+CMSParallelRemarkEnabled 
+						  -XX:LargePageSizeInBytes=128m  -XX:+UseCMSInitiatingOccupancyOnly -Djava.awt.headless=True"      
+						  有问题参数：-XX:PermSize和-XX:MaxPermSize在jdk1.8中被弃用了,参数正确应为：–XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m，替代有+/-的表示启用/禁用，后面不带值，没有的后面会带值
+									  -XX:+UseParNewGc -XX:+UseCMSCompactAtFullCollection -XX:+UseFastAccessorMethods	-XX:+UseConcMarkSweepGC -XX:PermSize=128M -XX:MaxPermSize=256M -XX:+AggressiveOpts
 						  
 	3.并发优化
 		修改：conf/server.xml
@@ -118,7 +118,7 @@ tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路�
 				compressableMimeType="type压缩类型"
 			   connectionTimeout="20000"				 #单位毫秒，-1表示永不超时
                redirectPort="8443" />
-	4.conf/server.xml
+	4.conf/web.xml
 		<session-timeout>30</session-timeout>
 	
 

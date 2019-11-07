@@ -39,8 +39,15 @@
 	应用需要TB甚至 PB 级别数据存储
 	应用发展迅速，需要能快速水平扩展
 	应用需要99.999%高可用
-	
-	
+
+副本集replication：本质上就是一组mongod进程（通过oplog日志进行只从同步）配置高可用
+				1.Primary:主节点，负责所有的写操作；
+　　　　		2.Secondaries:从节点，同步主节点的数据，保存数据副本；
+　　　　		3.Arbiter:仲裁节点，不保存数据，只有一个投票的作用；
+share分片：通过分片键(shard key)将信息存储到不同Shard Server(类似mysql分库分表)，提高查询速度，三种角色都可结合副本集配置高可用
+				1.Shard Server：存储角色，真实的业务数据都保存在该角色中。在生产环境中每一个shard server都应该使用副本集，用于防止数据丢失，实现高可用
+				2.Config Server： 配置角色，存储sharing集群的元数据和配置信息，判断我们查询的数据在哪个shard中
+				3.mongos：路由角色，这是应用程序访问分片集群的入口，我们通过连接mongos来访问分片集群，mongos让整个集群看起来就像一个单独的数据库
 nosql:
 	1.键值型数据库：redis
 	2.文档型数据库：mongodb
@@ -69,7 +76,7 @@ mongo shell:用来操作mongodb数据库的界面，在这里可以使用mongo�
 	index 			index				索引
 
 
-操作：
+操作：db     #mongodb的全局量，代表当前正在使用的数据库(默认是test)
 	use databaseName     #存在则进入该数据库，不存在则创建，且不会马上创建，而是插入数据后才会创建(创建一个对象)
 	show dbs             #查看系统中的数据库
 		admin:存储用户信息
