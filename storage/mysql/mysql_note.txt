@@ -542,10 +542,24 @@
 	
 	
 	
-	
-	
-	
-	
+	DELIMITER $$
+	CREATE PROCEDURE `partition_maintenance_all`(SCHEMA_NAME VARCHAR(32))
+	BEGIN
+					CALL partition_maintenance(SCHEMA_NAME, 'history', 7, 24, 14);
+					CALL partition_maintenance(SCHEMA_NAME, 'history_log', 7, 24, 14);
+					CALL partition_maintenance(SCHEMA_NAME, 'history_str', 7, 24, 14);
+					CALL partition_maintenance(SCHEMA_NAME, 'history_text', 7, 24, 14);
+					CALL partition_maintenance(SCHEMA_NAME, 'history_uint', 7, 24, 14);
+					CALL partition_maintenance(SCHEMA_NAME, 'trends', 365, 24, 14);
+					CALL partition_maintenance(SCHEMA_NAME, 'trends_uint', 365, 24, 14);
+	END$$
+	DELIMITER ;
+	#CREATE PROCEDURE 语句：在数据库中创建用户定义的 SQL 过程。
+	#以上代码部分的含义为(库名,表名,保存多少天的数据,每隔多久生成一个分区,本次生成多少分区）
+		
+		
+	truncate table history;   ##删除整张表数据，但不会缩小表结构 
+	optimize table tablename; ##删除数据后的优化 
 	
 	
 	

