@@ -214,7 +214,8 @@ dd if=/dev/hdb | gzip > /root/image.gz  备份/dev/hdb全盘数据，并利用gzip工具进行
 GPG[-c-d](gnupg2软件包)就是用来加密数据与制作证书的一套工具，其作用与PGP(基于RSA公匙加密体系的邮件加密软件)类似。但是PGP使用了许多专利算法。GPG是GPL(通用性公开许可证General Public License)软件，并且没有使用任何专利加密算法集
 aide入侵检测[aide --init / aide --check ]  修改配置确定需要校验的数据
 nmap -n(不执行dns解析)  <-sP ICMP扫描 -sU UDP扫描 -sT TCP连接全开扫描 -sS TCP半开扫描 -A 目标系统全面扫描  -p>   最好方法是man nmap
-tcpdump -A host 127.0.0.1 and tcp port 21[-A转码  -i接口  -w写入指定文件(pcap文件)  -r指定文件读出] [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
+tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
+tcpdump (-i 接口) (-c 抓包总数) (or/and/not) (-w 文件) (-r 指定文件读出) (port PORT) (src/dst host ip/域名/网络位) (协议) -t(不显示时间戳) -vv(详细输出) -nn(不dns)  #可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...
 audit审计[auditctl规则设置命令 ausearch查看命令]
 diff -Nuar f1/d1 f2/d2 > *.patch         patch  -p0(使用绝对路径) < *.patch 
 chage账号属性   passwd锁定     chattr lsattr
