@@ -1,6 +1,4 @@
 
-Ctrl+R  快捷键让你对命令历史进行搜索
-
 ps -eo pid,args,psr| grep nginx
 
 egrep "(nginx|tomcat)$"
@@ -144,24 +142,7 @@ route
 brige
 arp
 
-:h   vim帮助
-h左j下k上l右    g move可以在同一行里向下一行
-motion跨过   fx tx Fx     w前  b后   0 ^ $  (往前/上  )往右或下
-H M L
-*/#     ma/`a     `.      
-c{motion}     d{motion}    y{motion}   num{motion}
-v  V  C+v
-D：剪切从光标位置到行尾到剪贴板。Y：拷贝当前行。
-x/s
-剪切板 :reg     "kyy-"kp     
-.重复上一个动作
-qa--动作--q     @register
-% 按对匹配 {} [] ()
->>：缩进所有选择的代码
-<<：和上面类似，但是反缩进
-gd：到达光标所在处函数或者变量的定义处（好像是往前，并非定义处）。
-K：在 Man 里面查找光标当前所在处的词。
-:2,3d
+
 
 hping3 -8 known[1-1024] -S IP                扫描ip(service文件的)
 hping2 IP -p 80 -S -i u1000 --rand-source    syn攻击
@@ -430,58 +411,8 @@ mtr：遇到数据传输延迟失败的问题，检测丢包率
 
 tar 是归档 gz等是压缩
 
-cat 1 2 > 3 合并文件
-
-Vim： +n进入文件光标位于第n行      i/I/a/A/o/O      ：w保存  ：-p退出   wp=x=ZZ   D删除当前光标到行尾
-行内跳转：0: 绝对行首  $: 绝对行尾  ^: 跳转至行首的第一个非空白字符  H：移动光标到屏幕上面   M：移动光标到屏幕中间  L：移动光标到屏幕下面
-          nx: 删除光标所在处及向后的共n个字符     连续u命令可撤消此前的n次编辑操作  
-          G 最后一行(vim + filename)    gg 第一行
-		  dw 删除光标之后的单词剩余部分。   d$/D 删除光标之后的该行剩余部分    daw删除光标所在单词
-
-多屏
-  在命令模式下：      :sp {filename}   再打开一个文件   ctrl+w+上下键可切换     :qa可关闭其它窗口(无修改)
-  多文件编辑  vim FILE1 FILE2 FILE3 …  :next 下一个  :prev前一个  :first 第一个  :last 最后一个  :wall 保存所有  :qall退出所有  :wqall   
-  多文件分割  vim -o -O FILE1 FILE2 …  -o: 水平分割  -O: 垂直分割  在窗口间切换：Ctrl+w
-  单文件窗口分割：Ctrl+w,s: split, 水平分割    Ctrl+w,v: vertical, 垂直分割   ctrl+w,q：取消相邻窗口   ctrl+w,o:取消全部窗口  ：wqall退出
-可视化
-   按键组合	             说明
-      v	         字符选择，会将光标经过的地方反白选择
-      V	         行选择，会将光标经过的行反白选择
-    Ctrl+v	     块选择，用一个矩形选择文本
-   可以进行删复制粘贴
-   1 ctrl+v 进入列编辑模式
-   2 向下或向上移动光标
-   3 把需要注释的行的开头标记起来
-   4 然后按大写的I
-   5 再插入注释符,比如"#"
-   6 再按Esc,就会全部注释了
-
-Vim查找支持正则表达式，例如/vim$匹配行尾的"vim"		:set paste ：原样粘贴 
-   查找：/foo\c将会查找所有的"foo","FOO","Foo"等字符串  \c表示大小写不敏感查找，\C表示大小写敏感查找
-   替换：连续字符替换：命令模式按R    跟shell交互 :! COMMAND
-   :{作用范围}s/{目标}/{替换}/{替换标志}    :%s/foo/bar/g会在全局范围(%)查找foo并替换为bar，所有出现都会被替换（g）
- !!!   :%s/foo/bar/gc   replace with bar (y/n/a/q/l/^E/^Y)?
-   按下y表示替换，n表示不替换，a表示替换所有，q表示退出查找模式， l表示替换当前位置并退出。^E与^Y是光标移动快捷键
-   行移动：通过h← j↓ k↑ l→ i来进行左下上右的光标移动。10j可以向下移动10行(方向键也可以)
-  单词移动：
-   w移动光标到下一个单词的词首，e移动光标到当前/下一个单词的结尾，b移动光标到当前/上一个单词的词首；
-   4w可以向后移动4个单词，W, B, E具有同样的功能，只不过它是用空格来分隔单词的，可以跳地更远~
-  读存：r {filename}  当前行读入文件    w {filename} 另存为
-  拷贝整个文件：ggyG
-插入模式：i：在当前字符的左边插入 I：在当前行首插入
-          a：在当前字符的右边插入 A：在当前行尾插入
-          o：在当前行下面插入一个新行 O：在当前行上面插入一个新行
-
-1 yy        　　//复制当前行
-2 yw     　　　　//当前光标下面的这个单词
-3 yit        　//复制一个html标签中的内容
-4 yft        　//复制当前行上光标到第一个t之间的所有内容
-
-vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式
+cat 1 2 > 3 合并文件    
  
-宏复制：   命令行模式qw---x-j-q--100@w(w与前面w对应)    qw---i-123-Esc-hhj-q---100@w（或者上下键）     
- 
-
 
 
 在linux环境下，任何事物都以文件的形式存在，通过文件不仅仅可以访问常规数据，还可以访问网络连接和硬件。所以如传输控制协议 (TCP) 和用户数据报协议 (UDP) 套接字等，系统在后台都为该应用程序分配了一个文件描述符，是基于函数生成的，
@@ -598,8 +529,7 @@ fdisk -l
 swapon -s   
 cat /proc/cmdline   #查看内核启动参数
 
-awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' access.log-20190801 | column -t
-awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #这是有逻辑的(将其中一个500改成100)
+
 
 time dd if=/dev/zero of=test.db bs=8k count=5000 oflag=direct
 1.time有计时作用，dd用于复制，从if读出，写到of；

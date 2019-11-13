@@ -1,6 +1,8 @@
 		   
 github:账号：leyonglin   密码：Aas183***.	
 
+源码安装：https://gitlab.com/gitlab-org/ [ gitlab-foss/blob/master/doc/ [ install/installation.md ] ]
+
 安装部署gitlab服务器：gitlab-ce参考文档：https://about.gitlab.com/install/
 软件包位置：https://packages.gitlab.com/gitlab/gitlab-ce/packages/el/7/gitlab-ce-10.8.2-ce.0.el7.x86_64.rpm [/download]        
 清华大学包源：https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/                  

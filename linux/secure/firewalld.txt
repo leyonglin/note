@@ -5,26 +5,50 @@ firewall-cmd --list-all  --查看默认区域
 配置方法：（1）命令： firewall-cmd  （2）图形界面：需要安装firewall-config
 防火墙有永久和临时，临时的重载/重启会失效，永久的添加(--permanent)需要重载(--reload)或者重启(restart)
 
-查看帮助：man firewall-cmd
-查看防火墙：firewall-cmd --list-all
+查看帮助：man firewall-cmd / firewall-cmd -h
+查看防火墙：firewall-cmd --state / --list-all
 查看ipset的ip：firewall-cmd --info-ipset=db_whitelist
 查看ipset文件：firewall-cmd --get-ipsets
 
-添加：firewall-cmd --add-*
-删除：firewall-cmd --remove-*
-查询：firewall-cmd --query-*
+添加：firewall-cmd --add-* / --set* / --new*
+删除：firewall-cmd --remove-* / --delete*
+查询：firewall-cmd --list* / --get* / --query-* / --info* / --path*
+修改:  firewall-cmd --change*
 
 添加/删除全局模式的服务|端口：存放在/etc/firewalld/zones/public.xml 
 firewall-cmd --permanent --add-service=http
 firewall-cmd --permanent --add-port=port/protocol        #port = [8080 或者 8000-8999]
 firewall-cmd --permanent --remove-service=XXXX
 firewall-cmd --permanent --remove-port=XXXX/protocol
-设置端口转发
+设置端口转发（创建一个DNAT规则）
 firewall-cmd --add-forward-port=port=8000:proto=tcp:toport=80 --permanent 
 firewall-cmd --add-forward-port=proto=80:proto=tcp:toaddr=192.168.1.1[:toport=8080] # 将80端口的流量转发至192.168.0.1 
 禁ping：
 firewall-cmd --add-icmp-block=echo-request --permanent
 
+General rich rule structure（[表示可有可无],<表示必须有但可以自定义>,invert=yes: 表示取反的意思）
+	rule [family="<rule family>"]
+	[source address="<address>" [invert="True"] ]
+	[destination address="<address>" [invert="True"] ]                                  
+	[service name="<service_name>"  port port="<number_or_range>" protocol="<protocol>" ]
+	[protocol value="<protocol_name_or_ID>" icmp-block name="<icmptype_name>"]    
+	[forward-port port="<number_or_range>" protocol="<protocol>" to-port="<number_or_range>" to-addr="<address>"]
+	[masquerade]
+	[log [prefix="<prefix text>"] [level="<log level>"] limit value=rate/duration]
+	[audit type="<audit type>" ]
+	<action>
+其中：icmp-block(icmp报文阻塞)在内部使用 reject 动作 masquerade(创建动态SNAT) forward-port 不允许有动作
+
+timeout:规则只启动指定秒数
+target：ACCEPT, DROP, REJECT
+在/usr/lib/firewalld/services/ 下有定义了部分服务配置文件，可拷贝到/etc/firewalld/services/下面(也可以自定义)，如果一个服务使用了若干个端口，则可以在服务中定义
+
+Lockdown Whitelist Options（此选项支持四种控制方式:1. context : 根据SELinux的进程domain(域)的安全上下文类型来定义Whitelist(白名单)2. command: 根据命令的绝对路径做Whitelist.3. uid4. user： 可以使用用户名 或 UID来做Whitelist）
+　　　　firewall-cmd --lockdown-on 　　　　 #先开启功能，在设置谁能操纵firewall-cmd.
+　　　　firewall-cmd --add-lockdown-whitelist-command=<command>
+　　　　　　　　　　--add-lockdown-whitelist-context=<context>
+　　　　　　　　　　--add-lockdown-whitelist-uid=<uid>
+　　　　　　　　　　--add-lockdown-whitelist-user=<user>
 
 Firewall所谓的黑白名单ipset其实就是一个含有ip的名单，drop了就是黑名单，accept就是白名单(在zones/public.xml中定义)。
 
@@ -91,12 +115,9 @@ firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="0.0
 启动/关闭紧急模式(断/连网)：firewall-cmd --panic-on/off
 
 
-
-
-
-选项 –-direct 需要是直接选项的第一个参数。将命令传递给防火墙。参数 <args> 可以是 iptables, ip6tables 以及 ebtables 命令行参数。
+选项 –-direct 需要是直接选项的第一个参数，直接编写iptables规则。将命令传递给防火墙。参数 <args> 可以是 iptables, ip6tables 以及 ebtables 命令行参数。
 firewall-cmd --direct --passthrough { ipv4 | ipv6 | eb } <args>          路径是：/etc/firewalld/direct.xml
-firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 0 -s 0.0.0.0  -p tcp --dport 22  -j ACCEPT
+firewall-cmd --permanent --direct --add-rule/chain ipv4 （filter INPUT 0 -s 0.0.0.0  -p tcp --dport 22  -j ACCEPT #这是iptable规则）
 
 
 IPTABLES：

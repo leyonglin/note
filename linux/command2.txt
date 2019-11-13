@@ -1,0 +1,69 @@
+
+AWK:
+	awk匹配模式有两种: 
+		1. /正则/  
+		2. 关系运算匹配  > < <= >= == != ~ !~
+			$3<50  
+			$7!="/bin/bash"   
+			$3 ~ /[0-9]{3,}/  
+			$1=="ftp" || $1=="mail"{print $0}'
+	awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' access.log-20190801 | column -t								 #统计ip	
+	awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #这是有逻辑的(将其中一个500改成100)
+	cat data|awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}'   #求最大值
+	awk 'BEGIN{sum=0}/^$/{++sum}END{print sum}' /etc/services                        #统计空行
+	awk 'BEGIN{printf "%-20s%-20s%-20s%-20s%-20s%-20s\n","Name","Chinese","English","Math","Physical","Average"}{sum=$2+$3+$4+$5;avg=sum/4}{printf "%-20s%-20d%-20d%-20d%-20d%-0.2f\n",$1,$2,$3,$4,$5,avg}' student.txt #统计平均值,逗号表示字符串分隔符，分号表示命令分隔符
+	awk占位符%[modifier]control-letter  -减号是左对齐,+加号是右对齐,#显示8进制在前面加0,显示16进制在前面加0x  
+	c	将一个数作为ASCII字符显示
+	d	显示一个整数值
+	i	显示一个整数值（和d一样）
+	e	用科学计数法显示一个数
+	f	显示一个浮点值
+	g	用科学计数法或浮点数显示（选择一个较短的格式）
+	o	显示一个八进制值
+	s	显示一个文本字符串
+	x	显示一个十六进制值
+	X	显示一个十六进制值，但用大写字母A～F
+	
+	内置变量：
+		$0                    打印行所有信息
+		$1~$n                    打印行的第1到n个字段信息
+		NF Number Field                处理行的字段个数
+		NR Number Row                处理行的行号
+		FNR File Number Row            多文件处理时，每个文件单独记录行号
+		FS Field Separator            字段分隔符，不指定时默认以空格或tab键分割
+		RS Row Separator            行分隔符，不指定时以回车换行分割
+		OFS Output Filed Separator        输出字段分隔符
+		ORS Output Row Separator        输出行分隔符
+		FILENAME                处理文件的文件名
+		ARGC                    命令行参数个数
+		ARGV                    命令行参数数组
+	
+	
+TCPDUMP: 
+	tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
+	tcpdump (-i 接口) (-c 抓包总数) (or/and/not) (-w 文件) (-r 指定文件读出) (port PORT) (src/dst host ip/域名/网络位) (协议) -t(不显示时间戳) -vv(详细输出) -nn(不dns)  #可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
+	
+	
+LSOF：	选项pu的值中^表示取反 (+d/+D dir) (-c <进程名> -c ...) (-u 用户名) (-p PID,PID...) (/path/filename) (-i :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) #协议指tcp和udp
+	lsof | head -1
+		COMMAND     PID   TID    USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
+		删除恢复：
+			1.lsof |grep /var/log/messages  
+				USER使用COMMAND命令启动服务，进程ip是PID，线程id是TID，在DEVICE对类型TYPE，总大小SIZE，在磁盘上的索引NODE的文件NAME使用FD(文件描述符+操作方式)操作
+			2.cat /proc/PID/fd/FD  >  <filename>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
