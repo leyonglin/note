@@ -562,8 +562,57 @@
 	optimize table tablename; ##删除数据后的优化 
 	
 	
+mysqld --verbose --help  #使用命令查看帮助
+	#脚本启动
+		## 设置变量
+		MYSQL_PATH="/usr/local/mysql"
+		sql_conf_dir='/usr/local/mysql/conf'
+		sql_conf_file=$(ls $sql_conf_dir/* |egrep cnf$)
+		sql_user='mysql'
+		
+		su ${sql_user} -s /bin/bash -c "${MYSQL_PATH}/bin/mysqld --defaults-file=${sql_conf_file} --user=${sql_user} &"  #启动
+		#su ${sql_user} -s /bin/bash -c "source /etc/profile && mysqld --defaults-file=${sql_conf_file} --user=${sql_user} &"
+		/opt/apps/mysql/bin/mysqladmin -uroot -p -S /opt/data/data_16303/mysql.sock -P 16303 shutdown					 #关闭	
 	
+安装：mysqld是mysql的核心程序  mysqld_safe脚本会在启动MySQL服务器后继续监控其运行情况，并在其死机时重新启动它。
+	1.从官网下载软件包，解压并移动到指定位置--貌似不用编译
+	2.创建数据库目录
+		mkdir -p /usr/local/mysql/{data,tmp,binlog,log,conf}   &&  touch /usr/local/mysql/log/mysqld-error.log
+	3.创建普通用户，并给与权限
+	4.添加环境变量
+	5.初始化,随机生成的密码在错误日志里（数据目录下/error.log）
+		mysqld --initialize --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --user=mysql    &&  mysql_secure_installation
+	6.创建配置文件
+		cat conf/my.cnf
+			[mysqld]
+			port=3306
+			user=mysql
+			basedir=/usr/local/mysql
+			datadir=/usr/local/mysql/data
+			#socket=/usr/local/mysql/tmp/mysql.sock symbolic-links=0		 #默认是在/tmp下的，如果配置了，服务端在连接的时候要使用-S选项指定sock位置
+			skip-mysqlx                               						 #5.7.12 之后新增了X plugin，不加载X plugin，这个会增加一个端口，是类似MongoDB的服务
+			log-bin = /usr/local/mysql/binlog/mysql-bin                      #开启binlog日志，不写路径，默认在data数据目录下
+			binlog_format = ROW
+			expire_logs_days = 7
+			server-id = 1
+			slow_query_log = 1                    								#开启慢查询
+			long_query_time = 1                  				 				#慢查询时间 超过1秒则为慢查询
+			slow_query_log_file = /usr/local/mysql/log/localhost-slow.log       #慢查询日志位置
+			skip-name-resolve                    				 				#禁止MySQL对外部连接进行DNS解析 DBA
+			max_connections = 2000   										    #MySQL的最大连接数
+			default-storage-engine = InnoDB
+			innodb_thread_concurrency = 16     								    #innodb线程并发数
+			#[mysqld_safe]	 													#有这个配置的话，需要启动改服务才会使下面的配置生效，不启动该服务，需要删除该配置
+			log-error=/usr/local/mysql/log/mysqld-error.log
+			pid-file=/usr/local/mysql/tmp/mysqld.pid
+	7.mysqld --verbose --help  | head -30     								 #帮助
+	8.启动：su mysql -s /bin/bash -c "mysqld --defaults-file=/usr/local/mysql/conf/my.cnf --user=mysql &" (defaults-file要在第一个参数)     或者使用脚本启动 cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql.server(脚本默认路径是/usr/local，要是情况而修改)  
+		
+		
 	
+
+
+	 
 
 
 

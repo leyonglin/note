@@ -39,7 +39,7 @@ AWK:
 		ARGV                    命令行参数数组
 	
 	
-TCPDUMP: 
+TCPDUMP:  or/and/not
 	tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
 	tcpdump (-i 接口) (-c 抓包总数) (or/and/not) (-w 文件) (-r 指定文件读出) (port PORT) (src/dst host ip/域名/网络位) (协议) -t(不显示时间戳) -vv(详细输出) -nn(不dns)  #可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
 	

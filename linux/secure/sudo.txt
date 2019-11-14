@@ -1,3 +1,11 @@
+
+使用：
+1. sudo -u ybdeploy /etc/init.d/code_rollback
+2. su ${sql_user} -s /bin/bash -c "${MYSQL_PATH}/bin/mysqld --defaults-file=${sql_conf_file} --user=${sql_user} &"
+3. sudo script.sh ( 包含2 )
+
+
+##sudo配置
 修改命令：visudo
 配置文件：
 注意事项：

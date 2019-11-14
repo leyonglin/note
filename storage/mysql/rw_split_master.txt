@@ -1,3 +1,4 @@
+
 ########mysqld 详细设置优化###########
 
 [client]
@@ -19,7 +20,7 @@ autocommit = 1                        #事务自动提交
 transaction_isolation = READ-COMMITTED #事务处理隔离允许幻读，但不允许不可重复读和脏读；
 sql_mode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER" #sql_mode sql标准或者MySQL应支持的SQL语法，以及应该在数据上执行何种确认检查
 explicit_defaults_for_timestamp = 1   #TIMESTAMP列默认赋值
-slow_query_log = 1                    #开启满查询
+slow_query_log = 1                    #开启慢查询
 long_query_time = 1                   #慢查询时间 超过1秒则为慢查询
 #slow_query_log_file = $path          #慢查询日志位置
 skip-name-resolve                     #禁止MySQL对外部连接进行DNS解析 DBA
