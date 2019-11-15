@@ -98,7 +98,8 @@ strace -tt -T -v -f -e trace=file -o /data/log/strace.log -s 1024 -p 23489
    -e trace=network  和网络通信相关的调用，比如socket/sendto/connect
    -e trace=signal    信号发送和处理相关，比如kill/sigaction
    -e trace=desc  和文件描述符相关，比如write/read/select/epoll等
-   -e trace=ipc 进程见同学相关，比如shmget等
+   -e trace=ipc 进程间通讯相关，比如shmget等
+   -e trace=all
 
 清除cache写进硬盘：
 sync; echo 1 > /proc/sys/vm/drop_caches     #仅清除页面缓存

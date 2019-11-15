@@ -1,7 +1,7 @@
 
 
  Nginx：
- 参考文档：1.http://nginx.org/en/docs/    2.http://tengine.taobao.org/book/index.html
+ 参考文档：1.http://nginx.org/en/docs/    2.http://tengine.taobao.org/book/index.html   3.http://nginx.org/download/
  nginx组成部分:any(包含全部),main(Core functionality),events(Core functionality),http(对应core),server,location,mail,stream, 
  
  nginx -V  查看当前已编译模块
