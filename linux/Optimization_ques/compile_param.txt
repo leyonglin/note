@@ -1,6 +1,7 @@
 
 1.在编译的时候，若是提示说没有某个依赖包(*.h,reinstall,check,cannot find,not found,missing)，并且已经下载了，很有可能是因为还需要下载 "依赖包-devel",不同操作系统后缀不一样
-2.全局变量
+2.make安装的时候，如果报错，需要修改编译文件的话，删除源码包，编译完成再修改，再进行安装
+3.全局变量
 
 Nginx编译
  ./configure --prefix=/opt/apps/nginx  

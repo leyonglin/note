@@ -3,6 +3,7 @@
  Nginx：
  参考文档：1.http://nginx.org/en/docs/    2.http://tengine.taobao.org/book/index.html   3.http://nginx.org/download/
  nginx组成部分:any(包含全部),main(Core functionality),events(Core functionality),http(对应core),server,location,mail,stream, 
+ 一键安装：https://lnmp.org/  (里面有些配置能被借鉴)
  
  nginx -V  查看当前已编译模块
  安装nginx安装第三方模块实际上是使用--add-module重新安装一次nginx

@@ -574,8 +574,9 @@ mysqld --verbose --help  #使用命令查看帮助
 		#su ${sql_user} -s /bin/bash -c "source /etc/profile && mysqld --defaults-file=${sql_conf_file} --user=${sql_user} &"
 		/opt/apps/mysql/bin/mysqladmin -uroot -p -S /opt/data/data_16303/mysql.sock -P 16303 shutdown					 #关闭	
 	
-安装：mysqld是mysql的核心程序  mysqld_safe脚本会在启动MySQL服务器后继续监控其运行情况，并在其死机时重新启动它。
-	旧版：https://downloads.mysql.com/archives/community/  最新版在官网下载https://dev.mysql.com/downloads/mysql/
+安装：安装的时候保证没有其它mysql/mariadb程序的存在或残留文件存在，不然容易命令错误(which mysql ...)
+	mysqld是mysql的核心程序  mysqld_safe脚本会在启动MySQL服务器后继续监控其运行情况，并在其死机时重新启动它。
+	旧版：https://downloads.mysql.com/archives/community/  最新版在官网下载https://dev.mysql.com/downloads/mysql/  rpm包：https://repo.mysql.com/yum
 	1.从官网下载软件包，解压并移动到指定位置--貌似不用编译
 	2.添加环境变量
 	3.创建数据库目录
@@ -591,7 +592,7 @@ mysqld --verbose --help  #使用命令查看帮助
 			skip-mysqlx                               						 #5.7.12 之后新增了X plugin，不加载X plugin，这个会增加一个端口，是类似MongoDB的服务
 			log-bin = /usr/local/mysql/binlog/mysql-bin                      #开启binlog日志，不写路径，默认在data数据目录下
 			binlog_format = ROW
-			expire_logs_days = 7
+			binlog_expire_logs_seconds = 100000
 			server-id = 1
 			slow_query_log = 1                    								#开启慢查询
 			long_query_time = 1                  				 				#慢查询时间 超过1秒则为慢查询
@@ -605,10 +606,10 @@ mysqld --verbose --help  #使用命令查看帮助
 			pid-file=/usr/local/mysql/tmp/mysqld.pid
 	5.创建普通用户，并给与权限		
 	6.初始化/空密码(--initialize换成该选项会生成临时密码并在终端输出/有的说会在日志里出现)
-		mysqld --initialize-insecure --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --user=mysql    &&  mysql_secure_installation
+		mysqld --initialize-insecure --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --user=mysql    
 	7.mysqld --verbose --help  | head -30     								 #帮助
 	8.启动：su mysql -s /bin/bash -c "mysqld --defaults-file=/usr/local/mysql/conf/my.cnf --user=mysql &" (defaults-file要在第一个参数)     或者使用脚本启动 cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql.server(脚本默认路径是/usr/local，要是情况而修改)  
-		
+	9.安全检查：./bin/mysql_secure_installation
 		
 	
 
