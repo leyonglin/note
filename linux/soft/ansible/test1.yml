@@ -1,0 +1,78 @@
+---
+#第一个列表
+ - hosts: B 
+   vars_files:
+   - var.yml
+   tasks:
+     #- debug: 'msg="ipv4 address: {{ansible_ens33.ipv4.address}}"'  
+     - name: test 
+       shell: echo "{{item}}"
+       with_items:
+         #一组
+         #haha
+         #heihei
+         #hehe
+         #三组 
+         #- haha
+         #- heihei
+         #- hehe
+         #三组
+         #[zhangsan,lisi,wangwu]
+         
+         #三组
+         #[
+         #  "zhangsan",
+         #  "lisi",
+         #  "wangwu"
+         #]
+         #两组
+         #- 班名: 初中1班
+         #  人数: 35
+         #  班主任: 隔壁老张
+         #  今天的任务: 扫操场
+         #- 班名: 初中2班
+         #  人数: 38
+         #  班主任: 隔壁老王
+         #  今天的任务: 搬桌子        
+       register: hi_var                
+     - debug: var=hi_var
+     
+     
+#第二个列表
+- hosts: localhost
+  tasks:
+    #调用一个模块的多种方式
+    - shell: echo 1 >/tmp/test.txt creates=/tmp/haha.txt
+    - shell: echo 2 >>/tmp/test.txt
+        creates=/tmp/haha.txt
+    - shell: echo 3 >>/tmp/test.txt
+      args:
+         creates: /tmp/haha.txt
+    - shell: >
+        echo 4 >>/tmp/test.txt
+        creates=/tmp/haha.txt
+    - shell: |
+        echo 5.1 >>/tmp/test.txt
+        echo 5.2 >>/tmp/test.txt
+      args:
+        creates: /tmp/haha.txt     
+     
+     
+     
+     
+#---
+#- hosts: test70
+#  remote_user: root
+#  gather_facts: no
+#  tasks:
+#    - debug: 
+#        msg: "{{item}}"
+#      with_items: "{{groups.ungrouped}}"     
+     
+     
+     
+     
+     
+     
+     
+     

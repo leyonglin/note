@@ -21,6 +21,11 @@ cat /etc/sysctl.conf
     net.core.somaxconn= 1024                                     #定义了系统中每一个端口最大的监听队列的长度, 对于一个经常处理新连接的高负载 web服务环境来说，默认值为128，偏小。
     vm.overcommit_memory=1                                       申请内存即允许(优先使用内存)
 	vm.swappiness=10                                             内存剩余100-10=90%的时候开始使用swap
+	vm.dirty_ratio=10
+	vm.dirty_background_ratio=5
+	vm.dirty_expire_centisecs=3000
+	vm.dirty_writeback_centisecs=200
+	vm.vfs_cache_pressure=50
     net.ipv4.icmp_echo_ignore_broadcasts = 1
     net.ipv4.icmp_echo_ignore_all = 1
     net.ipv4.ip_default_ttl = 128

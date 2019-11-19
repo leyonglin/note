@@ -19,8 +19,10 @@ ansible依赖python，需要python版本2.6以上，执行ansible的主机一般
 3.roles                      默认存放角色的目录
 
 总结：
-playbook语法进阶：vars(变量)，error，handlers(notify)，when,register，with_items(迭代)，with_nested(迭代嵌套，还有其他with_*)，tags，Template模板，include and roles
-                  block(块任务) 1.when(条件成立执行) 2.rescue(block执行错误触发) 2.always(无论结果如何都触发)    注意：block没有with_items属相
+playbook语法进阶：vars(变量)，error，handlers(notify)，when,register，tags，Template模板，include and roles,block(块任务)
+				  1.when(条件成立执行) 2.rescue(block执行错误触发) 2.always(无论结果如何都触发)注意：block没有with_items属相
+				  [with_items/with_list/with_together/with_flattened(迭代/循环)]，with_nested/cartesian(迭代嵌套)with_indexed_items(添加序号) 
+				  with_sequence，with_random_choice，with_dict，with_subelements，with_file，with_fileglob
 				  https://www.cnblogs.com/v394435982/p/5593274.html
 role：一级目录: ansible-playbook.yml文件(roles任务指定执行顺序) + 'roles'目录				  
       二级目录：roles子目录(自定义名称,在一级yml文件中指定)
@@ -188,7 +190,7 @@ ansible all -m ping  :  ping模块，回应pong,使用ssh协议
 红色代表执行失败             
 
 ansible  all  -m  model_name  -a  "argument"
-查看模块名：ansible-doc [-s] 模块名
+查看模块名：ansible-doc [-s] 模块名    #模块帮助  -s：简略输出
 模块：默认是command                         命令行执行命令，对特殊符号支持性差
       shell模块                           类似command，但对特殊符号支持性强
       script模块                          自动复制本机脚本到运程运行脚本
@@ -262,7 +264,8 @@ ansible-playbook user.yml  -f 5
 4.每一个play包含了一个task列表，多个task列表顺序执行                                      
 
 playbook语法进阶：vars(变量)，error，handlers(notify)，when,register，with_items(迭代)，with_nested(迭代嵌套，还有其他with_*)，tags，Template模板，include and roles
-                  block(块任务) 1.when(条件成立执行) 2.rescue(block执行错误触发) 2.always(无论结果如何都出发)    注意：block没有with_items属相
+                  block(块任务/错误捕捉) +(平级) 1.when(条件成立执行) 2.rescue(block执行错误触发) 2.always(无论结果如何都出发)    注意：block没有with_items属相
+				  fail
 				  https://www.cnblogs.com/v394435982/p/5593274.html
 
 魔法变量：
@@ -292,13 +295,13 @@ error错误模块跳过处理(默认$?不为0则报错停止)：
       shell: setenfore 0
 	  ignore_errors: True                              error模块跳过错误
 
-handlers和notify结合使用触发条件,handlers与tasks是同一级别缩进的,notify与模块是同一级别的
+handlers和notify(+listen)结合使用触发条件,handlers与tasks是同一级别缩进的,notify与模块是同一级别的(-meta: flush_handlers   force_handlers)
 handlers：是tasks任务列表，用于当关注资源发生变化时，才会采取一定的操作
 Notify，相当于是一个模块缩进，可用于每个play的最后出发，避免多次有改变发生时执行同样操作，同一服务只会触发一次，在notify中列出的操作称作handler，即notify中调用handler中定义的操作
 
 register变量注册:使用register模块来保存前一个命令的返回状态，在后面进行调用
 
-tags:给tasks起一个标签，在执行playbook的时候，添加参数-t可仅执行对应tasks任务
+tags:给tasks起一个标签，在执行playbook的时候，添加参数-t可仅执行对应tasks任务(只执行：--tag=t1 仅跳过：--skip-tags='t1')
 参数：[-t TAGS, --tags=TAGS]  [--skip-tags=SKIP_TAGS]  [--start-at-task=START_AT]
 
 cat test.yml
@@ -341,12 +344,12 @@ ansible-playbook -t installhttpd,rehttpd   test.yml           仅执行tags标�
 优先级：命令行 > 当前playbook定义的变量普通变量 > 当前playbook定义的变量全局变量 > 主机清单(由近及远)
 1.变量名：由字母开头，仅能由字母，数字，下划线组成
   来源：ansible setup facts 远程主机的变量都可直接调用
-  ansible git -m setup [-a 'filter="ansible_hostname"'] --- 过滤支持通配符*，这些变量可直接调用
+  ansible git -m setup [-a 'filter="ansible_local"'] --- 过滤支持通配符*，这些变量可直接调用(也可以在facts.d/*.fact定义或fact_path="path")
 2.在/etc/ansible/hosts中定义：
   普通变量，主机组中主机单独定义，优先级高于公共变量
   公共变量，针对主机组中所有主机定义统一变量
 3.通过命令行指定变量，优先级最高
-  ansible-playbook -e varname=value
+  ansible-playbook -e varname=value    #可以是kv或者json格式 也可以 -e "@/path/varfile" 传入文件
 4.在playbook中定义
   vars:
     - var1: value1
@@ -517,12 +520,62 @@ cat main.yml
 
      
  
-优化：关闭ssh的DNS查询
+优化：https://www.cnblogs.com/mauricewei/p/10056494.html
+      关闭ssh的DNS查询
       打开ansible配置文件的 1.host_key_checking = False 2.log日志
       使用通用的ssh协议，优点是简单省事，缺点是不是针对ansible开发优化过的，效率慢。需要提高效率，可以装专用的服务端与客户端，走特有协议，可以自动化安装。
 	  关闭获取gather_facts，在 playbook的(remote_user: liheng下一行)文件中加上“gather_facts: no”即可
 	  如果不使用 sudo，建议在配置文件中开启pipelining。 修改 ssh 客户端就行，ControlPersist即持久化 socket，需高版本openssh
-图形化：ansible tower 
+	  Pipelinling/Control_path/Gather subset/fact缓存/Strategy/Forks+Serial/Async and poll
+图形化AWX：ansible tower 
+
+
+
+
+
+
+
+
+fail模块：自定义错误信息,使用hostvars的时候需要被引用的主机执行Gathering Facts
+vars_prompt  encrypt  [set_fact和register都可以在其它play中使用，var定义的不可以]
+使用了两个引号，第一个是为了防止变量(即变量最好加双引号)被解释为内联字典，单引号是因为这里面有: 这个默认会被解释成k: v结构，因此需要有别于双引号的单引号转义
+	- debug: 'msg="ipv4 address: {{ansible_ens33.ipv4.address}}"'
+一个playbook文件可以有多个play列表
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

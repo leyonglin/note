@@ -1,0 +1,41 @@
+---
+- hosts: B
+  tasks:
+    - name: 引用本机facts变量
+      debug: msg={{ansible_ens33.ipv4}}
+      
+    - name: 引用本机facts变量
+      #使用了两个引号,第一个是为了防止变量(即变量最好加双引号)被解释为内联字典，单引号是因为这里面有: 这个默认会被解释成k: v结构，因此需要有别于双引号的单引号转义
+      debug: 'msg="ansible_ens33 ipv4 address: {{ansible_ens33.ipv4.address}}"'
+      #debug: 'msg="ansible_memory_mb.real: {{ansible_memory_mb.real}}"'
+
+    - name: hostvars引用非本机主机的facts变量
+      debug:
+        msg: "{{hostvars['192.168.3.6'].ansible_ens33.ipv4}}"
+      #debug: msg="{{hostvars['192.168.3.6'].ansible_ens33.ipv4}}"      #同一个name中多个module(debug)只会执行一个
+      #debug: msg="{{hostvars['test6'].ansible_ens33.ipv4.address}}"    #test6为hosts中定义过对应ip
+
+    - name: inventory_hostname和inventory_hostname_short分别代表的是inventory中被控节点的主机名[ip]和主机名的第一部分，如果定义的是主机别名，则变量的值也是别名
+      debug: msg="{{inventory_hostname}} & {{inventory_hostname_short}}"
+
+    - name: group_names返回的是主机所属主机组，如果该主机在多个组中，则返回多个组，如果它不在组中，则返回ungrouped这个特殊组。
+      debug: msg="{{groups}}"
+
+    - name: groups变量则是返回其所在inventory文件中所有组和其内主机名。该变量对每个控制节点都返回一次，所以返回的内容可能非常多
+      debug: msg='{{group_names}}'
+
+    - name: play_hosts代表的是当前play所涉及inventory内的所有主机名列表
+      debug: msg={{play_hosts}}
+
+    - name: inventory_dir每台主机inventory所在绝对路径
+      debug: msg={{inventory_dir}}
+
+    - name: inventory资产文件中的主机的名称，常用来修改主机名与资产文件中一致
+      debug: msg={{inventory_hostname}}
+
+    - name: ansible_version显示ansible软件的版本号
+      debug: msg={{ansible_version}}
+
+    #- name: ansible所有的变量打印出来,即将facts和以上变量和包括中间生成的其它变量都输出
+      #debug: var=vars
+      #debug: var=vars.ansible_ens33.ipv4
