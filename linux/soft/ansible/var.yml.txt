@@ -1,0 +1,13 @@
+#postfix:
+# install: present
+# remove: absent
+#filez:
+ #text1: lin.txt
+ #test2: wang.txt 
+# text1: /etc/ansible/lin.txt
+# text2: /etc/ansible/wang.txt
+#vars:
+ testvar: "abc123ABC 666"
+ testvar1: " abc "
+ testvar2: '123456789'
+ testvar3: "1a2b,@#$%^&"

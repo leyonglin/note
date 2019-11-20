@@ -68,6 +68,65 @@
 #    - debug: 
 #        msg: "{{item}}"
 #      with_items: "{{groups.ungrouped}}"     
+#      when: ansible_os_family == "RedHat"     
+     
+     
+#ansible过滤器（以下是string类型，还有数值，列表，default(变量返回默认值)，json_query，时间，win_*(表示在windos环境下操作)）
+#多重过滤：msg: "{{ path | splitext | first | basename}}"
+---
+- hosts: test70
+  remote_user: root
+  #gather_facts: no
+  #vars_files: /etc/ansible/var.yml
+  vars:
+    testvar: "abc123ABC 666"
+    testvar1: " abc "
+    testvar2: '123456789'
+    testvar3: "1a2b,@#$%^&"
+  tasks:
+    - name: 过滤
+      debug:
+        msg: "{{testvar|upper}}"
+    - debug: msg="{{testvar|lower}}"
+    - name: 将字符串变成首字母大写,之后所有字母纯小写
+      debug: msg="{{testvar|capitalize}}"
+    - name: 将字符串反转
+      debug: msg="{{testvar|reverse}}"
+    - name: 返回字符串的第一个字符
+      debug: msg="{{testvar| first}}"
+    - name: 返回字符串的最后一个字符
+      debug: msg="{{testvar|last}}"
+    - name: 将字符串开头和结尾的空格去除
+      debug: msg="{{testvar1|trim}}"
+    - name: 将字符串放在中间，并且设置字符串的长度为30，字符串两边用空格补齐30位长
+      debug: msg="{{testvar1|center(width=30)}}"
+    - name: 返回字符串长度,length与count等效,可以写为count
+      debug: msg="{{testvar2|length}}"
+    - name: 将字符串转换成列表，每个字符作为一个元素
+      debug: msg="{{testvar3|list}}"
+    - name: 将字符串转换成列表，每个字符作为一个元素，并且随机打乱顺序 #shuffle的字面意思为洗牌
+      debug: msg="{{testvar3|shuffle}}"
+    - name: 在随机打乱顺序时，将ansible_date_time.epoch的值设置为随机种子#也可以使用其他值作为随机种子，ansible_date_time.epoch是facts信息
+      debug: msg="{{testvar3|shuffle(seed=(ansible_data_time.epoch))}}"
+     
+     
+#include_vars加载赋予 
+  tasks:
+    - include_vars:
+       file: "/etc/ansible/wsCdnLogList"
+       name: testvar
+    - debug:
+        msg: "{{testvar}}"
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
      
      
      
