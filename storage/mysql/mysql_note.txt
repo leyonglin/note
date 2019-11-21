@@ -562,6 +562,7 @@
 	optimize table tablename; ##删除数据后的优化 
 	
 	
+	
 mysqld --verbose --help  #使用命令查看帮助
 	#脚本启动
 		## 设置变量
@@ -614,30 +615,74 @@ mysqld --verbose --help  #使用命令查看帮助
 	
 
 
-	mysql db_name -hlocalhost -uroot -C -P3306 [-S /path/mysql.sock] [-E] -e "select database()"  
+mysql db_name -hlocalhost -uroot -C -P3306 [-S /path/mysql.sock] [-E] -e "select database()"  
+select @@[global|session].system_var_name    #@@后面带的是准确的变量名称
+show status\G;  #运行时的转台变量
+show variables like '%c%'  #查找特定变量
+create table test1(id int primary key auto_increment, name varchar(55) not null default lin,index ind_name(name))engine=InnoDB auto_increment=2 default charset=utf8; #创建表
+status;
+create database if not exists textdb default character set utf8;
+show table status [like "user"]\G;						  	#查看表简要信息
+desc user;
+show create table user\G; 									#查看表创建语句
+create table testtab1 like test1;							#复制表结构(包括约束条件)
+show index from test1;										#查看表索引
+create table test3 select * from test1;					#创建表数据(不包括约束条件)
+drop table test1;										#删表
+delete from somelog where user = 'jcole';				#删表数据
+insert into test1 value(3,"lin");						#插入表数据
+alter table table_name rename as/add/drop/[change/modify]    #表名重命名/添加字段/删除字段/[修改字段类型/修改字段类型]
+create view test2 as select * from test1;                  #创建视图
 
+select count(num),gender from students group by gender;   #分组的目的往往时对分组后的数据进行聚合操作，如果想要对分组后的数据再次过滤，可以使用having关键字
+select * fron tb1 limit 3;                              #显示前三行
+	where name like 't_';                               #条件，in /not in  like rlike  between  not between  !=
+	order by (desc asc)                                 #降序/升序
+多表查询：cross join(可以忽略) inner join(同时符合) left join   right join     联合查询：union  union all   full join
+子查询原则:    1.一个子查询必须放在圆括号中。2.将子查询放在比较条件的右边以增加可读性。
 
+#http://www.zsythink.net/archives/category/%e5%ad%98%e5%82%a8/
+show variables like '%query_cache%';         #查询缓存,开/关/按需(关键字)，查询语句区分大小写
+show status like 'Qcache%';  show status like 'Com_select%';
 
+show engines; #引擎   innodb_file_per_table（独立表空间）
 
+事务：ACID     redo log实现ACID的原子性(A)(物理日志redologfile)  undo log数据修改前的备份(逻辑日志) 
+				一个重做日志组（log group）中有多个重做日志文件(redo log file) redo log写入第一个redo log file 中 
+				redo log存储于重做日志文件中，undo log则不同，undo存放在数据库内部的特哥特殊段中，这个段被称为undo段（undo segment），undo段位于共享表空间中。
+				过程:事务开始 -- log buffer -- os buffer -- log file
 
+一致性非锁定读：提高了并发性，某行被施加了排他锁，其他行需要读取时，不用等到锁解除，会去读取快照(undo段)
+事务隔离级别：通过锁来实现的（start transaction[with consistent snapshot]/begin）
+ 串行化：不会出现幻读，因为没使用一致性非锁定读，A未提交前B是看不到的
+ 可重读：A事务提交了，B事务未提交则无法看到修改，提交了才能看到修改(幻读，在可重读基础上，B未提交但是却更新了，导致跳过A的提交(因为看不到A的提交))
+ 读提交：A事务提交了，B马上就能看到，会出现幻读和不可重读
+ 读未提交：会出现脏读
+	脏读：当前事务可以查看到别的事务未提交的数据
+	幻读：侧重新增和删除，资源莫名多了或少了
+	不可重读：侧重修改，同一资源莫名的改变了
 
+日志：错误日志(log_error+log_warnings)  查询日志(general log/log_output)  慢查询日志(slow_query_log+mysqldumpslow)  
+二进制日志(log_bin)：mysqlbinlog(tool) 可用于时点恢复  模式：statement/row/mixed 记录语句不同  
+	中继日志(relay log)  事务日志(redo log)
 
+数据的一致性：通常指关联数据之间的逻辑关系是否正确和完备，保证数据一致性的方法：加锁/快照
+	快照：处于可重读的隔离级别下(事务中的第一个查询语句执行时，快照建立)，将备份操作放在一个单独的事务中(不进行更新，是不会出现幻读的)
+数据库的一致性：数据库从一个一致性状态变到另一个一致性状态	
 
-
-
-
-
-
-
-
-
-
-
-
-
+备份：全量备份，差异备份，增量备份，通过select语句进行部分备份(outfile/infile)，热备，温备，冷备，逻辑备份，物理备份
+mysqldump(逻辑备份):1.浮点型数据，会出现精度丢失 2.串行，效率低  3.对myisam只支持温备
+	将数据查找出来并转换成对应的insert语句，默认重定向到屏幕，可重定向到文件
+mysqldump -uroot -hlocalhost -p db_name table_name ...   #备份多张表
+mysqldump -uroot -hlocalhost -p --databases zsythink test  #备份多个库[--all-databases]
+mysqldump -uroot -hlocalhost -p -d db_name [table_name...]  #备份所有表/一张表的表结构
 	
-
-
-
-
+xtrabackup(物理备份)：备份page数据块
+	innodb逻辑结构：表空间(tablespace) 段(segment) 区(extent) 页(page) 行(row)
+	
+xtrabackup: LSN是一个全局递增的号码	，每次对page中的记录进行修改，都会有对应的lsn码
+	
+	
+	
+	
 	

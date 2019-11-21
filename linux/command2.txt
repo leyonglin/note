@@ -1,4 +1,13 @@
 
+echo  -e  1."aaa$1bb\\"    2. "\033[ 41; 31 mtest\033[ 0 m"
+	1.\b  \c  \n  \f  \v  \t  \r  \\
+	2. 40-47背景 30-37字体   0/1/4/5/7/8  #在第一第二部分则表示作用于内容，在第三部分则表示作用于终端
+
+seq [-s +] [-w] 1 [2 10]
+seq -f "dir%g" ["%03g"]  5
+
+printf "%s [%s...]\n" a 1 b 2 c 3  # %3.2f\n
+
 AWK:
 	awk匹配模式有两种: 
 		1. /正则/  
@@ -8,7 +17,7 @@ AWK:
 			$3 ~ /[0-9]{3,}/  
 			$1=="ftp" || $1=="mail"{print $0}'
 	awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' access.log-20190801 | column -t								 #统计ip	
-	awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #这是有逻辑的(将其中一个500改成100)
+	awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #这是有逻辑的(将其中一个500改成100),自定义变量：i=0;j=0
 	cat data|awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}'   #求最大值
 	awk 'BEGIN{sum=0}/^$/{++sum}END{print sum}' /etc/services                        #统计空行
 	awk 'BEGIN{printf "%-20s%-20s%-20s%-20s%-20s%-20s\n","Name","Chinese","English","Math","Physical","Average"}{sum=$2+$3+$4+$5;avg=sum/4}{printf "%-20s%-20d%-20d%-20d%-20d%-0.2f\n",$1,$2,$3,$4,$5,avg}' student.txt #统计平均值,逗号表示字符串分隔符，分号表示命令分隔符
@@ -30,13 +39,16 @@ AWK:
 		NF Number Field                处理行的字段个数
 		NR Number Row                处理行的行号
 		FNR File Number Row            多文件处理时，每个文件单独记录行号
-		FS Field Separator            字段分隔符，不指定时默认以空格或tab键分割
-		RS Row Separator            行分隔符，不指定时以回车换行分割
+		FS Field Separator            字段分隔符，不指定时默认以空格或tab键分割,指定\n被当作空格
+		RS Row Separator            行分隔符，不指定时以回车换行分割,指定\n被当作空格
 		OFS Output Filed Separator        输出字段分隔符
 		ORS Output Row Separator        输出行分隔符
 		FILENAME                处理文件的文件名
 		ARGC                    命令行参数个数
 		ARGV                    命令行参数数组
+awk [-v FS="#" -v OFS='---'] [-v RS=" " -v ORS="++"] '{print $1 $2}/{print FILENAME,$1,$2}'  test
+awk '{print NR/FNR/NF,$0,ARGV[0],ARGV[1],ARGV[2],ARGC}' test test1
+
 	
 	
 TCPDUMP:  or/and/not
