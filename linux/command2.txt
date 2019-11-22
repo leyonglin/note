@@ -53,7 +53,7 @@ awk '{print NR/FNR/NF,$0,ARGV[0],ARGV[1],ARGV[2],ARGC}' test test1
 	
 TCPDUMP:  or/and/not
 	tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
-	tcpdump (-i 接口) (-c 抓包总数) (or/and/not) (-w 文件) (-r 指定文件读出) (port PORT) (src/dst host ip/域名/网络位) (协议) -t(不显示时间戳) -vv(详细输出) -nn(不dns)  #可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
+	tcpdump (-i 接口) (-c 抓包总数) (or/and/not) (-w 文件) (-r 指定文件读出) (port PORT) (src/dst host ip/域名/网络位) (-p 协议) -t(不显示时间戳) -vv(详细输出) -nn(不dns)  #可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
 	
 	
 LSOF：	选项pu的值中^表示取反 (+d/+D dir) (-c <进程名> -c ...) (-u 用户名) (-p PID,PID...) (/path/filename) (-i :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) #协议指tcp和udp

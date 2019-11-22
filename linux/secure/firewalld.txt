@@ -161,6 +161,59 @@ ipset restore -f blacklist.txt  导入ipset规则
 
 
 
+iptables [-t filter] --line -nvL  [INPUT]   			    #查看 -x选项表示详细显示
+	Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+	num(-I/-D)   pkts(报文数) bytes target(-j action)   prot(协议-p) opt(选项)  in(-i)  out(-o)  source(-s / ! -s)   destination(-d) 
+
+取反：! [-s -d] [--sport --dport port/:port/port:] [-i -o] [--src/dst-range]	
+iptables -t filter -I INPUT 2 -s 192.168.3.6 -j DROP 		#插入一条编号为2的规则，默认规则编号为1，A则是追加到规则尾部
+iptables -t filter -D INPUT 3 [-s 192.168.3.21 -j ACCEPT]	#删除编号为3的规则，也可以根据匹配条件+动作删除(由上往下删除一条)
+iptables [-t filter] -F [INPUT]                             #flush相当于清除未保存的规则，可以根据表/链进行删除
+iptables -t filter -P FORWARD DROP							#修改链的默认动作
+#iptables -R INPUT 1 -s 192.168.3.21 -j ACCEPT				#修改指定编号规则，但是，修改要把不变的条件都加进去(例如省略了-s，会导致源地址变成0.0.0.0/0)，其实就相当于删除旧的，再添加新的规则
+service iptables save / iptables-save > /etc/sysconfig/iptables  #保存规则 (rpm包：iptables-services)
+iptables-restore < /etc/sysconfig/iptables  				#重载规则，现有规则会被覆盖
+iptables -I INPUT -d 192.168.3.0/24 -p icmp -j REJECT			#-s表示源ip，-d表示本机ip
+
+tcp：
+iptables -I INPUT [-p tcp -m tcp --dport 3360] -j REJECT    #拓展模块目标端口  -m+拓展模块名(省略默认使用与-p协议名称相同的模块) multiport模块：连续端口22:80 离散22，80 混合22,80:3306
+iptables -I INPUT -m iprange --src-range 192.168.3.20-192.168.3.32 -j DROP  #使用-将ip连接起来
+iptables -t filter -I INPUT -m string --algo bm --string "ooxx" -j REJECT   #禁止携带指定字符串的报文进入本机(--algo bm是指算法)
+-m time --timestart 09:00:00 --timestop 18:00:00  / -m time --weekdays/monthdays 6,7
+iptables -I INPUT -p tcp --dport 80 [-m connlimit --connlimit-above 10] [--connlimit-mask 16] -j REJECT   #子网掩码为16的ip每个ip限制访问10次
+1.iptables -t filter -I INPUT -p icmp -m limit --limit-burst 3 --limit 10/minute -j ACCEPT      #限制每6秒通过以ping报文，--limit-burst 3表示木桶可以多放三个，即执行完会再通过三个报文，6秒内址匹配一次
+2.iptables -t filter -A INPUT -p icmp -j REJECT   #由于6秒内只匹配一次，其它的报文不会再匹配1，因此加一条，拒绝其它报文
+iptables -t filter -I INPUT -p tcp -m tcp --dport 22 --tcp-flags ALL SYN -j REJECT  #--tag-flags   ALL = SYN,ACK,FIN,RST,URG,PSH  这个是匹配第一次握手，SYN,ACK匹配第二次握手
+拓展模块：tcp multiport  iprange string time connlimit(ip) limit 
+udp：
+拓展模块：udp(-sport/-dport)
+icmp: 互联网控制报文协议，有多种type和code(请求8/0，回应0/0)
+iptables -t filter -I INPUT -p icmp -m icmp --icmp-type 8/0 -j REJECT  #远程主机ping请求8（8/0）（"echo-request"）拒绝
+
+state状态：new(第一个连接) established(已建立) related(客户端和服务端可能有命令/数据连接，这些连接之间的关联) invalid(包无任何状态) untracked(报文未追踪)
+1.iptables -t filter -I INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT       #限制外部主动连接内部，但不影响内部主动影响外部
+2.iptables -t filter -A INPUT -j REJECT
+
+黑白名单：默认ACCEPT，添加白名单，最后添加iptables -A INPUT -j REJECT
+
+自定义链：
+iptables -t filter -N IN_WEB					  
+iptables -nvL    								  #references引用计数
+iptables -I INPUT -p tcp --dport 80 -j IN_WEB     #引用
+iptables -I IN_WEB -s 192.168.3.6 -j REJECT		  #正常添加规则
+iptables -E IN_WEB WEB							  #重命名
+iptables -X WEB                                   #删除，但必须无规则且不被引用  
+
+网络防火墙					
+iptables -I FORWARD -s 10.1.0.0/16(内网) -p tcp --dport 80 -j ACCEPT    #内网访问外网服务，内网IP&&目标端口
+#iptables -I FORWARD -d 10.1.0.0/16(外网) -p tcp --sport 80 -j ACCEPT    #外网回应内网请求，目标ip&&源端口
+iptables -I FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT      #放行双向的回应报文
+
+
+
+
+
+
 
 
 
