@@ -7,6 +7,7 @@ seq [-s +] [-w] 1 [2 10]
 seq -f "dir%g" ["%03g"]  5
 
 printf "%s [%s...]\n" a 1 b 2 c 3  # %3.2f\n
+grep -i(忽略大小写) -v(取反) -n(显示行数) -c(统计) -o(进输出匹配关键词) -ABC(上下文) -w(匹配单词) -e(支持正则) -q(静默)   (grep(基本正则) egrep(正则) fgrep(速度快不支持正则))
 
 AWK:
 	awk匹配模式有两种: 
@@ -16,12 +17,18 @@ AWK:
 			$7!="/bin/bash"   
 			$3 ~ /[0-9]{3,}/  
 			$1=="ftp" || $1=="mail"{print $0}'
+		3.行范围匹配	
 	awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' access.log-20190801 | column -t								 #统计ip	
-	awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #这是有逻辑的(将其中一个500改成100),自定义变量：i=0;j=0
+	awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #自定义变量：i=0;j=0,这是有逻辑的(将其中一个500改成100)
 	cat data|awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}'   #求最大值
 	awk 'BEGIN{sum=0}/^$/{++sum}END{print sum}' /etc/services                        #统计空行
 	awk 'BEGIN{printf "%-20s%-20s%-20s%-20s%-20s%-20s\n","Name","Chinese","English","Math","Physical","Average"}{sum=$2+$3+$4+$5;avg=sum/4}{printf "%-20s%-20d%-20d%-20d%-20d%-0.2f\n",$1,$2,$3,$4,$5,avg}' student.txt #统计平均值,逗号表示字符串分隔符，分号表示命令分隔符
-	awk占位符%[modifier]control-letter  -减号是左对齐,+加号是右对齐,#显示8进制在前面加0,显示16进制在前面加0x  
+	awk占位符%[modifier]control-letter  -减号是左对齐,+加号是右对齐,#显示8进制在前面加0,显示16进制在前面加0x 
+三元运算：	
+	awk -F: '{usertype=$3<500?"系统用户":"普通用户" ; print $1,usertype}' passwd   #等同于awk -F: '{usertype=$3<500?"系统用户":"普通用户"}{ print $1,usertype}' passwd
+	awk -F: '{$3<500?a++:b++}END{print a,b}' passwd
+	awk 'i=!i' test（打印奇数行）  /   awk '{i=!i;print i}' test
+	 
 	c	将一个数作为ASCII字符显示
 	d	显示一个整数值
 	i	显示一个整数值（和d一样）
@@ -45,10 +52,25 @@ AWK:
 		ORS Output Row Separator        输出行分隔符
 		FILENAME                处理文件的文件名
 		ARGC                    命令行参数个数
-		ARGV                    命令行参数数组
+		ARGV                    命令行参数数组	
 awk [-v FS="#" -v OFS='---'] [-v RS=" " -v ORS="++"] '{print $1 $2}/{print FILENAME,$1,$2}'  test
 awk '{print NR/FNR/NF,$0,ARGV[0],ARGV[1],ARGV[2],ARGC}' test test1
+abc=666  awk -v myvar=$abc 'BEGIN{print myvar}'	
+awk ]--re-interval] '/ro{1,2}t/{print $0}' passwd   #--re-interval 匹配指定次数,但自己试的时候不用加也可以
+awk '/root/,/operator/{print $0}' passwd			#范围性输出，输出第一个匹配/root/和/operator/之间(包括)的行
+cat -n passwd | awk 'NR>=3&&NR<=6'					#3-6行	
+cat -n passwd|awk -F: '{print $1}{print NR}'		#对于一行，输出$1再输出$2 等同于cat -n passwd|awk -F: '{print $1;print NR}'	
+	
+	内置函数
+		rand，srand，int
+		gsub  sub  length  index
+		awk 'BEGIN{srand();print rand()}'   	 	awk 'BEGIN{srand();print int(100*rand())}'	  #随机数
+		awk '{gsub("a","A");print $0}' passwd    	awk '{gsub("[a-z]","6");print $0}' passwd     #替换
+		awk '{sub("[a-z]","6");print $0}' passwd	#替换	awk '{print $0,length()}' passwd	#字符串长度
+		awk '{print index($0,"root")}' passwd   #root所在位置
 
+
+		
 	
 	
 TCPDUMP:  or/and/not
@@ -63,8 +85,24 @@ LSOF：	选项pu的值中^表示取反 (+d/+D dir) (-c <进程名> -c ...) (-u �
 			1.lsof |grep /var/log/messages  
 				USER使用COMMAND命令启动服务，进程ip是PID，线程id是TID，在DEVICE对类型TYPE，总大小SIZE，在磁盘上的索引NODE的文件NAME使用FD(文件描述符+操作方式)操作
 			2.cat /proc/PID/fd/FD  >  <filename>
+
+NC：
+服务端         						客户端(-u:udp -v:版本/连接信息  -z:不发送数据  -w:超时时间)
+nc -lv 9999 (tcp)					nc -vzw 2 192.168.3.6 9999（telnet 192.168.3.6 9999 / nmap 192.168.3.6 -p 9999）
+nc -ul 9999(udp)					nc -uvzw 2 192.168.3.6 9998
+									nmap -sU 192.168.3.6 -p 9998 -Pn    （-sU扫描udp端口，-Pn防止部分防火墙影响）
+nc -lv 9995 > clent.txt(接收端)     nc -vzw 2 192.168.3.21 9995 < nc.txt(发送端)    --- 传文件
+可以传目录
+nc -l 9991 >/dev/null				nc 192.168.3.21 9991 </dev/zero  +  dstat  ---  测网速
+
+
+
 	
-	
+
+              nc -l 1567 | tee test              nc 172.31.100.7 1567     
+              nc -l 1567 < file.txt              nc -n 172.31.100.7 1567 > file.txt
+	tar -cvf – dir_name| bzip2 -z | nc -l 1567   nc -n 172.31.100.7 1567 | bzip2 -d |tar -xvf -
+	nc localhost 1567 | mcrypt –flush –bare -F -q -d -m ecb > file.txt    mcrypt –flush –bare -F -q -m ecb < file.txt | nc -l 1567	
 	
 	
 	

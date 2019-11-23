@@ -120,10 +120,26 @@ firewall-cmd --direct --passthrough { ipv4 | ipv6 | eb } <args>          路径�
 firewall-cmd --permanent --direct --add-rule/chain ipv4 （filter INPUT 0 -s 0.0.0.0  -p tcp --dport 22  -j ACCEPT #这是iptable规则）
 
 
+
+
 IPTABLES：
 四表：filter(过滤表) nat(地址转换表) mangle(包标记表) raw(状态跟踪表)
 五链：PREROUTING(路由前) POSTROUTING(路由后)  INPUT(入站)  OUTPUT(出站)  FORWARD(转发)
 匹配顺序:1.顺序匹配，匹配即停止    2.若无任何匹配，则按该链的默认策略处理
+
+netfilter 组件也称为内核空间（kernelspace），是内核的一部分，由一些信息包过滤表组成，这些表包含内核用来控制信息包过滤处理的规则集。
+iptables 组件是一种工具，也称为用户空间（userspace），它使插入、修改和除去信息包过滤表中的规则变得容易。
+
+filter: 一般的过滤功能.
+nat: 用于nat功能(端口映射, 地址映射等).
+mangle: 用于对特定数据包的修改.
+raw: 优先级最高, 设置raw时一般是为了不再让iptables做数据包的链接跟踪处理, 提高性能.
+
+PREROUTING：数据包进入路由表之前.
+INPUT: 通过路由表后目的地为本机.
+FORWARDING: 通过路由表后, 目的地不为本机.
+OUTPUT: 由本机产生, 向外转发.
+POSTROUTIONG: 发送到网卡接口之前.
 
 iptables [-t 表名] 选项 [链名] [条件] [-j 目标操作]
 规律: 1.不指定表，默认为filter表  2.不指定链，默认为对应表的所有链   3.没有匹配规则，则使用防火墙默认规则  4.选项/链名/目标操作用大写字母，其余都小写
@@ -209,13 +225,30 @@ iptables -I FORWARD -s 10.1.0.0/16(内网) -p tcp --dport 80 -j ACCEPT    #内�
 #iptables -I FORWARD -d 10.1.0.0/16(外网) -p tcp --sport 80 -j ACCEPT    #外网回应内网请求，目标ip&&源端口
 iptables -I FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT      #放行双向的回应报文
 
+动作：
+ACCEPT:
+DROP:不予回应，容易一直请求
+REJECT：
+	iptables -I INPUT  -p icmp -j REJECT --reject-with icmp-host-unreachable  
+		icmp-port-unreachable(默认) / icmp-net-unreachable / icmp-host-unreachable / icmp-proto-unreachable
+		icmp-net-prohibited / icmp-host-pro-hibited / icmp-admin-prohibited
+LOG：只负责记录匹配的报文信息，不进行其它处理
+	iptables -I INPUT -p tcp --dport 22 -m state --state NEW -j LOG --log-level "warning" --log-prefix "want-in-from-port-22"   （--log-prefix添加标签，方便查找，记录在/var/log/message,可以通过/etc/rsyslog.conf修改）
+NET：NAPT / SNAT(访问外网服务) / DNAT(提供内网服务) / MASQUERADE(动态snat)
+	iptables -t nat -A POSTROUTING -s 10.1.0.0/16(内网) -j SNAT --to-source 192.168.1.14(公网)   											#POSTROUTING与INPUT
+	iptables -t nat -I POSTROUTING -s 10.1.0.0/16 -o ens33 -j MASQUERADE                                                     			    #动态snat
+	1.iptables -t nat -I PREROUTING -d 192.168.1.146(公网) -p tcp --dport 3389(公网端口) -j DNAT --to-destination 10.1.0.6:3389(内网)		#PREROUTING与OUTPUT
+	2.iptables -t nat -A POSTROUTING -s 10.1.0.0/16(内网) -j SNAT --to-source 192.168.1.14(公网)											#单独配1不行的话，则是需要与2结合	
+REDIRECT:本机转发
+	iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 8080		#将本机的80端口映射到本机的8080端口上 PREROUTING与OUTPUT
 
-
-
-
-
-
-
-
-
-
+原则：
+	1.规则顺序很重要，匹配即停止(log除外)
+	2.一个规则中多个匹配条件，默认是与的关系，即需要满足所有的匹配条件才算匹配
+	3.在满足1的情况下，被匹配次数多的，匹配频率高的应该放在最前面(查看报文数)
+	4.网络防火墙需要考虑双向问题
+	5.白名单一般不是改变默认策略，而是通过在链的最后设置reject规则实现白名单
+	
+	
+	
+	

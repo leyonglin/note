@@ -186,13 +186,8 @@ stat file/Directory      du -sh     df -h      ldd CMD     命令：file/type
 stat命令显示的是文件的I节点信息(文件系统管理的一个数据结构，是一个64字节长的表，包含了描述文件所必要的全部信息)。Linux文件系统以块为单位存储信息，为了找到某一个文件所在存储空间的位置，用I节点对每个文件进行索引。
 dig 与host相似
 dd if=/dev/hdb | gzip > /root/image.gz  备份/dev/hdb全盘数据，并利用gzip工具进行压缩，保存到指定路径(if=源文件 of=目标文件)
-传文件：目标：nc -lvp 1234 >test.txt   源服务器：nc -w 1 10.57.22.128 1234 < mysql.pass 
-              nc -l 1567 | tee test              nc 172.31.100.7 1567     
-              nc -l 1567 < file.txt              nc -n 172.31.100.7 1567 > file.txt
-	tar -cvf – dir_name| bzip2 -z | nc -l 1567   nc -n 172.31.100.7 1567 | bzip2 -d |tar -xvf -
-	nc localhost 1567 | mcrypt –flush –bare -F -q -d -m ecb > file.txt    mcrypt –flush –bare -F -q -m ecb < file.txt | nc -l 1567
 
-安全：
+安全
 GPG[-c-d](gnupg2软件包)就是用来加密数据与制作证书的一套工具，其作用与PGP(基于RSA公匙加密体系的邮件加密软件)类似。但是PGP使用了许多专利算法。GPG是GPL(通用性公开许可证General Public License)软件，并且没有使用任何专利加密算法集
 aide入侵检测[aide --init / aide --check ]  修改配置确定需要校验的数据
 nmap -n(不执行dns解析)  <-sP ICMP扫描 -sU UDP扫描 -sT TCP连接全开扫描 -sS TCP半开扫描 -A 目标系统全面扫描  -p>   最好方法是man nmap

@@ -91,7 +91,7 @@
  Delete FROM mysql.user Where User='gameplat_analysis_dev' and Host='103.86.87.194';
  
  
- 删除账户及权限：>drop user user@'%';
+ 删除账户及权限：drop user user@'%';
  
  从库取消主从：stop slave；reset slave all;
  
@@ -557,9 +557,9 @@
 	#CREATE PROCEDURE 语句：在数据库中创建用户定义的 SQL 过程。
 	#以上代码部分的含义为(库名,表名,保存多少天的数据,每隔多久生成一个分区,本次生成多少分区）
 		
-		
 	truncate table history;   ##删除整张表数据，但不会缩小表结构 
 	optimize table tablename; ##删除数据后的优化 
+	
 	
 	
 	
@@ -649,7 +649,7 @@ show engines; #引擎   innodb_file_per_table（独立表空间）
 
 事务：ACID     redo log实现ACID的原子性(A)(物理日志redologfile)  undo log数据修改前的备份(逻辑日志) 
 				一个重做日志组（log group）中有多个重做日志文件(redo log file) redo log写入第一个redo log file 中 
-				redo log存储于重做日志文件中，undo log则不同，undo存放在数据库内部的特哥特殊段中，这个段被称为undo段（undo segment），undo段位于共享表空间中。
+				redo log存储于重做日志文件中，undo log则不同，undo存放在数据库内部的特殊段中，这个段被称为undo段（undo segment），undo段位于共享表空间中。
 				过程:事务开始 -- log buffer -- os buffer -- log file
 
 一致性非锁定读：提高了并发性，某行被施加了排他锁，其他行需要读取时，不用等到锁解除，会去读取快照(undo段)
@@ -680,9 +680,10 @@ mysqldump -uroot -hlocalhost -p -d db_name [table_name...]  #备份所有表/一
 xtrabackup(物理备份)：备份page数据块
 	innodb逻辑结构：表空间(tablespace) 段(segment) 区(extent) 页(page) 行(row)
 	
-xtrabackup: LSN是一个全局递增的号码	，每次对page中的记录进行修改，都会有对应的lsn码
-	
-	
+xtrabackup: LSN是一个全局递增的号码	，每次对page中的记录进行修改，都会有对应的lsn码,通过LSN，实现对innodb表的增量备份
+	xtrabackup在备份开始时，同时运作两个线程，一个线程负责备份innodb中的page，另一个线程负责备份innodb的事务日志（redo log），事务日志都会被xtrabackup记录到自己的日志文件中
+	备份结束后，我们会得到两份文件，一份是不可用的备份文件，一份是备份时的事务日志，备份文件之所以不可用，是因为有一部分不确定的数据可能在事务日志中，而且热备过程中数据也可能会发生改变，所以我们要通过这两份文件，制作出一份可用的备份文件，
+	事务日志文件中已经提交的事务需要replayed，未提交的事务需要roolback，整个过程类似于mysql崩溃后恢复的过程，这个过程在xtrabackup中被称为"prepare"，"prepare"操作保证了备份出的数据的一致性，没有经过prepare的备份数据是不可用的，我们可以理解为如果想要得到一个可用的备份，则需要进行这些所谓的"准备"工作或者所谓的"数据恢复"的工作。
 	
 	
 	
