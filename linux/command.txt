@@ -12,6 +12,11 @@ mkdir -pv {a,b,d/e}
  ËµÃ÷£º -n ÏÔÊ¾IPµØÖ·£¬²»²éÖ÷»úÃû£¬  -m ÉèÖÃÌøÊı  -q 4Ã¿¸öÍø¹Ø·¢ËÍ4¸öÊı¾İ°ü    -w °Ñ¶ÔÍâ·¢Ì½²â°üµÄµÈ´ıÏìÓ¦Ê±¼äÉèÖÃÎª3Ãë
 
 Éú³ÉËæ»úÃÜÂë:
+	1.head /dev/urandom | tr -dc 0-9/A-Za-z0-9 | head -c 20(Éú³ÉËæ»úÊı×Ö)
+	2.head -c 16 /dev/urandom | base64 (random»á×èÈû)
+	3.openssl rand -hex 10
+date [+"%Y-%m-%d %H:%M.%S"] ["+ÏÖÔÚµÄÊ±¼äÊÇ£º%Y-%m-%d %H:%M.%S"] [+%s%N]   [-d "Dec 5, 2009 12:00:37 AM" +"%Y-%m-%d %H:%M.%S"] [-d "-1 day" +%Y%m%d] [-s "2012-05-23 01:01:01"]
+
 ÖÕ¶Ë²Ù×÷ÃüÁî£ºstty
 
 ls -F(/Ä¿Â¼*¿ÉÖ´ĞĞÎÄ¼ş@·ûºÅÁ´½Ó=Ì×½Ó×Ö%Í¿¸Ä>ÃÅ£¬½ø³Ì¼äÍ¨Ñ¶ |FIFO¹ÜµÀÍ¨Ñ¶)(¼ò-p) -oËùÓĞÕß-gËùÊô×é --time-tyle=[full/long]-iso
@@ -84,7 +89,7 @@ avg-cpu:  %user   %nice  %system  %iowait  %steal   %idle
 
 strace [-c] cmd [-o file]
 strace -tt -f  cmd
-strace -tt -T -v -f -e trace=file -o /data/log/strace.log -s 1024 -p 23489
+strace [-tt -T] [-c] -vf -e trace=all -o /data/log/strace.log -s 1024 -p 23489
 -tt ÔÚÃ¿ĞĞÊä³öµÄÇ°Ãæ£¬ÏÔÊ¾ºÁÃë¼¶±ğµÄÊ±¼ä
 -T ÏÔÊ¾Ã¿´ÎÏµÍ³µ÷ÓÃËù»¨·ÑµÄÊ±¼ä
 -v ¶ÔÓÚÄ³Ğ©Ïà¹Øµ÷ÓÃ£¬°ÑÍêÕûµÄ»·¾³±äÁ¿£¬ÎÄ¼şstat½á¹¹µÈ´ò³öÀ´¡£
@@ -226,11 +231,8 @@ ss -pan | grep -w port                  Í¨¹ı¶Ë¿Ú²é·şÎñ/·şÎñ
 ss -pan | grep pid                   Í¨¹ıpidÕÒ¶Ë¿Ú
 
 
-win10½ØÍ¼£ºwin+shift+s   ¶¤¶¤£ºctrl+shift+A  
 
 ²é¿´±¾»úIP£ºcurl https://ip.cn             curl ifconfig.me
-
-windowÔ¶³ÌÁ´½Ó£ºwin+R ÊäÈëmstsc
 
 psÃüÁî£º1.ps -uroot  2.ps -ef | grep ssh  |grep -v grep  3.ps -C ÃüÁî»ò½ø³ÌÃû   4.ps -l(ºóÌ¨·Ç½ø³Ì)
         5.ps aux ÄÚ´æÖĞµÄ³ÌĞò    6.ps -o pid,ppid
@@ -343,7 +345,7 @@ midecodeÃüÁî¿ÉÒÔÈÃÄãÔÚLinuxÏµÍ³ÏÂ»ñÈ¡ÓĞ¹ØÓ²¼ş·½ÃæµÄĞÅÏ¢¡£dmidecodeµÄ×÷ÓÃÊÇ½«DMIÊ
 
 tar£ºcafÑ¹Ëõ  tvfÔ¤ÀÀ  xf½âÑ¹
 
-tree£º-L(ÏÔÊ¾²ãÊı)  -C(color) -f(ÍêÕûµÄÏà¶ÔÂ·¾¶) -d(½öÄ¿Â¼) -s(´óĞ¡) -t(ĞŞ¸ÄÊ±¼äÅÅĞò) -D(ĞŞ¸ÄÊ±¼ä)
+tree£º-L(ÏÔÊ¾²ãÊı)  -C(color) -f(ÍêÕûµÄÏà¶ÔÂ·¾¶) -d(½öÄ¿Â¼) -s/h(´óĞ¡) -t(ĞŞ¸ÄÊ±¼äÅÅĞò) -D(ĞŞ¸ÄÊ±¼ä)
   -g(×é)-u(ËùÓĞÕß) -p(È¨ÏŞ)  -F ÔÚÖ´ĞĞÎÄ¼ş£¬Ä¿Â¼£¬Socket£¬·ûºÅÁ¬½Ó£¬¹ÜµÀÃû³ÆÃû³Æ£¬¸÷×Ô¼ÓÉÏ"*","/","=","@","|"ºÅ
 
 
@@ -351,7 +353,7 @@ tree£º-L(ÏÔÊ¾²ãÊı)  -C(color) -f(ÍêÕûµÄÏà¶ÔÂ·¾¶) -d(½öÄ¿Â¼) -s(´óĞ¡) -t(ĞŞ¸ÄÊ±¼ä
 
 Journalctl£ºÈÕÖ¾²éÑ¯    
 man systemd.journal-fields  /  man journalctl
-  journalctl -u httpd.service  --since today -o json/json-pretty  -n20[-f]
+  journalctl -u httpd.service  --since today -o json/json-pretty  -n20[-f]  // journalctl _PID=PID -n20
     journalctl                                  ²é¿´ËùÓĞÈÕÖ¾(Ä¬ÈÏÖ»±£´æ±¾´ÎÆô¶¯ÈÕÖ¾) 
     journalctl -k                               ²é¿´ÄÚºËÈÕÖ¾
     journalctl -b                               ²é¿´ÏµÍ³±¾´ÎÆô¶¯µÄÈÕÖ¾
