@@ -234,8 +234,6 @@ ss -pan | grep pid                   通过pid找端口
 
 查看本机IP：curl https://ip.cn             curl ifconfig.me
 
-ps命令：1.ps -uroot  2.ps -ef | grep ssh  |grep -v grep  3.ps -C 命令或进程名   4.ps -l(后台非进程)
-        5.ps aux 内存中的程序    6.ps -o pid,ppid
 
 pwd命令:当当前目录被删除，用/bin/pwd会报错      选项-P显示源路径(非链接) -L显示连接路径
 

@@ -28,26 +28,23 @@ bash(命令行)
 	^abc ：删除上一条命令中的第一个abc。    ^foo^bar ：把上一条命令里的foo替换为bar，并执行。
 	!$ ：上一条命令的最后一个参数  !$ ：上一条命令的最后一个参数  !*:p ：打印上一条命令是所有参数，也即 !*的内容。
 
-Vim： +n进入文件光标位于第n(默认最后)行      i/I/a/A/o/O      ：w保存  ：-p退出   wq=x=ZZ   D删除当前光标到行尾
-https://github.com/jaywcjlove/vim-web
-	:h   帮助
-	h左j下k上l右    g move可以在同一行里向下一行
-	motion跨过   fx tx Fx     w前  b后   0 ^ $  (往前/上  )往右或下
-	H M L
-	*/#     ma/`a     `.      
-	c{motion}     d{motion}    y{motion}   num{motion}
-	v  V  C+v
-	D：剪切从光标位置到行尾到剪贴板。Y：拷贝当前行。
-	x/s
-	剪切板 :reg     "kyy-"kp     
+Vim： :h   帮助   :help xxx(i)/'number'/<Esc>/-t/i_<Esc>(插入模式下Esc的帮助)(显示xxx(i)的帮助)         [action][a/i][motion] 
+	+n进入文件光标位于第n(默认最后)行      i/I/a/A/o/O      ：w保存  ：-p退出   wq=x=ZZ   D删除当前光标到行尾	    
+	motion跨过   [h左j下k上l右] [H上M中L下]  [w前e尾b后]   [0^$首首尾]  f/F+字符(跳向下/上个字符)t/T前一个字符   [gg/G]一个g可以移动到...
+	c/d/C/D{motion}    y/Y{motion}  x/s/X/S{motion}删除一个字符(不进入插入模式/进入插入模式)
+	*/#：查找  /？查找   ma/`a   	`.      
+	[J 合并下一行] [xp交换当前字符和其后一个字符]  :!ls 列出当前目录下文件  
+	可视化：v  V  C+v  (也能使用motion，例如v+e)
+	寄存:"a..  查看:reg a    例如:"kyy -- :reg k -- "kp     
 	.重复上一个动作
 	qa--动作--q     @register
 	% 按对匹配 {} [] ()
 	>>：缩进所有选择的代码
 	<<：和上面类似，但是反缩进
+	:vs  垂直分屏 vertical split（同步变化，可以来对照C+w切换）   :sp  横向分屏 split
 	gd：到达光标所在处函数或者变量的定义处（好像是往前，并非定义处）。
 	K：在 Man 里面查找光标当前所在处的词。
-	:2,3d
+	Ctrl - Z 挂起vim，回到shell，按fg可以返回vim
 	
 行内跳转：0: 绝对行首  $: 绝对行尾  ^: 跳转至行首的第一个非空白字符  H：移动光标到屏幕上面   M：移动光标到屏幕中间  L：移动光标到屏幕下面
           nx: 删除光标所在处及向后的共n个字符     连续u命令可撤消此前的n次编辑操作  
@@ -67,11 +64,15 @@ https://github.com/jaywcjlove/vim-web
    5 再插入注释符,比如"#"
    6 再按Esc,就会全部注释了
 
-Vim查找支持正则表达式，例如/vim$匹配行尾的"vim"		:set paste ：原样粘贴 
+Vim查找支持正则表达式，例如/vim$匹配行尾的"vim"		:set paste ：原样粘贴  
    查找：/foo\c将会查找所有的"foo","FOO","Foo"等字符串  \c表示大小写不敏感查找，\C表示大小写敏感查找
-   替换：连续字符替换：命令模式按R    跟shell交互 :! COMMAND
-   :{作用范围}s/{目标}/{替换}/{替换标志}    :%s/foo/bar/g会在全局范围(%)查找foo并替换为bar，所有出现都会被替换（g）
- !!!   :%s/foo/bar/gc   replace with bar (y/n/a/q/l/^E/^Y)?
+   替换r：连续字符替换：命令模式按R
+   :[range]s/{pattern}/{string}/[flags] 	
+      range    表示范围，例如：10,20表示10-20行，%表示全部    pattern  是要替换的模式，string是替换后的文本
+      flags常用标志：g (global)表示全局范围内执行 c (confirm) 表示确认，可以确认或者拒绝修改  i  表示忽略大小写  n (number) 报告匹配的次数而不替换，可以用来查询匹配次数
+    :2,$d :2,3 s/^/#/g :%s/^/#/g    :/FROM/,/;/s/=/<>/g(从FROM至分号部分中的所有等号（=）替换为不等号（<>）)
+	:s/\<term\>/replace/gc(精确)  :%s/Kang\|Kodos/alien/gc（多项）
+	:%s/foo/bar/gc   replace with bar (y/n/a/q/l/^E/^Y)?
    按下y表示替换，n表示不替换，a表示替换所有，q表示退出查找模式， l表示替换当前位置并退出。^E与^Y是光标移动快捷键
    行移动：通过h← j↓ k↑ l→ i来进行左下上右的光标移动。10j可以向下移动10行(方向键也可以)
   单词移动：
@@ -98,8 +99,7 @@ vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式
   多文件分割  vim -o -O FILE1 FILE2 …  -o: 水平分割  -O: 垂直分割  在窗口间切换：Ctrl+w
   单文件窗口分割：Ctrl+w,s: split, 水平分割    Ctrl+w,v: vertical, 垂直分割   ctrl+w,q：取消相邻窗口   ctrl+w,o:取消全部窗口  ：wqall退出	
 	
-	
-	
+
 	
 	
 	
