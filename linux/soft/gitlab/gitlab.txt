@@ -5,7 +5,26 @@ github:账号：leyonglin   密码：Aas183***.
 文档：https://docs.gitlab.com/omnibus
 安装部署gitlab服务器：gitlab-ce参考文档：https://about.gitlab.com/install/    （默认是安装最新的，可以指定版本安装）
 软件包位置：https://packages.gitlab.com/gitlab/gitlab-ce/packages/el/7/gitlab-ce-10.8.2-ce.0.el7.x86_64.rpm [/download]        
-清华大学包源：https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/                  
+清华大学包源：https://mirrors.tuna.tsinghua.edu.cn/gitlab-ce/yum/el7/     
+目录结构：https://docs.gitlab.com/12.3/omnibus/settings/configuration.html
+Gitlab组件：
+	nginx：静态Web服务器
+	gitlab-shell：用于处理Git命令和修改authorized keys列表
+	gitlab-workhorse:轻量级的反向代理服务器
+	logrotate：日志文件管理工具
+	postgresql：数据库
+	redis：缓存数据库
+	sidekiq：用于在后台执行队列任务（异步执行）
+	unicorn：GitLab Rails应用是托管在这个服务器上面的。
+目录规范：
+	/var/opt/gitlab/git-data/repositories/：库默认存储目录
+	/opt/gitlab：            应用代码和相应的依赖程序
+	/var/opt/gitlab：gitlab-ctl reconfigure 命令编译后的应用数据和配置文件，不需要人为修改配置
+	/etc/gitlab：    配置文件目录
+	/var/log/gitlab：此目录下存放了gitlab各个组件产生的日志
+	/var/opt/gitlab/backups/：备份文件生成的目录
+
+             
 步骤：
       yum -y install gitlab-ce-10.8.2-ce.0.el7.x86_64.rpm
       yum install -y curl policycoreutils-python openssh-server cronie
@@ -69,6 +88,9 @@ Gitlab 修改root用户密码
   user.password_confirmation = '新密码'　
   user.save!
 	
+公钥拉推：默认sshd_config配置：AuthorizedKeysFile  .ssh/authorized_keys
+		（这个也能修改，即以后认证的时候，使用修改后的路径，但是如果有服务需要用到免密，那在对应服务上的密钥路径也要修改）	
+	
 定时备份：	/opt/gitlab/bin/gitlab-rake gitlab:backup:create CRON=1 (环境变量CRON=1的作用是如果没有任何错误发生时， 抑制备份脚本的所有进度输出。)
 	
 	
@@ -98,16 +120,21 @@ Gitlab迁移：确保新Gitlab服务器和老Gitlab服务器版本相同(如不�
       安装新版本
       重新配置并启动	
 
-中文版：参考链接：https://www.cnblogs.com/straycats/p/7637373.html
-        git clone https://gitlab.com/xhang/gitlab [-b v10.0.2-zh 老版本]	 
-        查看：cat gitlab/VERSION
-        停服务并切换到gitlab汉化包所在的目录cd /root/gitlab
-        比较汉化标签和原标签，，导出patch用的diff文件到/root下 git diff v10.0.4 v10.0.4-zh > ../10.0.4-zh.diff
-        cd /root  
-        将10.0.4-zh.diff作为补丁更新到gitlab中 
-        yum install patch -y
-        patch -d /opt/gitlab/embedded/service/gitlab-rails -p1 < 10.0.4-zh.diff
-        重新配置并启动 
+中文版：参考链接：https://www.cnblogs.com/rongkang/p/10024479.html
+        汉化版社区：git clone https://gitlab.com/xhang/gitlab [-b v10.0.2-zh 老版本]	 
+        1、克隆版本库
+		cd /usr/local/src/
+		git clone https://gitlab.com/xhang/gitlab.git
+		2、获取当前Gitlab版本
+		gitlab_version=$(cat /opt/gitlab/embedded/service/gitlab-rails/VERSION)
+		3、比较汉化标签和原标签，导出patch用的diff文件
+		cd /usr/local/src/gitlab
+		git diff v${gitlab_version} v${gitlab_version}-zh > ../${gitlab_version}-zh.diff
+		4、先停止gitlab
+		gitlab-ctl stop
+		5、导入汉化补丁（按住回车，一直跳过就行了）
+		patch -d /opt/gitlab/embedded/service/gitlab-rails -p1 < ../11.0.1-zh.diff
+		
 
 邮件配置：https://blog.csdn.net/qq_29000537/article/details/82795281
          配置文件：/etc/gitlab/gitlab.rb
@@ -128,3 +155,19 @@ git图形化操作：
 
 2.TortoiseGit是一个Git版本控制客户端依赖git bash 也可以实现图形化操作      官网：https://www.git-scm.com/download/
 
+git add --all
+git push origin --all
+
+git diff HEAD -- filename 命令可以查看工作区和版本库里面最新版本的区别，如果确定需要回退
+ git reset --hard ae3fa8f  回退整个版本
+git checkout -- 误/修改删除文件名称（已经add或者已经commit）
+
+git branch	查看分支（*指向的为当前的分支）
+git branch <name>	创建分支（复制当前分支创建一个新分支，-d删除本地分支）
+git push origin :bugfix-1   删除远端分支
+git checkout <name>	切换分支（-b 切换并创建）
+
+git merge bugfix-2   合并
+
+git fetch     刷新分支
+git branch -a 查看分支

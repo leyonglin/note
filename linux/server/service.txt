@@ -1,0 +1,44 @@
+
+业务：搭建存放的代码的服务，选择版本控制工具---gitlab服务
+
+原因：管理代码并且能够回滚/容错性高
+
+硬件资源：cpu，内存，io，网络
+软件资源：相关软件包及依赖是否能找到
+版本：相关软件包版本之间及内核之间是否兼容，选择rpm或源码
+
+注意点：时间同步
+
+Gitlab组件：必须明确组件作用(联系)，扩展性，回退与升级，冗余/备份性，这也决定了配置之间的关联性
+	nginx：静态Web服务器
+	gitlab-shell：用于处理Git命令和修改authorized keys列表（Ruby）
+	gitlab-workhorse:轻量级的反向代理服务器（go）
+	logrotate：日志文件管理工具
+	postgresql：数据库
+	redis：缓存数据库
+	sidekiq：用于在后台执行队列任务（异步执行）（Ruby）
+	unicorn：GitLab Rails应用是托管在这个服务器上面的（Ruby Web Server,主要使用Ruby编写）
+
+目录规范：
+  目录/文件规范：配置文件目录，数据目录，备份目录，日志目录，执行文件目录，依赖库
+	/var/opt/gitlab/git-data/repositories/：库默认存储目录
+	/opt/gitlab：            应用代码和相应的依赖程序
+	/var/opt/gitlab：gitlab-ctl reconfigure 命令编译后的应用数据和配置文件，不需要人为修改配置
+	/etc/gitlab：    配置文件目录
+	/var/log/gitlab：此目录下存放了gitlab各个组件产生的日志
+	/var/opt/gitlab/backups/：备份文件生成的目录	
+	
+	
+安装及配置顺序：
+自定义环境变量的时候，可以设置为  export NGINX_HOMEZ=/usr/local/nginx ，这个nginx不能设置为NGINX,会和nginx源码冲突(其它配置的时候不要太正规，冲突真不开心)
+
+错误查找顺序：1.终端报错  2.选项-v/-vv/-vvv (status)   3.日志报错   4.查看错误涉及的服务的原理
+	
+进程：端口是否存在---进程/socket---该进程相关其它服务
+
+
+后续：安全策略，https，自定义端口，集成，稳定性
+主要管理命令
+	1、gitlab-ctl reconfigure                 重置配置文件
+	2、gitlab-ctl show-config                 验证配置文件
+	3、gitlab-ctl restart                     重启gitlab服务

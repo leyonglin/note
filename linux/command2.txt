@@ -112,7 +112,6 @@ nc -l 9991 >/dev/null				nc 192.168.3.21 9991 </dev/zero  +  dstat  ---  测网�
 	
 	
 cpu:top/lscpu	  top -H -p PID 查看进程下的线程 
-ps -ef/-aux
 	
 	
 ps -aux 的STAT
