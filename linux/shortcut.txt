@@ -31,7 +31,7 @@ bash(命令行)
 Vim： :h   帮助   :help xxx(i)/'number'/<Esc>/-t/i_<Esc>(插入模式下Esc的帮助)(显示xxx(i)的帮助)         [action][a/i][motion] 
 	+n进入文件光标位于第n(默认最后)行      i/I/a/A/o/O      ：w保存  ：-p退出   wq=x=ZZ   D删除当前光标到行尾	    
 	motion跨过   [h左j下k上l右] [H上M中L下]  [w前e尾b后]   [0^$首首尾]  f/F+字符(跳向下/上个字符)t/T前一个字符   [gg/G]一个g可以移动到...
-	c/d/C/D{motion}    y/Y{motion}  x/s/X/S{motion}删除一个字符(不进入插入模式/进入插入模式)
+	y/Y{motion} c/d/C/D{motion}	x/s/X/S{motion}删除一个字符(不进入插入模式/进入插入模式)
 	*/#：查找  /？查找   ma/`a   	`.      
 	[J 合并下一行] [xp交换当前字符和其后一个字符]  :!ls 列出当前目录下文件  
 	可视化：v  V  C+v  (也能使用motion，例如v+e)
@@ -99,11 +99,18 @@ vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式
   多文件分割  vim -o -O FILE1 FILE2 …  -o: 水平分割  -O: 垂直分割  在窗口间切换：Ctrl+w
   单文件窗口分割：Ctrl+w,s: split, 水平分割    Ctrl+w,v: vertical, 垂直分割   ctrl+w,q：取消相邻窗口   ctrl+w,o:取消全部窗口  ：wqall退出	
 	
-
-	
-	
-	
-	
+寄存器：
+:reg（命令ex模式输入）
+:help registers	
+未命名寄存器 ""  —— vim使用的默认寄存器，文本来源命令：d/c/s/x/y
+10个数字命名寄存器 "0 - "9p —— vim缓存yank和delete行操作命令产生的文本
+1个非行删除内容缓存寄存器 "- —— vim缓存delete操作在非行上时产生的文本
+26个字母命名寄存器 "a - "z / "A - "Z —— 完全由用户指定内容的寄存器
+4个只读寄存器 ". "% "# ":  
+表达式寄存器 "= 使用VIM强大的表达式功能（输入模式i下，"C" + "r" + "=",可输入表达式，如2+3）
+#GUI选择寄存器 "* "+ "~ —— vim缓存在GUI中选择的文本
+搜索模式寄存器 "/p 缓存在vim中使用过的最后的搜索内容
+黑洞寄存器 "_<motion> 类似Linux中的/dev/null文件，只进不出，可用来滤掉影响默认寄存器的内容
 	
 	
 	

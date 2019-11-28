@@ -13,7 +13,7 @@ rpm -Uvh http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum  --help   
 yum -y install   chrony psmisc net-tools findutils coreutils  bash-completion wget vim-enhanced yum-utils \
                 tree epel-release telnet tcpdump bind-utils dos2unix lrzsz iproute iotop strace procps-ng lsof \
-				httping bridge-utils traceroute nmap sysstat htop sysstat socat nethogs
+				httping bridge-utils traceroute nmap sysstat htop sysstat socat nethogs screen postfix mailx
 #rm -f epel-testing.repo && yum -y install httping htop	
 sed -i "s/0.centos.pool.ntp.org/ntp6.aliyun.com/" /etc/chrony.conf  && sed [-i]  "4,6s/server/#server/" /etc/chrony.conf			
 systemctl restart chronyd	
