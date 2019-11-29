@@ -1,0 +1,159 @@
+
+让nginx在CentOS下以chroot的方式运行
+
+实验环境为64位的CentOS6.4，nginx使用官方最新稳定版的，
+下载源码包
+wget http://nginx.org/download/nginx-1.6.2.tar.gz
+tar zxvf nginx-1.6.2.tar.gz
+
+隐藏nginx的真实版本，修改nginx显示版本及名称, 
+vi /usr/local/nginx-1.6.2/src/core/nginx.h
+#define NGINX_VERSION      "1.6.2"  /*版本号,自己改*/
+#define NGINX_VER          "Your string here" /*显示版本时直接显示此字符串*/
+
+增加用户
+useradd -s /sbin/nologin nginx
+cd /usr/local/nginx-1.6.2
+依赖包自己处理
+./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_gzip_static_module --http-log-path=/var/log/nginx/access.log
+make
+make install
+
+安装完成，测试是否能正常启动
+/usr/local/nginx/sbin/nginx
+ps auxf|grep nginx   //检查nginx是否正常启，也可以http://ip 访问确认，注意iptables也是打开了相关的端口
+
+
+一切正常，下面开始实施chroot,
+1、建立一个chroot运行牢笼(Jail)根目录，比如/nginx
+D=/nginx
+mkdir -p $D
+
+2、建立一个独立的运行环境，nginx将被限制在这环境下运行
+mkdir -p $D/etc
+mkdir -p $D/dev
+mkdir -p $D/var
+mkdir -p $D/usr
+mkdir -p $D/usr/local/nginx
+mkdir -p $D/tmp
+chmod 1777 $D/tmp
+mkdir -p $D/var/tmp
+chmod 1777 $D/var/tmp
+mkdir -p $D/lib64
+
+3、还有些特殊设备需要创建，否则可能出错
+ls -l /dev/{null,random,urandom}
+ls -l /dev/{null,random,urandom} 
+	crw-rw-rw-. 1 root root 1, 3 9月 13 2013 /dev/null 
+	crw-rw-rw-. 1 root root 1, 8 9月 13 2013 /dev/random 
+	crw-rw-rw-. 1 root root 1, 9 9月 13 2013 /dev/urandom
+
+mknod命令用于创建Linux中的字符设备文件和块设备文件。
+/bin/mknod -m 0666 $D/dev/null c 1 3
+/bin/mknod -m 0666 $D/dev/random c 1 8
+/bin/mknod -m 0444 $D/dev/urandom c 1 9
+
+4、将/urs/local/nginx目录里所有的文件复制到$D/usr/local/nginx目录去
+/bin/cp -farv /usr/local/nginx/* $D/usr/local/nginx
+
+5、因为要启动 $D/usr/local/nginx/sbin/nginx,涉及一些库， 相应地，复制相关的库到Jail对应目录去，使用下面的命令查看关联的库
+ldd /usr/local/nginx/sbin/nginx  
+	linux-vdso.so.1 => (0x00007fff225ff000)   //这个不用复制
+	libpthread.so.0 => /lib64/libpthread.so.0 (0x00007fb450acf000)  
+	libcrypt.so.1 => /lib64/libcrypt.so.1 (0x00007fb450898000)  
+	libpcre.so.0 => /lib64/libpcre.so.0 (0x00007fb45066b000)  
+	libz.so.1 => /lib64/libz.so.1 (0x00007fb450455000)  
+	libc.so.6 => /lib64/libc.so.6 (0x00007fb4500c2000)  
+	/lib64/ld-linux-x86-64.so.2 (0x00007fb450cf5000)  
+	libfreebl3.so => /lib64/libfreebl3.so (0x00007fb44fe5f000)  
+	libdl.so.2 => /lib64/libdl.so.2 (0x00007fb44fc5b000)
+6、把上面关联的复制到相应目录里去
+cp /lib64/libpthread.so.0 /nginx/lib64/  
+cp /lib64/libcrypt.so.1 /nginx/lib64/  
+cp /lib64/libpcre.so.0 /nginx/lib64/  
+cp /lib64/libz.so.1 /nginx/lib64/  
+cp /lib64/libc.so.6 /nginx/lib64/  
+cp /lib64/ld-linux-x86-64.so.2 /nginx/lib64/
+cp /lib64/libfreebl3.so /nginx/lib64/
+cp /lib64/libdl.so.2 /nginx/lib64/ 
+
+7、复制/etc 到/nginx目录去，不同系统可能有不同目录，如果下面某目录不存在的话，会有相应的报错，但不会影响
+cp -fv /etc/{group,prelink.cache,services,adjtime,shells,gshadow,shadow,hosts.deny,localtime,nsswitch.conf,nscd.conf,prelink.conf,protocols,hosts,passwd,ld.so.cache,ld.so.conf,resolv.conf,host.conf} $D/etc
+cp -avr /etc/{ld.so.conf.d,prelink.conf.d} $D/etc
+
+8、启动nginx，
+pkill -9 nginx
+/usr/sbin/chroot /nginx /usr/local/nginx/sbin/nginx -t      #chroot [选项] 新根 [命令 [参数]...]  /nginx为新根，这里没加选项
+	nginx: the configuration file /usr/local/nginx/conf/nginx.conf syntax is ok  
+	nginx: [emerg] getpwnam("nginx") failed 
+	nginx: configuration file /usr/local/nginx/conf/nginx.conf test failed
+
+上面的报错是由于还缺少一些库，需要把这些库复制到/nginx/lib64目录下， 通过以下命令strace，发现还有库没有复制过来
+strace -f -o /tmp/nginx.strace chroot /nginx /usr/local/nginx/sbin/nginx -t
+more /tmp/nginx.strace    #错误一般在最后,这里有很多重复的
+	8221 open(" /lib64/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory) 
+	8221 open("/lib64/tls/x86_64/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory)  
+	8221 stat("/lib64/tls/x86_64", 0x7fffa8e430a0) = -1 ENOENT (No such file or directory)  
+	8221 open("/lib64/tls/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory)  
+	8221 stat("/lib64/tls", 0x7fffa8e430a0) = -1 ENOENT (No such file or directory)  
+	8221 open("/lib64/x86_64/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory)  
+	8221 stat("/lib64/x86_64", 0x7fffa8e430a0) = -1 ENOENT (No such file or directory)  
+	8221 open("/lib64/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory)  
+	8221 stat("/lib64", {st_mode=S_IFDIR|0755, st_size=4096, ...}) = 0  
+	8221 open("/usr/lib64/tls/x86_64/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory)  
+	8221 stat("/usr/lib64/tls/x86_64", 0x7fffa8e430a0) = -1 ENOENT (No such file or directory)  
+	8221 open("/usr/lib64/tls/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory)  
+	8221 stat("/usr/lib64/tls", 0x7fffa8e430a0) = -1 ENOENT (No such file or directory)  
+	8221 open("/usr/lib64/x86_64/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory)  
+	8221 stat("/usr/lib64/x86_64", 0x7fffa8e430a0) = -1 ENOENT (No such file or directory)  
+	8221 open("/usr/lib64/libnss_files.so.2", O_RDONLY) = -1 ENOENT (No such file or directory)  
+	8221 stat("/usr/lib64", 0x7fffa8e430a0) = -1 ENOENT (No such file or directory)  
+	8221 munmap(0x7f6818e0d000, 29430) = 0  
+	8221 write(3, "2014/10/24 17:49:34 [emerg] 8221"..., 99) = 99  
+	8221 write(2, "nginx: [emerg] getpwnam(\"nginx\")"..., 78) = 78  
+	8221 close(4) = 0  
+	8221 write(2, "nginx: configuration file /usr/l"..., 71) = 71  
+	8221 exit_group(1) = ? 
+
+cp /lib64/libnss_files.so.2 /nginx/lib64/
+strace -f -o /tmp/nginx.strace chroot /nginx /usr/local/nginx/sbin/nginx -t      #一般错误日志也能看出
+	nginx: the configuration file /usr/local/nginx/conf/nginx.conf syntax is ok  
+	nginx: [emerg] open() " /var/log/nginx/access.log" failed (2: No such file or directory)  
+	nginx: configuration file /usr/local/nginx/conf/nginx.conf test failed
+很明显，这次报错是没有/var/log/nginx/access.log,检查一下，发现没有这个/nginx/var/log目录
+mkdir -p /nginx/var/log/nginx  
+chmod 777 /nginx/var/log/nginx/  
+strace -f -o /tmp/nginx.strace chroot /nginx /usr/local/nginx/sbin/nginx -t  
+	nginx: the configuration file /usr/local/nginx/conf/nginx.conf syntax is ok  
+	nginx: configuration file /usr/local/nginx/conf/nginx.conf test is successful
+测试通过
+chroot /nginx /usr/local/nginx/sbin/nginx 
+ps auxf|grep nginx  
+	root 8357 0.0 0.0 103240 856 pts/0 S+ 18:04 0:00 \_ grep nginx  
+	root 8354 0.0 0.0 20212 604 ? Ss 18:04 0:00 nginx: master process /usr/local/nginx/sbin/nginx  
+	nginx 8355 0.0 0.1 20636 1200 ? S 18:04 0:00 \_ nginx: worker process
+至此，部署完成，这时，nginx 便在/nginx这个目录下运行了，而日志这些文件都在这个目录下生成，注意，这时的配置文件在这/nginx/usr/local/nginx/conf/目录了
+
+
+
+文件属性
+- 普通文件
+d 开头是： 目录文件。
+l 开头是： 符号链接(指向另一个文件,类似于瘟下的快捷方式)。
+s 开头是： 套接字文件(sock)。
+b 开头是： 块设备文件,二进制文件。
+c 开头是： 字符设备文件。
+p 开头是： 命名管道文件。
+
+Linux的设备管理是和文件系统紧密结合的，各种设备都以文件的形式存放在/dev目录 下，称为设备文件。应用程序可以打开、关闭和读写这些设备文件，完成对设备的操作，就像操作普通的数据文件一样，为了管理这些设备，系统为设备编了号，每 个设备号又分为主设备号和次设备号
+
+ll：
+第一栏：字母表示文件类型+owner、group、others的读、写、执行权限
+第二个栏位，表示文件个数
+第三四个栏位，表示该文件或目录的拥有者及组
+第五栏位，表示文件大小（/dev/* 不一样，表示主设备号+次设备号）
+第六个栏位，表示最后一次修改时间
+第七个栏位，表示文件名
+
+
+

@@ -75,40 +75,6 @@ top(1/2/3)free/df/vmstat/iostat/iotop/nethogs
 ps命令：1.ps -uroot  2.ps -ef  3.ps -C 命令或进程名   4.ps -l(后台非进程) 5.ps aux 内存/cpu中的程序
         6.ps L （例如：ps -o pid,ppid）  7.O或-O  增加pid、state、tname、time和command字段  使用w或-w选项，就会将完整的进程命令信息显示，多出的部分换行显示
 
-netstat -lanp[t/u] 
-iostat -x :util%：表示io等待占比，正常情况下该值和磁盘读写（r/w）成正比，如果该值很大，读写数值很小则说明磁盘存在问题，系统性能会受影响	
-	
-	
-TCPDUMP:  or/and/not
-	tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
-	tcpdump (-i 接口) (-c 抓包总数) (or/and/not) (-w 文件) (-r 指定文件读出) (port PORT) (src/dst host ip/域名/网络位) (-p 协议) -t(不显示时间戳) -vv(详细输出) -nn(不dns)  #可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
-
-strace [-c] cmd [-o file]
-strace -tt -f  cmd
-strace [-tt -T] [-c] -vf -e trace=all -o /data/log/strace.log -s 1024 -p 23489
--tt 在每行输出的前面，显示毫秒级别的时间
--T 显示每次系统调用所花费的时间
--v 对于某些相关调用，把完整的环境变量，文件stat结构等打出来。
--f 跟踪目标进程，以及目标进程创建的所有子进程
--e 控制要跟踪的事件和跟踪行为,比如指定要跟踪的系统调用名称
--o 把strace的输出单独写到指定的文件
--s 当系统调用的某个参数是字符串时，最多输出指定长度的内容，默认是32个字节
--p 指定要跟踪的进程pid, 要同时跟踪多个pid, 重复多次-p选项即可。
-   -e trace=file     跟踪和文件访问相关的调用(参数中有文件名)
-   -e trace=process  和进程管理相关的调用，比如fork/exec/exit_group
-   -e trace=network  和网络通信相关的调用，比如socket/sendto/connect
-   -e trace=signal    信号发送和处理相关，比如kill/sigaction
-   -e trace=desc  和文件描述符相关，比如write/read/select/epoll等
-   -e trace=ipc 进程间通讯相关，比如shmget等
-   -e trace=all	
-	
-LSOF：	匹配内容^表示取反 (/path/filename) (+d/+D dir) (-d fd) (-c <进程名> -c ...) (-u 用户名) (-p PID,PID...) (-i :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) -U(socket) -n(不dns) +/-r(持续) #协议指tcp和udp
-	lsof | head
-		COMMAND     PID   TID    USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
-		删除恢复：
-			1.lsof |grep /var/log/messages  
-				USER使用COMMAND命令启动服务，进程ip是PID，线程id是TID，在DEVICE对类型TYPE，总大小SIZE，在磁盘上的索引节点NODE的文件NAME使用FD(文件描述符+操作方式)操作
-			2.cat /proc/PID/fd/FD  >  <filename>
 
 NC：
 服务端         						客户端(-u:udp -v:版本/连接信息  -z:不发送数据  -w:超时时间)
@@ -119,9 +85,9 @@ nc -lv 9995 > clent.txt(接收端)     nc -vzw 2 192.168.3.21 9995 < nc.txt(发�
 可以传目录
 nc -l 9991 >/dev/null				nc 192.168.3.21 9991 </dev/zero  +  dstat  ---  测网速
 
+netstat -lanp[t/u]  #查看网络连接
+iostat -x :util%：表示io等待占比，正常情况下该值和磁盘读写（r/w）成正比，如果该值很大，读写数值很小则说明磁盘存在问题，系统性能会受影响	
 
-
-	
 
               nc -l 1567 | tee test              nc 172.31.100.7 1567     
               nc -l 1567 < file.txt              nc -n 172.31.100.7 1567 > file.txt
@@ -225,7 +191,8 @@ ps -ajx/ef  查看父进程
 			作用：可以通过组名更方便获取某组内容
 				re.search(r"(?P<dog>ab)cdef",'abcdef').group('dog')
 	
-	
+cal --help 显示时间	
+
 	
 	
 	
