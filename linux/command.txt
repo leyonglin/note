@@ -1,4 +1,7 @@
 
+dmesg   #命令显示linux内核的环形缓冲区信息，我们可以从中获得大量系统细心和硬件信息
+dmesg   #命令显示linux内核的环形缓冲区信息，我们可以从中获得大量系统细心和硬件信息
+
 ps -eo pid,args,psr| grep nginx
 
 egrep "(nginx|tomcat)$"

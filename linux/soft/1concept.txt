@@ -1,4 +1,11 @@
 
+网卡模式：
+	广播(Broadcast)模式
+	多播(Multicast)模式
+	单播模式（Unicast）
+	混杂模式（Promiscuous）
+	混杂模式（英语：promiscuous mode）是电脑网络中的术语。是指一台机器的网卡能够接收所有经过它的数据流，而不论其目的地址是否是它。
+
 普通hash算法：一般是根据服务器数量取模
 一致性hash算法：服务器ip的hash值和图片的hash值对2^32取模，形成一个hash环--虚拟节点可以解决hash倾斜
 

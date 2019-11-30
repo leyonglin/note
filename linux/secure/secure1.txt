@@ -25,3 +25,14 @@ firewalld
 
 linux下设置密码复杂度限制:
 /etc/login.defs        /etc/pam.d/system-auth
+
+
+异常用户
+ w
+ /var/log/message
+ /var/log/secure
+ history
+ last / lastb
+ who wtmp
+ 
+异常命令：将排查的命令 ls ps netstat last w ..做个MD5值校验

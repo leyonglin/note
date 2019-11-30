@@ -235,6 +235,7 @@ REJECT：
 LOG：只负责记录匹配的报文信息，不进行其它处理
 	iptables -I INPUT -p tcp --dport 22 -m state --state NEW -j LOG --log-level "warning" --log-prefix "want-in-from-port-22"   （--log-prefix添加标签，方便查找，记录在/var/log/message,可以通过/etc/rsyslog.conf修改）
 NET：NAPT / SNAT(访问外网服务) / DNAT(提供内网服务) / MASQUERADE(动态snat)
+  #网桥间通讯可以使用nat方式进行  iptables -t nat -I PREROUTING -d 172.88.0.2 -p icmp -j DNAT --to-destination 172.88.0.1
 	iptables -t nat -A POSTROUTING -s 10.1.0.0/16(内网) -j SNAT --to-source 192.168.1.14(公网)   											#POSTROUTING与INPUT
 	iptables -t nat -I POSTROUTING -s 10.1.0.0/16 -o ens33 -j MASQUERADE                                                     			    #动态snat
 	1.iptables -t nat -I PREROUTING -d 192.168.1.146(公网) -p tcp --dport 3389(公网端口) -j DNAT --to-destination 10.1.0.6:3389(内网)		#PREROUTING与OUTPUT

@@ -29,7 +29,7 @@ sudo ip netns exec $pid ip link set eth0 up
 sudo ip netns exec $pid ip addr add 172.17.42.99/16 dev eth0
 sudo ip netns exec $pid ip route add default via 172.17.42.1
 
-
+#网桥间通讯可以使用iptables进行nat配置
 ip route get 192.168.17.130  				 #远端ip如何到达本机，只能显示本机网关
 ip route add default via 192.168.17.3		 #更改默认路由
 ip -s link									 #统计网卡数据	
