@@ -184,11 +184,24 @@
    
   
 
+cat << EOF > /root/test.txt 或 cat > /root/test.txt <<EOF     #覆盖 PATH=\$PATH:\$HOME/bin 涉及到变量操作时是需要进行转义(原始覆盖，不转义则会变量替换才覆盖)
+cat << EOF >> /root/test.txt 或  cat >> /root/test.txt <<EOF  #追加
 
 
-
-
-
+exec命令：
+exec        不退出终端，啥也没发生，应该是不启动子进程(执行pstree会启动子进程)
+exec ls  	在shell中执行ls，ls结束后不返回原来的shell中了（退出当前shell）
+exec <file	file中的内容作为标准输入（替代STDIN）
+exec >file	将标准输出写入file（替代STDOUT）
+exec 3<file	将file读入到文件描述符3中（此时，创建了文件描述符3）
+sort <&3	将文件描述符3作为临时输入，用于sort排序
+exec 4>file	将写入文件描述符4中的内容写入file中（此时，创建了文件描述符4）
+ls >&4	Ls将不会有显示，直接写入文件描述符4中了，即上面的file中
+exec 5<&4	创建文件描述符4的拷贝文件描述符5
+exec &- 关闭标准输出
+exec 3<&-	关闭文件描述符3
+exec 5>&- # 关闭 FD5
+exec 0&- # 关闭 FD1
 
 
 

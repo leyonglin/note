@@ -1,4 +1,6 @@
 
+ https://www.cnblogs.com/zhaojiedi1992/p/zhaojiedi_linux_040_quota.html
+
  lsblk -d -o name,rota       1是HDD机械硬盘   0是ssd固态硬盘固态硬盘    (应该是的)
  iotop命令可以查看每个进程使用io    用法：iotop -o
  

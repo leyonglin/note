@@ -22,18 +22,27 @@ sudo ip link add A type veth peer name B
 sudo brctl addif docker0 A
 sudo ip link set A up
 
-将B放到容器的网络命名空间，命名为 eth0，启动它并配置一个可用 IP（桥接网段）和默认网关。
+将B放到容器的网络命名空间，命名为 eth0，启动它并配置一个可用 IP（桥接网段）和默认网关（如果是两个不同网段的网卡需要通讯，可以使用iptables的nat功能）。
 sudo ip link set B netns $pid
 sudo ip netns exec $pid ip link set dev B name eth0
 sudo ip netns exec $pid ip link set eth0 up
 sudo ip netns exec $pid ip addr add 172.17.42.99/16 dev eth0
 sudo ip netns exec $pid ip route add default via 172.17.42.1
 
-#网桥间通讯可以使用iptables进行nat配置
-ip route get 192.168.17.130  				 #远端ip如何到达本机，只能显示本机网关
-ip route add default via 192.168.17.3		 #更改默认路由
+
+
+#（网桥间通讯可以使用iptables进行nat配置）
+ip route
+ip route get 192.168.17.130  						   #远端ip如何到达本机，显示本机网关+本地网卡设备
+ip route add default via 192.168.17.3				   #默认路由,不同网段需要网关(via)。
+ip route add 1.1.1.0/24 dev ens33 [src 192.168.3.63]   #普通路由，同网段添加，无需网关(via)，Destination与本主机同属一个网络，src部分加不加效果一样
+
 ip -s link									 #统计网卡数据	
-ip neighbour								 #arp地址解析协议	
+ip neighbour								 #arp地址解析协议
+
+
+
+
 
 
 

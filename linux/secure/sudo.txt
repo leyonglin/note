@@ -13,13 +13,13 @@
 2.别名必须大写
 
 语法：
-用户  地址=(切换到哪个用户执行命令)	NOPASSWD：目录， 命令
+用户  地址=(切换到哪个用户执行命令)	NOPASSWD： 命令 文件1 文件2 *文件*... , 文件
 (ALL)：切换到那个用户执行命令，默认是root
 
 例：
-root    ALL = (ALL)     ALL
-test    ALL = (ALL)     NOPASSWD:ALL
-test    ALL = (ALL)     NOPASSWD: /bin/vim, /usr/bin/mkdir, /opt/*
+root    ALL = (ALL)ALL
+test    ALL = (ALL)NOPASSWD:ALL
+test    ALL = (ALL)NOPASSWD: /bin/vim, /usr/bin/mkdir, /opt/*
 
 #直接授权
 http	localhost = /usr/bin/systemctl * httpd, /usr/bin/vim, /etc/httpd/config/httpd.conf
@@ -27,9 +27,9 @@ mysql	localhost = /usr/bin/systemctl * mariadb, /usr/bin/vim /etc/my.cnf
 ifconfig	localhost=/sbin/*, !/sbin/ifconfig eth0
 
 #正则授权：
-test    ALL=    NOPASSWD: /usr/bin/passwd [A-Za-z]*, !/usr/bin/passwd *root*	#可以为除了root之外的用户修改密码
-test 	ALL=    NOPASSWD: /usr/bin/*, !/usr/bin/su			#可以运行/usr/bin/中除了某个命令 
-test    ALL=    NOPASSWD: /usr/bin/su [!-]*, !/usr/bin/su *root*		#普通用户之间可以su，但不能su到root
+test    ALL=(ALL)NOPASSWD: /usr/bin/passwd [A-Za-z]*, !/usr/bin/passwd *root*	#可以为除了root之外的用户修改密码
+test 	ALL=(ALL)NOPASSWD: /usr/bin/*, !/usr/bin/su			#可以运行/usr/bin/中除了某个命令 
+test    ALL=(ALL)NOPASSWD: /usr/bin/su [!-]*, !/usr/bin/su *root*		#普通用户之间可以su，但不能su到root
 
 查看日志：
 cat  /var/log/secure | grep sudo | awk  -F ";" '{print $NF}'| awk -F "=" '{print $2}' | grep -v "^$"
@@ -45,8 +45,7 @@ Cmnd_Alias ADD_DOMAINS = /usr/bin/python /opt/scripts/add_domains.py
 Cmnd_Alias ADD_DOMAINS = /usr/bin/python /opt/scripts/add_domains.py
 ######## 添加域名/证书的权限
 ## 指定目录的cp, vim , mv权限
-Cmnd_Alias DO_NGINX = /usr/bin/cp -p /opt/apps/nginx/conf/vhosts/5hgd/* /opt/apps/nginx/conf/vhosts/5hgd/*, /usr/bin/vim /opt/apps/nginx/conf/vhosts/5hgd/*, /usr/bin/vim /opt/apps/
-nginx/conf/ip.conf, /usr/bin/rm /opt/logs/nginx/*.log
+Cmnd_Alias DO_NGINX = /usr/bin/cp -p /opt/apps/nginx/conf/vhosts/5hgd/* /opt/apps/nginx/conf/vhosts/5hgd/*, /usr/bin/vim /opt/apps/nginx/conf/vhosts/5hgd/*, /usr/bin/vim /opt/apps/nginx/conf/ip.conf, /usr/bin/rm /opt/logs/nginx/*.log
 
 ## 复upload目录复制证书文件至key目录(保持swadmin的属性)
 Cmnd_Alias COPY_CRT = /usr/bin/cp -r /opt/src/upload/* /opt/apps/nginx/conf/keys/*
