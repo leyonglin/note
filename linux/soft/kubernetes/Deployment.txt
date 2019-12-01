@@ -95,3 +95,31 @@ vim /etc/sysconfig/kubelet            （忽略swap错误KUBELET_EXTRA_ARGS="--f
 kubeadm join 192.169.69.156:6443 --token objct9.rf10gl6ysh7909do     --discovery-token-ca-cert-hash sha256:d6c4156dc1fdeb5c056df2dc8c5f4cfabfc68d7e19b21a97cae22b12ec3d0602  --ignore-preflight-errors=Swap（加入集群）
 
 
+
+pod：
+生命周期
+poststart：pod启动前  钩子，不保证成功
+init容器：第一部分被启动且必须被启动成功的容器
+存活和就绪检查
+任务容器：
+prestop：停止前   钩子，执行过程会阻塞杀死容器
+valume：挂载+特殊挂载(密码、配置映射、下载api信息，服务账号token)
+资源限制
+节点选择，(反)亲和性，污点
+统一对某一标签的pob添加字段
+kubectl -n kube-system describe pods NAME
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
