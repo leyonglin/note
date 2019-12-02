@@ -193,6 +193,15 @@ ps -ajx/ef  查看父进程
 	
 cal --help 显示时间	
 
+终端会话录制：-q 静默模式  -t记录时间  -a追加  -c记录命令输出
+  1.
+	script -t 2>demo.time -a demo.his 　　　　　　　　　　 开始录像
+		CMD                                                ctrl+d或者exit结束,会被记录
+	scriptreplay demo.time demo.his　　　　　　　　　　　　回放
+  2.
+	script scp.log -c "cp -vf /root/anaconda-ks.cfg /opt/"   实际执行，记录该命令输出 
 	
-	
-	
+multitail：
+	同时监控两个文件：multitail log1 log2
+	分成两列监控两个文件：multitail -s 2 log1 log2
+	分成两列监控，第一列3个，第二列2个： multitail -s 2 -sn 3,2	 log1 log2 log3 log4 log5

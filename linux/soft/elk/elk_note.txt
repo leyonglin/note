@@ -1,0 +1,140 @@
+
+elasticsearch下载:https://www.elastic.co/cn/downloads/elasticsearch
+非官方文档:https://blog.csdn.net/alex_xfboy/article/details/85015994
+
+Logstash（管道收集+分析）：是开源的服务器端数据处理管道，能够同时从多个来源采集数据，转换数据，然后将数据发送到您最喜欢的 “存储库” 中
+Elasticsearch（搜索+存储）：是一个分布式、RESTful 风格的搜索和数据分析引擎
+Kibana（可视化展示）：数据进行可视化并在 Elastic Stack 进行操作
+
+Fluentd是统一日志层的开源数据收集器。Fluentd is an open source data collector for unified logging layer.
+filebeat 轻量型日志采集器，是Elastic Stack 一部分
+beataudit:轻量型审计日志采集器,收集您Linux 审计框架的数据，监控文件完整性。Auditbeat 实时采集这些事件，然后发送到 Elastic Stack 其他部分做进一步分析。
+
+
+Beats目前有官方支持的多个子产品，如下：
+Packetbeat：用于监控局域网内服务器之间的网络流量信息；
+Filebeat：收集服务器上的日志信息——它是用来替代Logstash Forwarder的下一代Logstash收集器，是为了更快速稳定轻量低耗地进行收集工作，它可以很方便地与 Logstash还有直接与Elasticsearch进行对接。
+Metricbeat：新推出的 可以定期获取外部系统的监控指标信息
+Winlogbeat：Windows事件日志轻量级工具
+Auditbeat：审计数据的轻量级工具
+Heartbeat：用于时间监控的轻量级工具
+
+用户 --> client node(获取数据，去重等二次操作) --> data node(存储节点)   master node(主要数据分配上的操作/元数据)
+
+正向索引:从文档到单词(以文档关键字)。  反向索引:从词到文档(以单词为关键字)。  
+搜索引擎在创建会先解析文档的关键词，创建一个正向索引，然后再基于正向索引，把方向逆转过来，创建反向索引，
+
+
+DSL指的是针对特定应用领域而设计使用的计算机语言，而GPL指的是针对跨应用领域而设计使用的计算机语言。
+Lucene是Apache的一个全文检索 引擎工具包 ，通过Lucene可以让程序员快速开发一个全文检索功能。Lucene不是搜索引擎，仅仅是一个工具包
+text：分词  keyword：不能分词
+
+索引原理：
+	数据结构：排序列表，hash表，跳跃表，B树，字典树，双数组字典树，FST（Finite State Transducer） IK分词器(中文)
+
+2. 核心概念
+	1. Near Realtime（NRT）近实时。数据提交索引后，立马就可以搜索到。
+	2. Cluster集群，一个集群由一个唯一的名字标识，默认为“elasticsearch”。集群名称非常重要，具有相同集群名的节点才会组成一个集群。集群名称可以在配置文件中指定。
+	3. Node节点，存储集群的数据，参与集群的索引和搜索功能。像集群有名字，节点也有自己的名称，默认在启动时会以一个随机的UUID的前七个字符作为节点的名字，你可以为其指定任意的名字。通过集群名在网络中发现同伴组成集群。一个节点也可是集群。
+	4. Index索引，一个索引是一个文档(分片)的集合，逻辑概念。每个索引有唯一的名字，通过这个名字来操作它。一个集群中可以有任意多个索引。
+	5. Type类型，指在一个索引中，可以索引不同类型的文档，如用户数据、博客数据。从6.0.0 版本起已废弃，一个索引中只存放一个type。
+	6. Document文档，被索引的一条数据，索引的基本信息单元，以JSON格式来表示。
+	7. Shard分片:数据实际存储的地方（分库），在创建一个索引时可以指定分成多少个分片来存储。每个分片本身也是一个功能完善且独立的“索引”，可以被放置在集群的任意节点上。分片的好处：
+		允许我们水平切分/扩展容量
+		可在多个分片上进行分布式的、并行的操作，提高系统的性能和吞吐量。
+		注意：分片数创建索引时指定，创建后不可改了。备份数可以随时改。
+	8. Replication备份，为每个Shard创建多个副本, 相当于索引数据的冗余备份.。备份的好处：
+		高可用，一个主分片挂了，副本分片就顶上去
+		扩展搜索的并发能力、吞吐量。搜索可以在所有的副本上并行运行
+	9. Segment段，索引是由段（Segment）组成的，段存储在硬盘（Disk）文件中，段不是实时更新的，这意味着，段在写入磁盘后，就不再被更新。ElasticSearch引擎把被删除的文档的信息存储在一个单独的文件中，在搜索数据时，ElasticSearch引擎首先从段中查询，再从查询结果中过滤被删除的文档，这意味着，段中存储着“被删除”的文档，这使得段中含有”正常文档“的密度降低。多个段可以通过段合并（Segment Merge）操作把“已删除”的文档将从段中物理删除，把未删除的文档合并到一个新段中，新段中没有”已删除文档“，因此，段合并操作能够提高索引的查找速度，但段合并是IO密集型的操作，需要消耗大量的硬盘IO。
+	10. 和关系型数据库的对比
+			RDBMS				ES（Rest API）
+		数据库（database）		索引（index）
+		表（table）				类型（type）
+		行（row）				文档（document）
+		列（column）			字段（field）
+		表结构/约束（schema）	映射（mapping）
+		词（Term）				表示文本中的一个单词
+		标记（Token）			表示在字段中出现的词，由该词的文本、偏移量（开始和结束）以及类型组成
+		索引					反向索引
+		SQL						查询DSL
+		SELECT * FROM ...		GET http://...
+		INSERT INTO				PUT http://...
+		UPDATE SET ...			POST http://...
+		DELETE ...				DELETE http://...
+	11.river(数据源):从其他存储方式 (如数据库) 中同步数据到ES的方法, 它是以插件方式存在的一个ES服务, 通过读取river中的数据并把它索引到ES中.官方的river有CouchDB、RabbitMQ、Twitter、Wikipedia等.
+	12.recovery(数据恢复):当有节点加入或退出时, ES会根据机器的负载对索引分片进行重新分配, 挂掉的节点重新启动时也会进行数据恢复.
+	13.term(索引词)在ES中, 索引词(term)是一个能够被索引的精确值, 可以通过term query进行准确搜索. 比如: foo、Foo、FOO都是不同的索引词.
+	14.text(文本):文本是一段普通的非结构化文字, 通常文本会被分析成多个Term, 存储在ES的索引库中.文本字段一般需要先分析再存储, 查询文本中的关键词时, 需要根据搜索条件搜索出原文本.
+	15.analysis(分析/分词):分析是将文本转换为索引词的过程, 分析的结果依赖于分词器.
+
+
+elasticsearch架构： 
+	Gateway：它是ES用来存储索引的文件系统，支持多种类型,ES集群重新启动时就会从gateway中读取索引数据.
+	Distributed Lucene Directory：它是一个分布式的lucene框架，位于Gateway的上层，内部包含Lucene-core
+	Index Module：索引模块控制与所有索引全局管理的与索引相关的设置，而不是在每个索引级别上可配置,可用的设置包括：
+		Circuit breaker：断路器对内存使用设置限制，以避免内存溢出异常
+		Fielddata cache：设置内存中fielddata缓存使用的堆数量的限制
+		Node query cache：配置用于缓存查询结果的堆数量
+		Indexing buffer：控制分配给索引进程的缓冲区的大小
+		Shard request cache：控制shard-level请求缓存的行为
+		Recovery：控制shard恢复过程中的资源限制
+	Search Module：后续专门讲
+	Mapping：每个index都有一个映射: 定义索引中每个字段的类型.所有文档在写进索引之前都会先进行分析, 如何对文本进行分词、哪些词条又会被过滤, 这类行为叫做映射(mapping).
+	Discovery：它是ES的节点发现模块，不同机器上的ES节点要组成集群需要进行消息通信，集群内部需要选举master节点，这些工作都是由Discovery模块完成。支持多种发现机制，如 Zen 、EC2、gce、Azure
+	Scripting：Scripting用来支持在查询语句中插入javascript、python等脚本语言，scripting模块负责解析这些脚本，使用脚本语句性能稍低
+	3rd Plugins：ES也支持多种第三方插件
+	Transport：它是ES的传输模块，支持多种传输协议，如 Thrift、memecached、http，默认使用http
+	JMX：MX是java的管理框架，用来管理ES应用。
+	RESTful style API：客户端可以通过RESTful接口和ES集群进行交互
+	Java(Netty)：略
+	
+
+
+两个最流行的开源搜索引擎，Solr和ElasticSearch。两者都建立在Apache Lucene开源平台之上，它们的主要功能非常相似，但是在部署的易用性，可扩展性和其他功能方面也存在巨大差异
+	Solr 利用 Zookeeper 进行分布式管理，而 Elasticsearch 自身带有分布式协调管理功能;
+	Solr 支持更多格式的数据，而 Elasticsearch 仅支持json文件格式；
+	Solr 官方提供的功能更多，而 Elasticsearch 本身更注重于核心功能，高级功能多有第三方插件提供；
+	Solr 在传统的搜索应用中表现好于 Elasticsearch，但在处理实时搜索应用时效率明显低于 Elasticsearch。
+
+插件：
+	1. Kibana
+	推荐理由：除了支持各种数据的可视化之外，最重要的是支持 Dev Tool 进行 RESTFUL API 增删改查操作。比 Postman 工具和 cURL 都要方便
+	2. head
+	推荐理由：可实现ES集群状态查看、索引数据查看、ES DSL 实现（增、删、改、查操作），比较实用的地方是 JSON 串的格式化
+	3. Cerebro
+	推荐理由：用于实现 ES 集群状态查看（堆内存使用率、CPU使用率、内存使用率、磁盘使用率）
+	4. ElasticHD
+	推荐理由：其强势功能包括支持SQL转DSL，不要完全依赖，可以借鉴用
+	5. 中文分词工具
+	推荐理由：有 IK分词、ANSJ分词、结巴分词，建议使用选用 IK 分词，了解更多
+	6. elasticsearch-SQL
+	推荐理由：类SQL查询工具，其支持的 SQL，极大缩小了复杂 DSL 的实现成本
+	7. 测试工具profile
+	推荐理由：在原来执行的 DSL 的基础上新增 profile参数，如"profile": true，我把它称作“测试工具”。profile API的目的是，将 ES 高层的 ES 请求拉平展开，直观的让你看到请求做了什么，每个细分点花了多少时间。
+	8. 性能分析工具rally
+	推荐理由：推荐rally。相比传统的发包请求测试工具，rally 更加直观和准确、且指标很丰富
+
+
+
+副本（replica）：index也可以设定副本数（numberofreplicas），也就是同一个shard有多少个备份。对于查询压力较大的index，可以考虑提高副本数（numberofreplicas），通过多个副本均摊查询压力。副本分片数可以随时修改，主分片当索引创建时候就固定了
+副本的用途是备份数据保证高可用数据不丢失，高并发的时候参与数据查询。一般一个分片有1-2个副本即可保证高可用。副本多浪费存储空间、占用资源、影响性能
+shard数量（numberofshards）设置过多或过低都会引发一些问题：shard数量过多，则批量写入/查询请求被分割为过多的子写入/查询，导致该index的写入、查询拒绝率上升；对于数据量较大的inex，当其shard数量过小时，无法充分利用节点资源，造成机器资源利用率不高或不均衡，影响写入/查询的效率。
+ElasticSearch推荐的最大JVM堆空间是30~32G, 所以把你的分片最大容量限制为30GB, 然后再对分片数量做合理估算。例如, 你认为你的数据能达到200GB, 推荐你最多分配7到8个分片。在开始阶段, 一个好的方案是根据你的节点数量按照1.5~3倍的原则来创建分片。
+对于基于日期的索引需求, 并且对索引数据的搜索场景非常少。也许这些索引量将达到成百上千, 但每个索引的数据量只有1GB甚至更小. 对于这种类似场景, 建议只需要为索引分配1个分片。
+
+
+curl -XPUT 'http://localhost:9200/logstash-2016.01.01/_mapping'
+
+精确匹配使用：过滤查询（Filtering queries）只是简单的检查包含或者排除，可以缓存
+全文搜索使用：1.当使用于查询情况时，查询就变成了一个“评分”的查询，不能缓存，查询计算每一个文档与此查询的 相关程度，同时将这个相关程度分配给表示相关性的字段 _score，并且按照相关性对匹配到的文档进行排序
+			  2.分词
+
+集群角色：
+	主节点(master node)：node.master true
+	数据节点(data node)：node.data true （数据的crud）
+	客户端节点(client node)：node.master 和 node.data 都为false
+	部落节点：tribe.*  (可以连接多个集群)
+
+
+

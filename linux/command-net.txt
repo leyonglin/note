@@ -1,7 +1,7 @@
 
 用户使用 --net=none 后，可以自行配置网络，让容器达到跟平常一样具有访问网络的权限。通过这个过程，可以了解 Docker 配置网络的细节。
 首先，启动一个 /bin/bash 容器，指定 --net=none 参数。
-docker run -i -t --rm --net=none base /bin/bash
+docker run -i -t --rm --net=none busybox /bin/bash
 	root@63f36fc01b5f:/#
 	
 在本地主机查找容器的进程 id，并为它创建网络命名空间。
@@ -35,7 +35,7 @@ sudo ip netns exec $pid ip route add default via 172.17.42.1
 ip route
 ip route get 192.168.17.130  						   #远端ip如何到达本机，显示本机网关+本地网卡设备
 ip route add default via 192.168.17.3				   #默认路由,不同网段需要网关(via)。
-ip route add 1.1.1.0/24 dev ens33 [src 192.168.3.63]   #普通路由，同网段添加，无需网关(via)，Destination与本主机同属一个网络，src部分加不加效果一样
+ip route add 1.1.1.0/24 dev ens33 [src 192.168.3.63]   #普通路由，同网段添加，Destination与本主机同属一个网络，无需网关(via)，src部分加不加效果一样
 
 ip -s link									 #统计网卡数据	
 ip neighbour								 #arp地址解析协议
