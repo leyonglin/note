@@ -123,10 +123,15 @@ kubectl get pods -w
 	daemonset：保证有且仅有一个pod
 	job/cronjob：离线/单次任务/定时任务
 		
-crd：自定义资源，拓展kubernetes的API	
-RBAC
-
-
+crd：自定义资源，拓展kubernetes的API   （operator）	
+RBAC：基于角色的访问控制
+	role/clusterrole：角色，实质是一组规则，定义了一组对kubernetes API的操作权限
+	subject：服务账号/被作用者
+	rolebinding/clusterrolebinding：API对象，定义role和subject的绑定关系
+storage:
+	顺序手动创建pv和pvc  
+	storageclass：创建存储池，会根据配置自动创建pv和pvc
+		ceph:rook operator
 
 
 
