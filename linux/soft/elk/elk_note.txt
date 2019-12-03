@@ -1,5 +1,7 @@
-
-elasticsearch下载:https://www.elastic.co/cn/downloads/elasticsearch
+                  
+elasticsearch下载:https://www.elastic.co/guide/en/elasticsearch/reference/版本/rpm.html  //  https://www.elastic.co/guide/en/elasticsearch/reference/版本/_installation.html
+静态配置：https://www.elastic.co/guide/en/elasticsearch/reference/版本/path-settings.html
+（cluster.name.html，node.name.html，network.host.html，discovery-settings.html，heap-size.html，heap-dump-path.html，gc-logging.html）
 非官方文档:https://blog.csdn.net/alex_xfboy/article/details/85015994
 
 Logstash（管道收集+分析）：是开源的服务器端数据处理管道，能够同时从多个来源采集数据，转换数据，然后将数据发送到您最喜欢的 “存储库” 中
@@ -70,6 +72,11 @@ text：分词  keyword：不能分词
 
 
 elasticsearch架构： 
+  为了将数据添加到elasticsearch，需要索引--一个存储关联数据的地方，索引只是一个用来指向一个或多个分片的逻辑命名空间
+  一个分片是一个最小级别工作单元，只保存索引中所有数据的一部分，分片就是一个lucene示例，并且本身就是一个完整的搜索引擎，应用程序不会和它直接通信
+  索引中的每个文档属于一个单独的主分片，所以主分片数量决定了索引最多能存储多少数据
+  分片分为主分片和复制分片，主分片的数量在索引创建完成时候就固定了，但是复制分片可以随时调整(副本集)，复制分片可以防止硬件故障的数据丢失和提供读请求
+  路由：当索引一个文档的时候，文档会被存储到一个主分片中：shard = hash(routing) % number_of_primary_shards(主分片数量)  routing是一个可变值，默认是文档的_id，也可以设置成一个自定义的值	
 	Gateway：它是ES用来存储索引的文件系统，支持多种类型,ES集群重新启动时就会从gateway中读取索引数据.
 	Distributed Lucene Directory：它是一个分布式的lucene框架，位于Gateway的上层，内部包含Lucene-core
 	Index Module：索引模块控制与所有索引全局管理的与索引相关的设置，而不是在每个索引级别上可配置,可用的设置包括：
@@ -88,7 +95,8 @@ elasticsearch架构：
 	JMX：MX是java的管理框架，用来管理ES应用。
 	RESTful style API：客户端可以通过RESTful接口和ES集群进行交互
 	Java(Netty)：略
-	
+
+  
 
 
 两个最流行的开源搜索引擎，Solr和ElasticSearch。两者都建立在Apache Lucene开源平台之上，它们的主要功能非常相似，但是在部署的易用性，可扩展性和其他功能方面也存在巨大差异
@@ -135,6 +143,36 @@ curl -XPUT 'http://localhost:9200/logstash-2016.01.01/_mapping'
 	数据节点(data node)：node.data true （数据的crud）
 	客户端节点(client node)：node.master 和 node.data 都为false
 	部落节点：tribe.*  (可以连接多个集群)
+	#ingest node(预处理节点)在文档被索引执行发生之前对文档进行预处理(pre-process).
+
+
+组成：beats：可以使用产品的module，也可以自定义
+		filebeat(文件)：可以添加自定义字段(配置文件itcast-log.yml)    -->  logstash/fluentd
+			prospector 负责管理harvester并找到所有要读取的文件来源,并为每个文件启动一个harvester
+			harvester :负责读取单个文件的内容。读取每个文件	
+		metricbeat(服务器指标)：
+			module：收集的对象，系统/硬件/程序...
+			metricset：收集指标的集合，cpu/memory...
+
+
+elasticsearch-head 无法连接elasticsearch的原因和解决
+	1、5.x之后不支持直接集成到es中去(plugin目录下) 需要通过(nodejs)额外安装服务
+	2、通常会查看请求是否出错，关键是请求没有出错，就是没有返回值：
+		1.F12 --> network(出错查看原因) --> console(错误输出)
+			请求为option有可能是跨域问题，查看console
+	
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

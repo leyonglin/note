@@ -132,6 +132,7 @@ storage:
 	顺序手动创建pv和pvc  
 	storageclass：创建存储池，会根据配置自动创建pv和pvc
 		ceph:rook operator
+		local volume manager  -- > local PV PVC
 
 
 
