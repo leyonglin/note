@@ -20,7 +20,7 @@
 
  自定义环境变量的时候，可以设置为  export NGINX_HOMEZ=/usr/local/nginx ，这个nginx不能设置为NGINX,会和nginx源码冲突(其它配置的时候不要太正规，冲突真不开心)
 
-错误查找顺序：1.前台运行、终端报错  2.选项-v/-vv/-vvv   3.日志报错(配置文件或启动文件)   4.浏览器F12 -- network / console
+错误查找顺序：1.前台运行/终端报错  2.选项-v/-vv/-vvv   3.日志报错(配置文件或启动文件)   4.浏览器F12 -- network / console
 			  5.查看错误涉及的服务的原理  6.跳出当前环境，扩大关注点  7.strace/lstrac
  
 

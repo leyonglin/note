@@ -12,7 +12,8 @@ starce -rf [-s 1024] -e clone -p 24303
 使用strace输出很少不代表进程很空闲
 
 
-LSOF：	匹配内容^表示取反 (/path/filename) (+d/+D dir) (-d fd) (-c <进程名> -c ...) (-u 用户名) (-p PID,PID...) (-i :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) -U(socket) -n(不dns) +/-r(持续) #协议指tcp和udp
+LSOF：	匹配内容^表示取反 (/path/filename) (+d/+D dir) (-d fd) (-c <进程名> -c ...) (-u 用户名) (-p PID,PID...) 
+		(-i :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) -U(socket) -n(不dns) +/-r(持续) #协议指tcp和udp
 	lsof | head
 		COMMAND     PID   TID    USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
 		删除恢复：
@@ -22,8 +23,12 @@ LSOF：	匹配内容^表示取反 (/path/filename) (+d/+D dir) (-d fd) (-c <进�
 
 TCPDUMP:  or/and/not
 	tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
-	tcpdump (-i 接口) (-c 抓包总数) (or/and/not) (-w 文件) (-r 指定文件读出) (port PORT) (src/dst host ip/域名/网络位) (-p 协议) -t(不显示时间戳) -vv(详细输出) -nn(不dns)  #可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
-  tcpdump  -nn -i ens34 '(((dst host 104.193.88.77) or (dst host 104.193.88.123)) and (tcp[tcpflags] & (tcp-ack|tcp-fin|tcp-syn) !=0))'
+	tcpdump or/and/not 
+			-i 接口/any		-c 抓包总数		-t/ttt(不显示时间戳)	-vv(详细输出)	-nn(不dns)
+	        [-p] 协议
+			src/dst port/portrange PORT		src/dst host ip/域名/网络位	  
+			-w 文件		-r 指定文件读出	#可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
+  tcpdump  -nn -i any '(((dst host 104.193.88.77) or (dst host 104.193.88.123)) and (tcp[tcpflags] & (tcp-ack|tcp-fin|tcp-syn) !=0))'
 
 
 

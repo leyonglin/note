@@ -28,11 +28,24 @@ linux下设置密码复杂度限制:
 
 
 异常用户
- w
+ w（/var/run/utmp）
+ who /var/log/wtmp
  /var/log/message
  /var/log/secure
  history
- last / lastb
- who wtmp
+ last：记录的登录系统的用户名单及是否在线(/var/log/wtmp) 
+ lastb：记录的登入系统失败的用户名单(/var/log/btmp)
+ lastlog
+ 
+
+
+ 
+ 
  
 异常命令：将排查的命令 ls ps netstat last w ..做个MD5值校验
+
+
+
+
+
+

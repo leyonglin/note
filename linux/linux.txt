@@ -1,0 +1,35 @@
+Linux Standard Base (LSB)等标准来规范开发者，以及目录架构的File system Hierarchy Standard (FHS)标准规范
+Kernel + Softwares + Tools的可完全安装，我们称之为Linux distributio
+Open Source (开放源码)的代表授权为GNU的GPL授权及BSD等等
+POSIX是可携式操作系统接口(Portable Operating System Interface)的缩写，重点在规范核心与应用程序之间的接口
+
+
+IDE硬盘机	/dev/hd[a-d]
+SCSI/SATA/U盘硬盘机	/dev/sd[a-p]
+鼠标	U盘: /dev/usb/mouse[0-15]
+当前CDROM/DVDROM	/dev/cdrom
+当前的鼠标	/dev/mouse
+
+
+BIOS：启动主动运行的韧体，会认识第一个可启动的装置；
+MBR：第一个可启动装置的第一个磁区内的主要启动记录区块，内含启动管理程序；
+启动管理程序(boot loader)：一支可读取核心(grub)文件来运行的软件(linux/windows)；
+核心文件：开始操作系统的功能...
+由上面的说明我们会知道，BIOS与MBR都是硬件本身会支持的功能，至於Boot loader则是操作系统安装在MBR上面的一套软件了。由於MBR仅有446 bytes而已，因此这个启动管理程序是非常小而美的。 这个boot loader的主要任务有底下这些项目：
+
+提供菜单：使用者可以选择不同的启动项目，这也是多重启动的重要功能！
+加载核心文件：直接指向可启动的程序区段来开始操作系统；
+转交其他loader：将启动管理功能转交给其他loader负责。
+
+Linux distributions大多使用grub管理程序，必须要将他安装到MBR(boot sector)里面才行
+
+GNOME(X windows)  kde
+
+man 1, 5, 8这三个号码特别重要
+man man
+whatis cat
+apropos cat
+info info
+
+sync
+fsck /dev/sdb1

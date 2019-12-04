@@ -2,7 +2,7 @@
 版本：相关软件包版本之间及内核之间是否兼容，选择rpm或源码
 	查找相关文档的时候，把组件的版本号带上
 
-错误查找顺序：1.前台运行、终端报错  2.选项-v/-vv/-vvv   3.日志报错(配置文件或启动文件)   4.浏览器F12 -- network / console
+错误查找顺序：1.前台运行/终端报错  2.选项-v/-vv/-vvv   3.日志报错(配置文件或启动文件)   4.浏览器F12 -- network / console
 			  5.查看错误涉及的服务的原理  6.跳出当前环境，扩大关注点  7.strace/lstrace
 			  
 
@@ -19,3 +19,5 @@ elasticsearch-head 无法连接elasticsearch的原因和解决
 系统默认配置修改：
 	公钥：默认sshd_config配置：AuthorizedKeysFile  .ssh/authorized_keys
 		（这个也能修改，即以后认证的时候，使用修改后的路径，但是如果有服务需要用到免密，那在对应服务上的密钥路径也要修改，如gitlab）	
+		
+
