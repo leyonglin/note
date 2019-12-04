@@ -31,7 +31,7 @@ sudo ip netns exec $pid ip route add default via 172.17.42.1
 
 
 
-#（网桥间通讯可以使用iptables进行nat配置）
+#（网桥间通讯可以使用iptables进行nat配置）对该网段的所有ip进行广播
 ip route
 ip route get 192.168.17.130  						   #远端ip如何到达本机，显示本机网关+本地网卡设备
 ip route add default via 192.168.17.3				   #默认路由,不同网段需要网关(via)。
@@ -40,7 +40,8 @@ ip route add 1.1.1.0/24 dev ens33 [src 192.168.3.63]   #普通路由，同网段
 ip -s link									 #统计网卡数据	
 ip neighbour								 #arp地址解析协议
 
-
+TUN(tunnel)：linux三层虚拟设备，操作系统内核和应用程序之间传递rp包
+calico BGP模式：内核原生支持
 
 
 
