@@ -134,7 +134,15 @@ set [-uvCHhmBx]
 /etc/motd
 
 
+HISTSIZE=1000
+HISTIGNORE=”pwd:ls:ls -ltr:”
 echo 'HISTTIMEFORMAT="%F %T "' >> ~/.bashrc
 export HISTCONTROL = ignorespace              #第一个字符为空格的时候，不会被记录到history
-history -cw       #临时清理history（包括家目录下的history）
+history -c       #临时清理history（包括家目录下的history）
 history -d num #删除指定history
+
+Linux 主机并不会直接认识你的『账号名称』的，他仅认识 ID 啊 (ID 就是一组号码啦)
+
+
+
+

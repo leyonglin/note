@@ -1,74 +1,4 @@
 
-echo  -e  1."aaa$1bb\\"    2. "\033[ 41; 31 mtest\033[ 0 m"
-	1.\b  \c  \n  \f  \v  \t  \r  \\
-	2. 40-47背景 30-37字体   0/1/4/5/7/8  #在第一第二部分则表示作用于内容，在第三部分则表示作用于终端
-
-seq [-s +] [-w] 1 [2 10]
-seq -f "dir%g" ["%03g"]  5
-
-printf "%s [%s...]\n" a 1 b 2 c 3  # %3.2f\n
-grep -i(忽略大小写) -v(取反) -n(显示行数) -c(统计) -o(仅输出匹配关键词) -ABC(上下文) -w(匹配单词) -e(支持正则) -q(静默)   (grep(基本正则) egrep(正则) fgrep(速度快不支持正则))
-
-AWK:
-	awk匹配模式有两种: 
-		1. /正则/  
-		2. 关系运算匹配  > < <= >= == != ~ !~    #注意，这是不用//
-			'$3<50'  
-			'$7!="/bin/bash"'   
-			'$3 ~ /[0-9]{3,}/'  
-			'$1=="ftp" || $1=="mail"{print $0}'
-		3.行范围匹配	
-	awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' access.log-20190801 | column -t								 #统计ip	
-	awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #自定义变量：i=0;j=0,这是有逻辑的(将其中一个500改成100)
-	awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}' data  #求最大值  最值：awk '{if($1>max){max=$1}else if($1<3){min=$1}}END{print "MAX =",max"\n""MIN =",min}' data
-	awk 'BEGIN{sum=0}/^$/{++sum}END{print sum}' /etc/services                        #统计空行
-	awk 'BEGIN{printf "%-20s%-20s%-20s%-20s%-20s%-20s\n","Name","Chinese","English","Math","Physical","Average"}{sum=$2+$3+$4+$5;avg=sum/4}{printf "%-20s%-20d%-20d%-20d%-20d%-0.2f\n",$1,$2,$3,$4,$5,avg}' student.txt #统计平均值,逗号表示字符串分隔符，分号表示命令分隔符
-	awk占位符%[modifier]control-letter  -减号是左对齐,+加号是右对齐,#显示8进制在前面加0,显示16进制在前面加0x 
-三元运算：	
-	awk -F: '{usertype=$3<500?"系统用户":"普通用户" ; print $1,usertype}' passwd   #等同于awk -F: '{usertype=$3<500?"系统用户":"普通用户"}{ print $1,usertype}' passwd
-	awk -F: '{uid=$3>500?a++:b++}END{print "普通用户总数:" a "\n" "系统用户总数 :",b}' passwd
-	awk 'i=!i' test（打印奇数行）  /   awk '{i=!i;print i}' test
-	 
-	c	将一个数作为ASCII字符显示
-	d	显示一个整数值
-	i	显示一个整数值（和d一样）
-	e	用科学计数法显示一个数
-	f	显示一个浮点值
-	g	用科学计数法或浮点数显示（选择一个较短的格式）
-	o	显示一个八进制值
-	s	显示一个文本字符串
-	x	显示一个十六进制值
-	X	显示一个十六进制值，但用大写字母A～F
-	
-	内置变量：
-		$0                    打印行所有信息
-		$1~$n                    打印行的第1到n个字段信息
-		NF Number Field                处理行的字段个数
-		NR Number Row                处理行的行号
-		FNR File Number Row            多文件处理时，每个文件单独记录行号
-		FS Field Separator            字段分隔符，不指定时默认以空格或tab键分割,指定\n被当作空格
-		RS Row Separator            行分隔符，不指定时以回车换行分割,指定\n被当作空格
-		OFS Output Filed Separator        输出字段分隔符
-		ORS Output Row Separator        输出行分隔符
-		FILENAME                处理文件的文件名
-		ARGC                    命令行参数个数
-		ARGV                    命令行参数数组	
-awk [-v FS="#" -v OFS='---' -v RS=" " -v ORS="++"] '{print $1 $2}/{print FILENAME,$1,$2}'  test		
-awk '{print NR/FNR/NF,$0,ARGV[0],ARGV[1],ARGV[2],ARGC}' test test1
-abc=666  awk -v myvar=$abc 'BEGIN{print myvar}'	
-awk [--re-interval] '/ro{1,2}t/{print $0}' passwd   #--re-interval 匹配指定次数,但自己试的时候不用加也可以
-awk '/shutdown/,/operator/{print NR,$0}' passwd			#范围性输出，输出第一个匹配/root/和/operator/之间(包括)的行
-awk 'NR>=3&&NR<=6{print NR,$0}' passwd					#3-6行	
-cat -n passwd|awk -F: '{print $1}{print NR}'		#对于一行，输出$1再输出$2 等同于cat -n passwd|awk -F: '{print $1;print NR}'	
-awk '($1~/[0-9]/&&$2~/[0-9]/)||($3~/[a-zA-Z]/){print $0}' awk.txt  #与或	
-	内置函数
-		rand，srand，int
-		gsub  sub  length  index
-		awk 'BEGIN{srand();print rand()}'   	 	awk 'BEGIN{srand();print int(100*rand())}'	  #随机数
-		awk '{gsub("a","A");print $0}' passwd    	awk '{gsub("[a-z]","6");print $0}' passwd     #替换
-		awk '{sub("[a-z]","6");print $0}' passwd	#替换	awk '{print $0,length()}' passwd	#字符串长度
-		awk '{print index($0,"root")}' passwd   #root所在位置
-
 
 		
 top(1/2/3)free/df/vmstat/iostat/iotop/nethogs
@@ -120,76 +50,7 @@ ps -ajx/ef  查看父进程
 	5.信号量:   
 	6.套接字：本地套接字		
 	
-	元字符使用：
-	元字符：
-		a  						单个字符，包括汉字    
-		|  						或(已匹配过的字符，就不会再匹配)
-		.  						匹配除换行外的任意字符
-		^  						匹配字符串的开始位置
-		$  						匹配字符串的结束位置
-		*  						匹配前一个字符出现0次或多次
-		+  						匹配前一个字符出现1次或多次
-		？ 						匹配前一个字符出现0次或1次
-		{n}						匹配n次重复次数
-		{m,n}       			匹配m到n次重复次数(包含mn)
-		.+/.*       			匹配全部
-		[字符集]    			匹配字符集中任意一个字符([_a-zA-Z0-9])
-		[^字符集]   			过滤，即除字符集外的任意字符
-		\d == [0-9]				匹配任意数字字符
-		\D == [^0-9]			匹配任意非数字字符
-		\w                      普通字符(字母数字下划线及汉字)
-		\W						非普通字符
-		\s						匹配任意空字符[\r\t\n\v\f ]
-		\S                      匹配任意非空字符
-		\A == ^                 匹配字符串的开始位置
-		\Z == $                 匹配字符串的结束位置
-		\b						匹配单词边界位置(普通字符和非普通字符交界认为是单词边界)
-		\B						匹配非单词边界位置
-		
-	匹配单个字符： a . \d \D \w \W \s \S [..] [^..] 	
-	匹配重复：*  +  ?  {n}	 {m,n}
-	匹配位置:  ^  $  \A  \Z  \b  \B
-	其它： |  ()  \
-		
-	绝对匹配：
-		正则表达式要完全匹配目标字符串内容(\d+  --- "123"(完全匹配)  "as123df"(不是))
-		"^正则表达式$"    在正则表达式开始和结束位置加上^$
-		
-	正则表达式转义：	
-	
-	raw字串：原始字符串对内容不解释转义，就表达内容原本意义
-		
-	贪婪与非贪婪：	
-		贪婪模式：正则表达式的重复匹配总是尽可能多的向后匹配更多内容
-			*  +  ?  {3,5}
-				re.findall(r"ab{3,5}","abbbbbb")   --->  结果：['abbbbb']
-		非贪婪模式(懒惰模式)：尽可能少的匹配内容
-			*?  +?  ??  {3,5}?
-				re.findall(r"ab*?","abbbbbb")   --->  结果：['a']
-	
-	正则表达式的子组：
-		可以使用()为正则表达式建立子组，子组可以看作是正则表达式内部操作的一个整体，即先匹配整体，在内部子组匹配
-			子组是在正则表达式整体匹配到内容的前提下才会发挥作用，不影响正则表达式整体去匹配目标内容这一原则
-		re.findall(r"(ab)*","ababab")    #()会将ab当作一个整体
-	
-		子组所用：
-			1.作为内部整体可以改变某些元字符的行为(正则)
-				re.search(r"\w+@\w+\.(com|cn)","abc@123.com").group()   ---  'abc@123.com'
-				re.search(r"\w+@\w+\.(com|cn)","abc@123.cn").group()	---  'abc@123.cn'
-				re.search(r"\w+@\w+\.com|cn","abc@123.com").group()		---  'abc@123.com'
-				re.search(r"\w+@\w+\.com|cn","abc@123.cn").group()		---  'cn'
-			2.子组在某些操作中可以单独提取出匹配内容(编程)
-				re.search(r"(https|http|ftp)://\S+","https://www.baidu.com").group()   ---  'https://www.baidu.com'
-				re.search(r"(https|http|ftp)://\S+","https://www.baidu.com").group(1)  ---  'https'
-		子组注意事项：
-			1.一个正则表达式中可以有多个子组
-			2.子组一般由外到内，由左到右称之为第一组，第二组...
-			3.子组不能重叠，嵌套也不宜很多
-	
-	捕获组和非捕获组
-		格式：(?P<name>pattern)
-			作用：可以通过组名更方便获取某组内容
-				re.search(r"(?P<dog>ab)cdef",'abcdef').group('dog')
+
 	
 cal --help 显示时间	
 
@@ -205,3 +66,5 @@ multitail：
 	同时监控两个文件：multitail log1 log2
 	分成两列监控两个文件：multitail -s 2 log1 log2
 	分成两列监控，第一列3个，第二列2个： multitail -s 2 -sn 3,2	 log1 log2 log3 log4 log5
+	
+	

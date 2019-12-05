@@ -111,8 +111,11 @@ vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式
 #GUI选择寄存器 "* "+ "~ —— vim缓存在GUI中选择的文本
 搜索模式寄存器 "/p 缓存在vim中使用过的最后的搜索内容
 黑洞寄存器 "_<motion> 类似Linux中的/dev/null文件，只进不出，可用来滤掉影响默认寄存器的内容
-	
+
+vim .vimrc	
 :set nu	
 :set autoindent	
-:syntax on（默认）	
+:syntax on（默认）
+:set cursorline
+
 	
