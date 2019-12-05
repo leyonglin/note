@@ -91,6 +91,26 @@
          ACK表示响应，
          PSH表示有 DATA数据传输，
          RST表示连接重置。
+	Source Port & Destination Port (来源端口 & 目标端口)
+	Sequence Number (封包序号)由于 TCP 封包必须要带入 IP 封包当中，所以如果 TCP 数据太大时(大于 IP 封包的容许程度)， 就得要进行分段。这个 Sequence Number 就是记录每个封包的序号，可以让收受端重新将 TCP 的数据组合起来。
+	Acknowledge Number (回应序号)为了确认主机端确实有收到我们 client 端所送出的封包数据，我们 client 端当然希望能够收到主机方面的响应，那就是这个 Acknowledge Number 的用途了。 当 client 端收到这个确认码时，就能够确定之前传递的封包已经被正确的收下了。
+	Data Offset (资料补偿)倒数第二行有个 Options 字段对吧！那个 Options 的字段长度是非固定的，而为了要确认整个 TCP 封包的大小，就需要这个标志来说明整个封包区段的起始位置。
+	Reserved (保留)未使用的保留字段。
+	Code (Control Flag, 控制标志码)
+		当我们在进行网络联机的时候，必须要说明这个联机的状态，好让接收端了解这个封包的主要动作。 这可是一个非常重要的句柄喔！这个字段共有 6 个 bits ，分别代表 6 个句柄，若为 1 则为启动。分别说明如下：
+		URG(Urgent)：若为 1 则代表该封包为紧急封包， 接收端应该要紧急处理，且图 2.4-1 当中的 Urgent Pointer 字段也会被启用。
+		ACK(Acknowledge)：若为 1 代表这个封包为响应封包， 则与上面提到的 Acknowledge Number 有关。
+		PSH(Push function)：若为 1 时，代表要求对方立即传送缓冲区内的其他对应封包，而无须等待缓冲区满了才送。
+		RST(Reset)：如果 RST 为 1 的时候，表示联机会被马上结束，而无需等待终止确认手续。这也就是说， 这是个强制结束的联机，且发送端已断线。
+		SYN(Synchronous)：若为 1，表示发送端希望双方建立同步处理， 也就是要求建立联机。通常带有 SYN 标志的封包表示『主动』要连接到对方的意思。
+		FIN(Finish)：若为 1 ，表示传送结束，所以通知对方数据传毕， 是否同意断线，只是发送者还在等待对方的响应而已。
+		其实每个项目都很重要，不过我们这里仅对 ACK/SYN 有兴趣而已，这样未来在谈到防火墙的时候，你才会比较清楚为啥每个 TCP 封包都有所谓的『状态』条件！那就是因为联机方向的不同所致啊！底下我们会进一步讨论喔！ 至于其他的数据，就得请您自行查询网络相关书籍了！
+	Window (滑动窗口) 主要是用来控制封包的流量的，可以告知对方目前本身有的缓冲器容量(Receive Buffer) 还可以接收封包。当 Window=0 时，代表缓冲器已经额满，所以应该要暂停传输数据。 Window 的单位是 byte。
+	Checksum(确认检查码) 当数据要由发送端送出前，会进行一个检验的动作，并将该动作的检验值标注在这个字段上； 而接收者收到这个封包之后，会再次的对封包进行验证，并且比对原发送的 Checksum 值是否相符，如果相符就接受，若不符就会假设该封包已经损毁，进而要求对方重新发送此封包！
+	Urgent Pointer(紧急资料) 这个字段是在 Code 字段内的 URG = 1 时才会产生作用。可以告知紧急数据所在的位置。
+	Options(任意资料)目前此字段仅应用于表示接收端可以接收的最大数据区段容量，若此字段不使用， 表示可以使用任意资料区段的大小。这个字段较少使用。
+	Padding(补足字段) 如同 IP 封包需要有固定的 32bits 表头一样， Options 由于字段为非固定， 所以也需要 Padding 字段来加以补齐才行。同样也是 32 bits 的整数。	 
+	
  
  recv-Q 表示网络接收队列(receive queue):表示收到的数据已经在本地接收缓冲，但是还有多少没有被用户进程取走，如果接收队列Recv-Q一直处于阻塞状态，可能是遭受了拒绝服务 denial-of-service 攻击。
  send-Q 表示网路发送队列(send queue)发送了，但是没有收到对方的Ack的, 还保留本地缓冲区.如果发送队列Send-Q不能很快的清零，可能是有应用向外发送数据包过快，或者是对方接收数据包不够快。
@@ -101,28 +121,6 @@
  ifconfig dev /  hostname -- hostnamectl --cat /etc/sysconfig/network  / hosts   ip/主机名/dns/gw
  /etc/protocols    封包协议的定义
       预设路由==默认路由
- ip [option] [动作] [指令]
- option：-s 接受封包数
- 动作：link 关于设备device的相关设定(MTU,MAC)  addr/address:额外IP协议   route:与路由相关
- ip [-s] link show
- ip link set [device] [动作与参数]
- 参数：show显示  set设定
- 动作与参数：up/down address/name/mtu  
- ip address [add/del] [ip参数] [dev装置名] [相关参数]
- 参数：show/add/del/ip/dev/    相关参数：broadcast [+] 设置广播地址，+代表自动分配  label设备别名  scope[global全局通讯/site本机ipv6通讯/link本装置/host/本机内部]
- ip address add 192.168.2.3/24 broadcast +/192.168.2.255 dev eth0 label eth0:1  
- ip route [add/del] [ip/网域] [via gateway] [dev 设备]
- show/add/del    ip/网域/段     via从那个gateway出去   dev   mtu
- 
- 桥接是连接两个不同的物理网段（冲突域）的技术,交换是连接多个物理网段技术，典型的交换机通常都有多个端口，每个端口实际上就是一个网桥,
- TAP等同于一个以太网设备，它操作第二层数据包如以太网数据帧。TUN模拟了网络层设备，操作第三层数据包比如IP数据封包。
- STP(Spanning Tree Protocol)即生成树协议，标准为IEEE802.1D-1998.STP是一种二层冗余技术，利用STA算法构建一个逻辑上没有环路的树形网络拓扑结构，并且可以通过一定的方法实现路径冗余
- brctl addbr br0                            #创建一个名称为"br0"的网卡
- ifconfig eth0 0 up                         #将需要桥接的网卡IP清空
- brctl addif br0 eth0                       #在"br0"上添加"eth0"；
- ifconfig  br0 192.168.16.107/24 up         #给"br0"配置IP；
- route add default gw 192.168.16.1          #设置默认的网关地址；
- brctl stp br0 on                           #开启stp生成树协议
  
  
 p2p软件：指数据的传输不再通过服务器，而是网络用户之间直接传递数据，最初的含义是Peer-to-peer，之后的含义是Point to point（点对点）
@@ -138,99 +136,6 @@ DHT（Distributed Hash Table）的去中心化网络。每个加入这个DHT网�
  
 
  
- vm1：
- ip link add vxlan1 type vxlan id 1 remote 172.31.0.107 dstport 4789 dev eth0
- ip link set vxlan1 up
- ip addr add 10.0.0.106/24 dev vxlan1
- 上面的第一条命令创建了一个Linux上类型为vxlan的网络接口，名为vxlan1。
- id: VNI标识是1。
- remote: 作为一个VTEP设备来封装和解封VXLAN报文，需要知道将封装好的VXLAN报文发送到哪个对端VTEP。Linux上可以利用group指定组播组地址，或者利用remote指定对端单播地址。在实验的云环境中默认不支持组播，这里利用remote指定点对点的对端IP地址为172.31.0.107。
- dstport: 指定目的端口为4789。因为当Linux内核3.7版本首次实现VXLAN时，UDP端口还并没有规定下来。很多厂商利用了8472这个端口，Linux也采用了相同的端口。后来IANA分配了4789作为VXLAN的目的UDP端口。如果你需要使用IANA端口，需要用dstport指定。
- dev: 指定VTEP通过哪个物理device来通信，这里是使用eth0。
- vm2: similar
- 
- 
- nmcli
- 
- #常用命令
- ip route get IP                          #查看获取IP通过那张网卡
- ip link show                             #显示链路
- ip addr show                             #显示地址(或ifconfig)
- ip route show                            #显示路由(route -n)
- ip neigh show                            #显示arp表(ping 192.168.95.50，如果主机在同一局域网内，直接加到arp表)
- ip neigh delete 192.168.95.50 dev eth0   #删除arp条目，条目仍然存在状态为stale，下次通信需要确认
- ip rule show                             #显示缺省规则
- ip route del default dev eth0            #删除接口路由
- ip route show table local                #查看本地静态路由
- ip route show table main                 #查看直连路由
- ip route add 10.1.1.0/30 encap mpls 200/300 via 10.1.1.1 dev eth0
- 
- route 命令的输出项说明
- 输出项 说明
- Destination	目标网段或者主机，第一条路由信息中Destination是default， Genmask是0.0.0.0. 可以认为是全网路由，也就是可以达到任务的网络地址。
- Gateway	网关地址，”*” 表示目标是本主机所属的网络，不需要路由
- Genmask	网络掩码
- Flags	标记。一些可能的标记如下：
-  	U — 路由是活动的
-  	H — 目标是一个主机
-  	G — 路由指向网关，需要通过外部的主机来传递数据包
-  	R — 恢复动态路由产生的表项，动态路由
-  	D — 由路由的后台程序动态地安装，动态路由
-  	M — 由路由的后台程序修改
-  	! — 拒绝路由
- Metric	路由距离，到达指定网络所需的中转数（linux 内核中没有使用）
- Ref	路由项引用次数（linux 内核中没有使用）
- Use	此路由项被路由软件查找的次数
- Iface	该路由表项对应的输出接口
- 
- 
- 
- ip netns help
- ip netns add r1      添加名称空间
- ip netns add r2
- ip netns list        查看创建的名称空间
- ip netns exec r1 ifconfig -a           在名称空间中执行命令
- ip link help
- ip link add name veth1.1 type veth peer name veth1.2    
- ip link show  （ 两组：veth1.2@veth1.1 ）
- ip link set dev veth1.2 netns r1      将网卡设备veth1.2放到r1网络名称空间中
- ip link show  
- ip netns exec r1 ifconfig -a
- ip netns exec r1 ip link set dev veth1.2 name eth0  网卡改名
- ip netns exec r1 ifconfig -a
- ifconfig veth1.1 10.1.0.1/24 up                  激活网卡
- ip a | grep veth1.1
- ip netns exec r1 ifconfig eth0 10.1.0.2/24 up
- ip netns exec r1 ifconfig
- ping 10.1.0.2
- ip link set dev veth1.1 netns r2
- ip netns exec r2 iconfig
- ip netns exec r2 ifconfig -a
- ip netns exec r2 ifconfig veth1.1 10.1.0.3/24 up
- ip netns exec r2 ping 10.1.0.2
- 
- 
- ip link add br-sunld08-test type bridge
- ip link set dev br-sunld08-test up
- ip link show br-sunld08-test
- brctl show br-sunld08-test
- ip link add test-veth08 type veth peer name test-veth09
- ip a
- ifconfig test-veth08 192.168.209.135/24 up（配置并启动设备）
- ifconfig test-veth09 192.168.209.136/24 up
- （ip link set dev  test-veth08 up  && ip link set dev  test-veth09 up  单独激活）
- ip link set dev test-veth08 master br-sunld08-test  #把test-veth08连接到br-sunld08-test
- bridge link | grep test-veth08 （查看与网卡绑定的网桥）（brctl show）
- 
- ping -c 4 192.168.209.136 -I test-veth08    
- tcpdump -n -i test-veth09
- 从上面的抓包可以看出，去和回来的流程都没有问题，问题就出在test-veth08收到应答包后没有给协议栈，而是给了br-sunld08-test，于是协议栈得不到test-veth09的mac地址，从而通信失败。
- 
- ip addr del 192.168.209.135/24 dev test-veth08
- ip addr add 192.168.209.135/24 dev br-sunld08-test
- ping -c 4 192.168.209.136 -I br-sunld08-test
- ping -c 4 192.168.209.2 -I br-sunld08-test    ping网关
- ip link set dev eth0 master br-sunld08-test  &&  bridge link  #将物理网卡绑定到bridge
- brctl stp br0 off #关闭生成树协议，减少数据包污染-P07\859620454\
+
 
  

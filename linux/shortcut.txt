@@ -94,10 +94,10 @@ vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式
 宏复制：   命令行模式qw---x-j-q--100@w(w与前面w对应)    qw---i-123-Esc-hhj-q---100@w（或者上下键） 	
 
 多屏
-  在命令模式下：      :sp {filename}   再打开一个文件   ctrl+w+上下键可切换     :qa可关闭其它窗口(无修改)
-  多文件编辑  vim FILE1 FILE2 FILE3 …  :next 下一个  :prev前一个  :first 第一个  :last 最后一个  :wall 保存所有  :qall退出所有  :wqall   
+  在命令模式下：      :sp {filename}水平再打开一个文件(默认打开本文件,同步操作)   :vs(垂直分屏vertical split)（默认本文件，可以来对照C+w切换）
+  多文件编辑  vim FILE1 FILE2 FILE3 …  1、:files  2、:n   3、:p    [:next 下一个  :prev前一个  :first 第一个  :last 最后一个  :wall 保存所有  :qall退出所有  :wqall]   
   多文件分割  vim -o -O FILE1 FILE2 …  -o: 水平分割  -O: 垂直分割  在窗口间切换：Ctrl+w
-  单文件窗口分割：Ctrl+w,s: split, 水平分割    Ctrl+w,v: vertical, 垂直分割   ctrl+w,q：取消相邻窗口   ctrl+w,o:取消全部窗口  ：wqall退出	
+  
 	
 寄存器：
 :reg（命令ex模式输入）
@@ -112,12 +112,7 @@ vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式
 搜索模式寄存器 "/p 缓存在vim中使用过的最后的搜索内容
 黑洞寄存器 "_<motion> 类似Linux中的/dev/null文件，只进不出，可用来滤掉影响默认寄存器的内容
 	
-	
-	
-	
-	
-	
-	
-	
-	
+:set nu	
+:set autoindent	
+:syntax on（默认）	
 	

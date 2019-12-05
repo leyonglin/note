@@ -31,5 +31,110 @@ whatis cat
 apropos cat
 info info
 
-sync
-fsck /dev/sdb1
+
+
+pwd -P(显示实际路径)
+cat  -A(显示特殊字符) -n
+mkdir -p  -m(带权限)
+rmdir 
+cp -p(复制属性) -r(递归) -i
+mv -i
+basename  dirname
+cat /etc/man.config | col -x | cat -A   #将tab(^I)转换成空格
+cmd | expand -t 6 -   #将tab变成6个空格
+join [-a1](左连接) [-a2](右连接) [-o 1.1/1.2..](文件.栏位) [-t ":"分隔符] file1 file2   找出两个文件中，指定栏位内容相同的行，并加以合并，再输出到标准输出设备
+paste /etc/passwd /etc/shadow  #将两个文件合并在一起
+split [-bl] file PREFIX
+	-b  ：后面可接欲分割成的文件大小，可加单位，例如 b, k, m 等；
+	-l  ：以行数来进行分割。
+	PREFIX ：代表前导符的意思，可作为分割文件的前导文字（名称）。
+xargs
+
+whereis which locate locale
+
+stat
+ls -lc filename         列出文件的 ctime
+ls -lu filename         列出文件的 atime
+ls -l filename          列出文件的 mtime
+
+
+find   被攻击的时候可以看创建了什么文件
+find / -u nobody -name test.txt -size +100k -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;
+
+
+单纯的 tar 功能仅是『打包』而已，亦即是将很多文件集结成为一个文件
+tar -tf /root/etc.tar.gz                   #查看
+tar -jxv -f /root/etc.tar.gz etc/shadow    #解压单个文件
+tar -cavf /root/etc.tar.gz  /root/etc      #压缩  
+tar -caPf ${backup_dir}/data_views_nginx_`date +%Y%m%d%H%M`.tar.gz  cms_9001/views/  \      #这里是 \[Enter] 
+    -C /opt/apps/nginx/ conf --exclude "Geo*"  #-P压缩绝对路径(可以tf查看),日志结尾加时间戳，-C切换路径，这样或备份在同一级目录下(后面写绝对路径也可以，备份会加上路径)，排除Geo文件
+  --newer-mtime=DATE   #仅备份比给定时间之后更新的
+tar -cvf - /etc | tar -xvf -   #在管线命令当中，常常会使用到前一个命令的 stdout 作为这次的 stdin，将/etc下的文件压缩拷贝到当前目录下
+
+
+dump：完整/增量备份文件系统
+restore：恢复 
+	restore -i -f /root/etc.dump      #交互恢复
+
+
+编码转换：
+	unix2doc	
+	iconv -f 原本编码 -t 新编码 filename [-o newfile]	 #跟多
+	
+只要能够操作应用程序的接口都能够称为壳程序
+shell有多种：bash是其中一个	
+type
+
+unset myname
+env
+set
+export       #自定义变量转成环境变量
+	global
+	local
+read
+array 
+declare / typeset :宣告变量的类型 (1.sum=100+300+50  2.declare -i sum=100+300+50  echo $sum)
+	 declare -r sum(设置只读，不能修改和取消，还有别的选项)
+ulimit -a
+
+
+
+同一账号同时多次登陆的 history 写入问题（一般在内存中，最后一个才会被记录）
+/etc/issue 和 /etc/issue.net   #登陆bash时候的显示信息
+	\d 本地端时间的日期；
+	\l 显示第几个终端机接口；
+	\m 显示硬件的等级 (i386/i486/i586/i686...)；
+	\n 显示主机的网络名称；
+	\o 显示 domain name；
+	\r 操作系统的版本 (相当于 uname -r)
+	\t 显示本地端时间的时间；
+	\s 操作系统的名称；
+	\v 操作系统的版本。
+
+取得 bash 时需要完整的登陆流程的，就称为 login shell(这下面的文件相互调用，看脚本吧！)
+/etc/profile (login shell 才会读)   #全局配置
+    调用/etc/inputrc（自定义热键）  /etc/profile.d/*.sh
+~/.bash_profile   ~/.bash_login    ~/.profile	#个人配置，按顺序只会读取上面三个文件的其中一个
+	调用：~.bashrc(non-login shell 会读) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
+~/.bash_logout     #退出 
+~/.bash_history    #历史记录
+
+
+stty -a   # 可以设置热键  stty erase ^h 
+set [-uvCHhmBx]
+	-u  ：默认不激活。若激活后，当使用未配置变量时，会显示错误信息；
+	-v  ：默认不激活。若激活后，在信息被输出前，会先显示信息的原始内容；
+	-x  ：默认不激活。若激活后，在命令被运行前，会显示命令内容(前面有 ++ 符号)
+	-h  ：默认激活。与历史命令有关；
+	-H  ：默认激活。与历史命令有关；
+	-m  ：默认激活。与工作管理有关；
+	-B  ：默认激活。与刮号 [] 的作用有关；
+	-C  ：默认不激活。若使用 > 等，则若文件存在时，该文件不会被覆盖。
+
+/etc/motd
+
+
+echo 'HISTTIMEFORMAT="%F %T "' >> ~/.bashrc
+export HISTCONTROL = ignorespace              #第一个字符为空格的时候，不会被记录到history
+history -cw       #临时清理history（包括家目录下的history）
+history -d num #删除指定history

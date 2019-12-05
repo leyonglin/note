@@ -35,7 +35,7 @@
  cylinder：圆柱，各面上磁道号相同的磁道合起来，称为一个柱面(cylinder)。也就是距轴的距离相同的一组track所形成的圆筒
  
  cylinder也是磁盘分区时的最小单位，分区是按磁道和柱面连续分布的(即每个分区，都是粗细连续的一组筒子)，由外向内从"0"开始顺序编号。并且其编址位宽足够大。
- Sector扇区/页：i/o是以扇区为最小单位，磁道被按512或4096字节划分成若干段，每段称为一个扇区(Sector)。一个扇区的大小是固定的512或4096字节，使用6bit编址，所以其最大值是63
+ Sector扇区/页：i/o是以扇区为最小单位，磁道被按512或4096字节划分成若干段，每段称为一个扇区(Sector)。一个扇区的大小是固定的512或4096字节，使用6bit编址，所以其最大值是63,将扇区组成一个圆，那就是磁柱(Cylinder)
  Block块：文件系统的最小存取空间。一个 Block 最多仅能容纳一个文件，可以随意设定，但必须是sector的整数倍。如ext2 fs的block缺省是4k
  
  LBA：48位LBA(Logical Block Address)寻址方式。LBA是非常单纯的一种寻址模式：从0开始编号来定位区块(扇区)，第一区块LBA=0，第二区块LBA=1，依此类推。以每扇区512字节计算，容量上限可达128PB。LBA寻址模式完全屏蔽了硬盘的物理结构，而将其简单的抽象成一维条带，非常便于操作系统的理解。
@@ -120,7 +120,7 @@
 存储分成了4种类型，基于本机的DAS和网络的NAS存储、SAN存储、对象存储。对象存储是SAN存储和NAS存储结合后的产物，汲取了SAN存储和NAS存储的优点。
 
 主引导区MBR:记录了硬盘本身的相关信息以及硬盘各个分区的大小及位置信息
-超级块存储了文件系统的相关信息，包括文件系统的类型，inode的数目，数据块的数目
+超级块存储了文件系统的相关信息，包括文件系统的类型，inode(元数据)的数目，数据块的数目
 文件系统-->“账房先生”
 
 
@@ -139,15 +139,46 @@ DDR内存：少量的易失性内存（需要电源来维护数据）用于缓�
 主控芯片：连接NAND闪存与计算机之间的主要电子组件。
 
 
-
 非结构化数据，一般的文档
 结构化数据， 存储在关系数据库中
 半结构化数据，HTML文档
 
+将文件系统与目录树结合的动作我们称为『挂载』
+
+du 
+df
+mount -o remount,
+mkswap  swapon
+lsblk
+fdisk（m）（ partprobe）  
+parted     
+mkfs.xfs
+mknod
+
+async/sync：异步/同步	配置磁盘是否以异步方式运行！默认为 async(效能较佳)
+auto/noauto：自动/非自动	当下达 mount -a 时，此文件系统是否会被主动测试挂载。默认为 auto。
+rw/ro：可擦写/只读	让该分割槽以可擦写或者是只读的型态挂载上来，如果你想要分享的数据是不给用户随意变更的， 这里也能够配置为只读。则不论在此文件系统的文件是否配置 w 权限，都无法写入喔！
+exec/noexec：可运行/不可运行	限制在此文件系统内是否可以进行『运行』的工作？如果是纯粹用来储存数据的， 那么可以配置为 noexec 会比较安全，相对的，会比较麻烦！
+user/nouser：允许/不允许使用者挂载	是否允许用户使用 mount 命令来挂载呢？一般而言，我们当然不希望一般身份的 user 能使用 mount 啰，因为太不安全了，因此这里应该要配置为 nouser 啰！
+suid/nosuid：具有/不具有 suid 权限	该文件系统是否允许 SUID 的存在？如果不是运行文件放置目录，也可以配置为 nosuid 来取消这个功能！
+usrquota：注意名称是『 usrquota 』不要拼错了！这个是在启动 filesystem 支持磁盘配额模式，更多数据我们在第四篇再谈。
+grpquota：注意名称是『grpquota』，启动 filesystem 对群组磁盘配额模式的支持。
+defaults：同时具有 rw, suid, dev, exec, auto, nouser, async 等参数。 基本上，默认情况使用 defaults 配置即可！
+
+loop装置文件
+dd if=/dev/zero of=/home/loopdev bs=1M count=512
+mkfs -t ext3 /home/loopdev
+mount -o loop /home/loopdev /media/cdrom/
+
+swap：
+dd if=/dev/zero of=/tmp/swap bs=1M count=128
+mkswap /tmp/swap
+swapon /tmp/swap
+swapon -s
 
 
-
-
+sync
+fsck /dev/sdb1
 
 
 
