@@ -1,9 +1,15 @@
 
-使用：
+使用：su是使用对象用户的密码，sudo是使用自己的密码
 1. sudo -u ybdeploy /etc/init.d/code_rollback
 2. su ${sql_user} -s /bin/bash -c "${MYSQL_PATH}/bin/mysqld --defaults-file=${sql_conf_file} --user=${sql_user} &"
 3. sudo script.sh ( 包含2 )
-
+ su -  与 su  除了目录不一样，还有PATH等变量不一样，总体"su -"会好一些
+ sudo [-b] [-u 新使用者账号]            # /etc/sudoers 
+ 	-b  ：将后续的命令放到背景中让系统自行运行，而不与目前的 shell 产生影响
+ 	-u  ：后面可以接欲切换的使用者，若无此项则代表切换身份为 root 
+ 	
+ su master -s /bin/bash -c "touch /tmp/su"	
+ sudo -u master touch /tmp/sudo
 
 ##sudo配置
 修改命令：visudo
@@ -15,11 +21,17 @@
 语法：
 用户  地址=(切换到哪个用户执行命令)	NOPASSWD： 命令 文件1 文件2 *文件*... , 文件
 (ALL)：切换到那个用户执行命令，默认是root
+%组名     ALL=(ALL)    ALL
 
 例：
 root    ALL = (ALL)ALL
 test    ALL = (ALL)NOPASSWD:ALL
 test    ALL = (ALL)NOPASSWD: /bin/vim, /usr/bin/mkdir, /opt/*
+%test     ALL=(ALL)   NOPASSWD: ALL
+myuser1	ALL=(root)  !/usr/bin/passwd, !/usr/bin/passwd root, /usr/bin/passwd [A-Za-z]*    #修改非root用户的密码
+ User_Alias  ADMINS = pro1, pro2, pro3, myuser1
+ ADMINS ALL=(root)  /bin/su -         #pro1, pro2, pro3, myuser1 这四个用户,只要输入（sudo su - ）并且输入（自己的口令）后，立刻变成 root 的身份
+
 
 #直接授权
 http	localhost = /usr/bin/systemctl * httpd, /usr/bin/vim, /etc/httpd/config/httpd.conf

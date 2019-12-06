@@ -26,7 +26,6 @@ firewalld
 linux下设置密码复杂度限制:
 /etc/login.defs        /etc/pam.d/system-auth
 
-
 异常用户
  w（/var/run/utmp）
  who /var/log/wtmp
@@ -37,13 +36,81 @@ linux下设置密码复杂度限制:
  lastb：记录的登入系统失败的用户名单(/var/log/btmp)
  lastlog
  
-
 find   被攻击的时候可以看创建了什么文件
 find / -u nobody -iname test.txt -size +100k -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;
 
+创建账户：
+	Linux 主机并不会直接认识你的『账号名称』的，他仅认识 ID 啊 (ID 就是一组号码啦)
+	账号配置文件：
+		/etc/passwd:   账号名称:口令(shadow):uid:gid：用户信息说明:家目录:shell
+		/etc/shadow:   账号名称:口令:最近更新密码日期:不可被更改日期:有效期:提前几天警告:宽限时间:失效日期:保留(口令栏以!说明账号被冻结了)
+		/etc/group:    组名:群组口令:gid:组成员(包括有效群组(effective group)与初始群组(initial group))
+			可用 groups 命令查看   可用newgrp group_name 切换有效组(创建文件时显示的组)
+		/etc/gshadow   账户:口令栏:群组管理员账号:群组所属账号
+	
+	创建用户：useradd -D  （配置文件：/etc/default/useradd）
+		GROUP=100		<==默认的群组 (某些系统是公共群组机制，centos是私有群组机制，即每个账号都有相应同名组，可忽略) 
+		HOME=/home		<==默认的家目录所在目录
+		INACTIVE=-1		<==口令失效日，在 shadow 内的第 7 栏
+		EXPIRE=			<==账号失效日，在 shadow 内的第 8 栏
+		SHELL=/bin/bash		<==默认的 shell
+		SKEL=/etc/skel		<==用户家目录的内容数据参考目录（新建用户的家目录下的配置文件时从这里拷贝的）
+		CREATE_MAIL_SPOOL=yes   <==是否主动帮使用者创建邮件信箱(mailbox)
+	/etc/login.defs（新建账号相关信息） 
+	/etc/pam.d/*   （验证模块）
+	
+	gpasswd：群组管理员功能  
+		groupadd testgroup
+		gpasswd testgroup
+		gpasswd -A vbird1 testgroup
+		gpasswd -a vbird1 testgroup
+	命令：useradd passwd   [chage -d 强制修改密码]   usermod  userdel   id   groupadd   groupmod  gpasswd  groupdel groups newgrp finger chsh chfn
+		pwck：查看用户与对应的家目录是否存在
+	
+	可以创建（/etc/nologin.txt）这个文件， 并且在这个文件内说明不能登陆/sbin/nologin的原因
+	
+	PAM 是一个独立的 API 存在，只要任何程序有需求时，可以向 PAM 发出验证要求的通知， PAM 经过一连串的验证后，将验证的结果回报给该程序
+		用户开始运行 /usr/bin/passwd 这支程序，并输入口令；
+		passwd 呼叫 PAM 模块进行验证；
+		PAM 模块会到 /etc/pam.d/ 找寻与程序 (passwd) 同名的配置文件；
+		依据 /etc/pam.d/passwd 内的配置，引用相关的 PAM 模块逐步进行验证分析；
+		将验证结果 (成功、失败以及其他信息) 回传给 passwd 这支程序；
+		passwd 这支程序会根据 PAM 回传的结果决定下一个动作 (重新输入新口令或者通过验证！)
+	
+	/etc/security/limits.conf  ---> ulimit -a
+		@pro1   hard   maxlogins   1     #限制只能开一个终端
+
+登陆：	
+	取得 bash 时需要完整的登陆流程的，就称为 login shell(输入用户名密码shell才启动)，non-login shell，不需要登录就可以获取bash页面
+	/etc/profile (#login shell 才会读)   #全局配置
+		调用/etc/profile.d/*.sh
+		    /etc/inputrc  用来处理键盘映射表（自定义热键~/.inputrc）  
+	~/.bash_profile   ~/.bash_login    ~/.profile	#个人配置，按顺序只会读取上面三个文件的其中一个
+		调用：~.bashrc(#non-login shell 会读) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
+	~/.bash_logout     #退出 
+	~/.bash_history    #历史记录
+
+同一账号同时多次登陆的 history 写入问题（一般在内存中，最后一个才会被记录）
+  不会配置也可以删了，泄露信息
+	/etc/motd					   #登陆成功显示的信息
+	/etc/issue 和 /etc/issue.net   #登陆bash时候的显示信息
+		\d 本地端时间的日期；
+		\l 显示第几个终端机接口；
+		\m 显示硬件的等级 (i386/i486/i586/i686...)；
+		\n 显示主机的网络名称；
+		\o 显示 domain name；
+		\r 操作系统的版本 (相当于 uname -r)
+		\t 显示本地端时间的时间；
+		\s 操作系统的名称；
+		\v 操作系统的版本。
+
 chmod chown
 umask
-setfacl -m u:master:rxw pub/
+setfacl -m u:myuser1:rx /srv/projecta   （添加-n表示不重新计算mask，不然mask会被修改）
+setfacl -m d:u:myuser1:rx /srv/projecta （继承）
+setfacl -m mask::r-- /srv/projecta（设置mask，即最大权限值，这个和组是保持一致的）
+getfacl:
+	mask:使用者或群组所配置的权限必须要存在于(不能超过) mask 的权限配置范围内才会生效，即实际生效的是#effective:r--
 chattr
 	A  ：当配置了 A 这个属性时，若你有存取此文件(或目录)时，他的存取时间 atime将不会被修改，可避免I/O较慢的机器过度的存取磁碟。这对速度较慢的计算机有帮助
 	S  ：一般文件是非同步写入磁碟的，如果加上 S 这个属性时，当你进行任何文件的修改，该更动会『同步』写入磁碟中。

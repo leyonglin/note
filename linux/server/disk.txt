@@ -68,6 +68,14 @@
  IOPS:Input/Output Operations Per Second，每秒的输入输出量(或读写次数)
  每秒 I/O 吞吐量 = 磁盘写入加上读出的数据的大小＝ IOPS* 平均 I/O SIZE
  
+ raid：磁盘阵列卡
+ 软raid
+	mdadm --create --auto=yes /dev/md0 --level=5 --raid-devices=4 --spare-devices=1 /dev/hda{6,7,8,9,10}
+ LVM： PV, PE, VG, LV 的意义
+ 快照(写时复制)就是将当时的系统资讯记录下来，就好像照相记录一般！ 未来若有任何数据更动了，则原始数据会被搬移到快照区，没有被更动的区域则由快照区与文件系统共享
+ LVM 可以弹性调整 filesystem 的大小，但是缺点是可能没有加速与硬件备份(与快照不同)的功能。 而磁盘阵列则具有效能与备份的功能，但是无法提供类似 LVM 的优点。在此情境中，我们想利用『在 RAID 上面建置 LVM』的功能，以达到两者兼顾的能力
+
+ 
  iostat: iostat 2(秒) 3(次) -k/m(单位)  // -p(指定磁盘)  sda // -N磁盘整列
  Linux 3.10.0-514.el7.x86_64 (localhost.localdomain) 	07/12/2019 	_x86_64_	(40 CPU)-->内核/版本/主机名 /时间/位数/逻辑cpu数
  avg-cpu:  %user   %nice  %system  %iowait  %steal   %idle
@@ -111,10 +119,11 @@
  
  分区：
  fdisk /dev/sda
- m -- p -- n -- 选格式p(可以空格) -- 选分区1(可以空格) -- 起始(可以空格) -- 结束+size{K,M,G} -- p [--d]
- lsblk -f(切记先查看以前使用什么文件系统的)-- 格式化：mkfs.ext4 /dev/sda1 // mkfs -t xfs /dev/sda1 --  lsblk -f /df -T    
- /etc/fstab：/dev/hda1   /   ext4        defaults   0 0  -- mount -a  --  lsblk
- ！！！格式化文件系统可以加选项-f强制覆盖，但...请谨慎使用
+   m -- p -- n -- 选格式p(可以空格) -- 选分区1(可以空格) -- 起始(可以空格) -- 结束+size{K,M,G} -- p [--d]
+   lsblk -f(切记先查看以前使用什么文件系统的)-- 格式化：mkfs.ext4 /dev/sda1 // mkfs -t xfs /dev/sda1 --  lsblk -f /df -T    
+   /etc/fstab：/dev/hda1   /   ext4        defaults   0 0  -- mount -a  --  lsblk
+   ！！！格式化文件系统可以加选项-f强制覆盖，但...请谨慎使用
+ partprobe
  
  
 存储分成了4种类型，基于本机的DAS和网络的NAS存储、SAN存储、对象存储。对象存储是SAN存储和NAS存储结合后的产物，汲取了SAN存储和NAS存储的优点。
@@ -145,41 +154,34 @@ DDR内存：少量的易失性内存（需要电源来维护数据）用于缓�
 
 将文件系统与目录树结合的动作我们称为『挂载』
 
-du 
-df
-mount -o remount,
-mkswap  swapon
-lsblk
-fdisk（m）（ partprobe）  
-parted     
-mkfs.xfs
-mknod
 
-async/sync：异步/同步	配置磁盘是否以异步方式运行！默认为 async(效能较佳)
-auto/noauto：自动/非自动	当下达 mount -a 时，此文件系统是否会被主动测试挂载。默认为 auto。
-rw/ro：可擦写/只读	让该分割槽以可擦写或者是只读的型态挂载上来，如果你想要分享的数据是不给用户随意变更的， 这里也能够配置为只读。则不论在此文件系统的文件是否配置 w 权限，都无法写入喔！
-exec/noexec：可运行/不可运行	限制在此文件系统内是否可以进行『运行』的工作？如果是纯粹用来储存数据的， 那么可以配置为 noexec 会比较安全，相对的，会比较麻烦！
-user/nouser：允许/不允许使用者挂载	是否允许用户使用 mount 命令来挂载呢？一般而言，我们当然不希望一般身份的 user 能使用 mount 啰，因为太不安全了，因此这里应该要配置为 nouser 啰！
-suid/nosuid：具有/不具有 suid 权限	该文件系统是否允许 SUID 的存在？如果不是运行文件放置目录，也可以配置为 nosuid 来取消这个功能！
-usrquota：注意名称是『 usrquota 』不要拼错了！这个是在启动 filesystem 支持磁盘配额模式，更多数据我们在第四篇再谈。
-grpquota：注意名称是『grpquota』，启动 filesystem 对群组磁盘配额模式的支持。
-defaults：同时具有 rw, suid, dev, exec, auto, nouser, async 等参数。 基本上，默认情况使用 defaults 配置即可！
+
+mount -o remount,
+	async/sync：异步/同步	配置磁盘是否以异步方式运行！默认为 async(效能较佳)
+	auto/noauto：自动/非自动	当下达 mount -a 时，此文件系统是否会被主动测试挂载。默认为 auto。
+	rw/ro：可擦写/只读	让该分割槽以可擦写或者是只读的型态挂载上来，如果你想要分享的数据是不给用户随意变更的， 这里也能够配置为只读。则不论在此文件系统的文件是否配置 w 权限，都无法写入喔！
+	exec/noexec：可运行/不可运行	限制在此文件系统内是否可以进行『运行』的工作？如果是纯粹用来储存数据的， 那么可以配置为 noexec 会比较安全，相对的，会比较麻烦！
+	user/nouser：允许/不允许使用者挂载	是否允许用户使用 mount 命令来挂载呢？一般而言，我们当然不希望一般身份的 user 能使用 mount 啰，因为太不安全了，因此这里应该要配置为 nouser 啰！
+	suid/nosuid：具有/不具有 suid 权限	该文件系统是否允许 SUID 的存在？如果不是运行文件放置目录，也可以配置为 nosuid 来取消这个功能！
+	usrquota：注意名称是『 usrquota 』不要拼错了！这个是在启动 filesystem 支持磁盘配额模式，更多数据我们在第四篇再谈。
+	grpquota：注意名称是『grpquota』，启动 filesystem 对群组磁盘配额模式的支持。
+	defaults：同时具有 rw, suid, dev, exec, auto, nouser, async 等参数。 基本上，默认情况使用 defaults 配置即可！
 
 loop装置文件
-dd if=/dev/zero of=/home/loopdev bs=1M count=512
-mkfs -t ext3 /home/loopdev
-mount -o loop /home/loopdev /media/cdrom/
+	dd if=/dev/zero of=/home/loopdev bs=1M count=512
+	mkfs -t ext3 /home/loopdev
+	mount -o loop /home/loopdev /media/cdrom/
 
 swap：
-dd if=/dev/zero of=/tmp/swap bs=1M count=128
-mkswap /tmp/swap
-swapon /tmp/swap
-swapon -s
+	dd if=/dev/zero of=/tmp/swap bs=1M count=128
+	mkswap /tmp/swap
+	swapon /tmp/swap
+	swapon -s
 
 
-sync
-fsck /dev/sdb1
-
+fsck /dev/sdb1  
+parted     
+mknod
 
 
 

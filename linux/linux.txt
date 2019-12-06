@@ -99,27 +99,6 @@ ulimit -a
 
 
 
-同一账号同时多次登陆的 history 写入问题（一般在内存中，最后一个才会被记录）
-/etc/issue 和 /etc/issue.net   #登陆bash时候的显示信息
-	\d 本地端时间的日期；
-	\l 显示第几个终端机接口；
-	\m 显示硬件的等级 (i386/i486/i586/i686...)；
-	\n 显示主机的网络名称；
-	\o 显示 domain name；
-	\r 操作系统的版本 (相当于 uname -r)
-	\t 显示本地端时间的时间；
-	\s 操作系统的名称；
-	\v 操作系统的版本。
-
-取得 bash 时需要完整的登陆流程的，就称为 login shell(这下面的文件相互调用，看脚本吧！)
-/etc/profile (login shell 才会读)   #全局配置
-    调用/etc/inputrc（自定义热键）  /etc/profile.d/*.sh
-~/.bash_profile   ~/.bash_login    ~/.profile	#个人配置，按顺序只会读取上面三个文件的其中一个
-	调用：~.bashrc(non-login shell 会读) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
-~/.bash_logout     #退出 
-~/.bash_history    #历史记录
-
-
 stty -a   # 可以设置热键  stty erase ^h 
 set [-uvCHhmBx]
 	-u  ：默认不激活。若激活后，当使用未配置变量时，会显示错误信息；
@@ -131,7 +110,7 @@ set [-uvCHhmBx]
 	-B  ：默认激活。与刮号 [] 的作用有关；
 	-C  ：默认不激活。若使用 > 等，则若文件存在时，该文件不会被覆盖。
 
-/etc/motd
+
 
 
 HISTSIZE=1000
@@ -141,7 +120,72 @@ export HISTCONTROL = ignorespace              #第一个字符为空格的时候
 history -c       #临时清理history（包括家目录下的history）
 history -d num #删除指定history
 
-Linux 主机并不会直接认识你的『账号名称』的，他仅认识 ID 啊 (ID 就是一组号码啦)
+
+
+
+--help
+batch：系统有空时才进行背景任务，调用 at 来进行命令的下达
+at ：at 是个可以处理仅运行一次就结束排程的命令（服务：atd）   权限：/etc/at.allow 或者 /etc/at.allow
+crontab ：crontab 这个命令所配置的工作将会循环的一直进行下去  权限：/etc/cron.allow 或者 /etc/cron.deny   配置文件/etc/cron*
+	*(星号)  ,(逗号)  -(减号)  /n(斜线)
+anacron 其实也是透过 crontab 来运行 ：可唤醒停机期间的工作任务，以天为单位或者是在启动后立刻进行 anacron 的动作   配置文件：/etc/anacrontab
+
+
+
+	
+/var/log/secure, /var/log/messages
+
+
+wall "I will shutdown my linux server..."  #广播
+
+
+触发任何一个事件时，系统都会将他定义成为一个程序，并且给予这个程序一个 ID ，称为 PID，同时依据启发这个程序的使用者与相关属性关系，给予这个 PID 一组有效的权限配置
+
+程序是指令的集合，是进程运行的静态描述文本，而进程则是程序在系统上顺序执行时的动态活动
+
+在 Linux 的程序呼叫通常称为 fork-and-exec 的流程 (注1)！程序都会藉由父程序以复制 (fork) 的方式产生一个一模一样的子程序， 然后被复制出来的子程序再以 exec 的方式来运行实际要进行的程序，最终就成为一个子程序的存在
+exec：在当前bash下fork出一个bash运行程序，执行完成后退出
+
+&   jobs -l     bg   fg   ctrl+z
+ nohup [命令与参数] &
+
+root 可随意调整自己或他人程序的 Nice 值，且范围为 -20 ~ 19 ；
+一般使用者仅可调整自己程序的 Nice 值，且范围仅为 0 ~ 19 (避免一般用户抢占系统资源)；
+
+
+
+一开始运行程序就立即给予一个特定的 nice 值：用 nice 命令；
+	nice [-n 数字] command
+调整某个已经存在的 PID 的 nice 值：用 renice 命令。
+	renice [number] PID
+
+找出进程pid
+	pidof init
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
