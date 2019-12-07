@@ -76,7 +76,7 @@
  LVM 可以弹性调整 filesystem 的大小，但是缺点是可能没有加速与硬件备份(与快照不同)的功能。 而磁盘阵列则具有效能与备份的功能，但是无法提供类似 LVM 的优点。在此情境中，我们想利用『在 RAID 上面建置 LVM』的功能，以达到两者兼顾的能力
 
  
- iostat: iostat 2(秒) 3(次) -k/m(单位)  // -p(指定磁盘)  sda // -N磁盘整列
+ iostat: iostat 2(秒) 3(次) -k/m(单位)  // -p(指定磁盘)  sda // -N磁盘整列			#%idle除了这个空闲值(id)高之外，其它的高都是异常
  Linux 3.10.0-514.el7.x86_64 (localhost.localdomain) 	07/12/2019 	_x86_64_	(40 CPU)-->内核/版本/主机名 /时间/位数/逻辑cpu数
  avg-cpu:  %user   %nice  %system  %iowait  %steal   %idle
  如果%iowait的值过高，表示硬盘存在I/O瓶颈，%idle值高，表示CPU较空闲，如果%idle值高但系统响应慢时，有可能是CPU等待分配内存，此时应加大内存容量。%idle值如果持续低于10，那么系统的CPU处理能力相对较低，表明系统中最需要解决的资源是CPU

@@ -164,19 +164,135 @@ root 可随意调整自己或他人程序的 Nice 值，且范围为 -20 ~ 19 �
 
 
 
+    /etc/init.d/* ：启动脚本放置处
+    系统上几乎所有的服务启动脚本都放置在这里！事实上这是公认的目录，我们的 CentOS 实际上放置在 /etc/rc.d/init.d/ 啦！ 不过还是有配置连结档到 /etc/init.d/ 的！既然这是公认的目录，因此建议您记忆这个目录即可！
+
+    /etc/sysconfig/* ：各服务的初始化环境配置文件
+    几乎所有的服务都会将初始化的一些选项配置写入到这个目录下，举例来说，登录档的 syslog 这支 daemon 的初始化配置就写入在 /etc/sysconfig/syslog 这里呢！而网络的配置则写在 /etc/sysconfig/network 这个文件中。 所以，这个目录内的文件也是挺重要的；
+
+    /etc/xinetd.conf, /etc/xinetd.d/* ：super daemon 配置文件
+    super daemon 的主要配置文件 (其实是默认值) 为 /etc/xinetd.conf ，不过我们上面就谈到了， super daemon 只是一个统一管理的机制，他所管理的其他 daemon 的配置则写在 /etc/xinetd.d/* 里头喔！
+
+    /etc/* ：各服务各自的配置文件
+    第六章就讲过了，大家的配置文件都是放置在 /etc/ 底下的喔！
+
+    /var/lib/* ：各服务产生的数据库
+    一些会产生数据的服务都会将他的数据写入到 /var/lib/ 目录中。举例来说，数据库管理系统 MySQL 的数据库默认就是写入 /var/lib/mysql/ 这个目录下啦！
+
+	/usr/lib64：函数库
+
+    /var/run/* ：各服务的程序之 PID 记录处
+    我们在第十七章谈到可以使用讯号 (signal) 来管理程序， 既然 daemon 是程序，所以当然也可以利用 kill 或 killall 来管理啦！不过为了担心管理时影响到其他的程序， 因此 daemon 通常会将自己的 PID 记录一份到 /var/run/ 当中！例如登录文件的 PID 就记录在 /var/run/syslogd.pid 这个文件中。如此一来， /etc/init.d/syslog 就能够简单的管理自己的程序啰。
+
+
+ /etc/hosts.allow 与 /etc/hosts.deny   #顺序读取
+	ldd   有没有支持libwrap.so 那个函式库
+
+<service(program_name)> : <IP, domain, hostname> : <action>
+rsync : 127.0.0.100 127.0.0.200 [: deny]
+
+yum -y install tcp_wrappers
+	spawn (action)
+	可以利用后续接的 shell 来进行额外的工作，且具有变量功能，主要的变量内容为： %h (hostname), %a (address), %d (daemon)等等；
+	twist (action)
+	立刻以后续的命令进行，且运行完后终止该次联机的要求 (DENY)
+
+rsyslog配置文件：/etc/rsyslog.conf
+
+
+    加载 BIOS 的硬件资讯与进行自我测试，并依据配置取得第一个可启动的装置；
+    读取并运行第一个启动装置内 MBR 的 boot Loader (亦即是 grub, spfdisk 等程序)；
+		提供菜单：使用者可以选择不同的启动项目，这也是多重启动的重要功能！
+		加载核心文件：直接指向可启动的程序区段来开始操作系统；
+		转交其他 loader：将启动管理功能转交给其他 loader 负责
+    依据 boot loader 的配置加载 Kernel ，Kernel 会开始侦测硬件与加载驱动程序；
+    在硬件驱动成功后，Kernel 会主动呼叫 init 程序，而 init 会取得 run-level 资讯；
+    init 运行 /etc/rc.d/rc.sysinit 文件来准备软件运行的作业环境 (如网络、时区等)；#调用/etc/init.d/
+    init 运行 run-level 的各个服务之启动 (script 方式)；
+    init 运行 /etc/rc.d/rc.local 文件；自定义自启脚本
+    init 运行终端机模拟程序 mingetty 来启动 login 程序，最后就等待使用者登陆啦；
+
+.configure：侦测程序来侦测使用者的作业环境， 以及该作业环境是否有软件开发商所需要的其他功能,常见出Makefile(记录了原始码如何编译的详细资讯)
+make: 依据Makefile编译成可执行文件(gcc命令的集合)
+make install：移动到指定路径
 
 
 
+diff -Naur 旧文件 新文件 > /opt/diff.patch      #diff制作补丁文件的原理：告诉我们怎么修改第一个文件后能得到第二个文件
+patch -p0 [旧文件] < /opt/diff.patch    #没加路径会提示，Reversed这种是因为反向补丁了，*.orig是备份  
+	patch -p0 < patch_file 时，所在路径就是补丁文件（第二个路径*.old） 的diff比较路径 则升级的文件是『 /home/guest/example/expatch.old 』，如果『 patch -p1 < patch_file』，则升级的文件为『home/guest/example/expatch.old』，如果『patch -p4 < patch_file』则升级『expatch.old』，也就是说， -pxx 那个 xx 代表『拿掉几个斜线(/)』的意思！
+patch -RE < test.patch //还原旧版本，反向修复
 
 
+ldd 命令
+ldd -v 函数库  #查看依赖
+静态函式库:扩展名为 .a     编译的时候会直接整合到运行程序当中，所以利用静态函式库编译成的文件会比较大一些   运行档可以独立运行，但因为函式库是直接整合到运行档中， 因此若函式库升级时，整个运行档必须要重新编译才能将新版的函式库整合到程序当中
+动态函式库:扩展名为 .so    在程序里面只有一个『指向 (Pointer)』的位置而已
+将动态函式库加载高速缓存:  在 /etc/ld.so.conf 里面写下想要读入高速缓存当中的动态函式库所在的目录(是目录)
+ldconfig  #将/etc/ld.so.conf 中动态函式库所在的目录下动态函数库加载到cache中
+ldconfig -p   #查看
 
 
+签名验证：md5sum / sha1sum  ： MD5 与 SHA1 加密机制（用法是一样的）
 
 
+*.src.rpm: 这种安装后是一个源码包，再包装成rpm包(制作rpm包)
 
 
+平台名称	适合平台说明(硬件方面都可以向下兼容的)
+i386		几乎适用於所有的 x86 平台，不论是旧的 pentum 或者是新的 Intel Core 2 与 K8 系列的 CPU 等等，都可以正常的工作！那个 i 指的是 Intel 兼容的 CPU 的意思，至於 386 不用说，就是 CPU 的等级啦！
+i586		就是针对 586 等级的计算机进行最佳化编译。那是哪些 CPU 呢？包括 pentum 第一代 MMX CPU， AMD 的 K5, K6 系列 CPU (socket 7 插脚) 等等的 CPU 都算是这个等级；
+i686		在 pentun II 以后的 Intel 系列 CPU ，及 K7 以后等级的 CPU 都属於这个 686 等级！ 由於目前市面上几乎仅剩 P-II 以后等级的硬件平台，因此很多 distributions 都直接释出这种等级的 RPM 文件。
+x86_64		针对 64 位的 CPU 进行最佳化编译配置，包括 Intel 的 Core 2 以上等级 CPU ，以及 AMD 的 Athlon64 以后等级的 CPU ，都属於这一类型的硬件平台。
+noarch		就是没有任何硬件等级上的限制。一般来说，这种类型的 RPM 文件，里面应该没有 binary program 存在， 较常出现的就是属於 shell script 方面的软件。
 
 
+--replacefiles 	使用时机： 如果在安装的过程当中出现了『某个文件已经被安装在你的系统上面』的资讯，又或许出现版本不合的信息 (confilcting files) 时，可以使用这个参数来直接覆盖文件。危险性： 覆盖的动作是无法复原的！所以，你必须要很清楚的知道被覆盖的文件是真的可以被覆盖喔！否则会欲哭无泪！
+--test 	使用时机： 想要测试一下该软件是否可以被安装到使用者的 Linux 环境当中，可找出是否有属性相依的问题。范例为：
+	rpm -ivh pkgname.i386.rpm --test
+--justdb 	使用时机： 由於 RPM 数据库破损或者是某些缘故产生错误时，可使用这个选项来升级软件在数据库内的相关资讯。
+--nosignature 	使用时机： 想要略过数码签章的检查时
+--noscripts 	使用时机：不想让该软件在安装过程中自行运行某些系统命令。说明： RPM 的优点除了可以将文件放置到定位之外，还可以自动运行一些前置作业的命令，例如数据库的初始化。 如果你不想要让 RPM 帮你自动运行这一类型的命令，就加上他吧！
+--prefix 新路径 	使用时机： 要将软件安装到其他非正规目录时。举例来说，你想要将某软件安装到 /usr/local 而非正规的 /bin, /etc 等目录， 就可以使用『 --prefix /usr/local 』来处理了
+-Uvh 	后面接的软件即使没有安装过，则系统将予以直接安装； 若后面接的软件有安装过旧版，则系统自动升级至新版；
+-Fvh 	如果后面接的软件并未安装到你的 Linux 系统上，则该软件不会被安装；亦即只有已安装至你 Linux 系统内的软件会被『升级』！
+
+-q  ：仅查询，后面接的软件名称是否有安装；
+-qa ：列出所有的，已经安装在本机 Linux 系统上面的所有软件名称；
+-qi ：列出该软件的详细资讯 (information)，包含开发商、版本与说明等；
+-ql ：列出该软件所有的文件与目录所在完整档名 (list)；
+-qc ：列出该软件的所有配置档 (找出在 /etc/ 底下的档名而已)
+-qd ：列出该软件的所有说明档 (找出与 man 有关的文件而已)
+-qR ：列出与该软件有关的相依软件所含的文件 (Required 的意思)
+-qf ：由后面接的文件名称，找出该文件属於哪一个已安装的软件；
+查询某个 RPM 文件内含有的资讯：
+-qp[icdlR]：注意 -qp 后面接的所有参数以上面的说明一致。但用途仅在於找出
+	    某个 RPM 文件内的资讯
+
+rpm -Va logrotate       列出目前系统上面所有可能被更动过的文件；
+rpm -Vf /etc/crontab    是否有被更动过
+
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+
+rpm --rebuilddb   <==重建数据库
+
+rpmbuild -ba rp-pppoe.spec  <==编译并同时产生 RPM 与 SRPM 文件
+rpmbuild -bb rp-pppoe.spec  <==仅编译成 RPM 文件
+
+yum:
+	-y ：当 yum 要等待使用者输入时，这个选项可以自动提供 yes 的回应；
+	--installroot=/some/path ：将该软件安装在 /some/path 而不使用默认路径[查询工作项目]
+	search  ：搜寻某个软件名称或者是描述 (description) 的重要关键字；
+	list    ：列出目前 yum 所管理的所有的软件名称与版本，有点类似 rpm -qa；
+	info    ：同上，不过有点类似 rpm -qai 的运行结果；
+	provides：从文件去搜寻软件！类似 rpm -qf 的功能！
+
+
+yum grouplist/groupinfo
+
+
+核心模块：/lib/modules/$(uname -r)/kernel/ 
+核心是直接被读入到主内存当中的
 
 
 
