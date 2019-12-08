@@ -10,10 +10,10 @@
 添加自定义用户并设置密码/自定义目录
 下载：基础依赖包，数据库备份包，常用包，提供服务包
 防火墙：建立黑白名单，关闭多余的端口，禁ping
+服务降权，自定义服务配置路径，防火墙黑白名单，密码复杂度，版本隐藏，禁root登陆
 优化环境：
 	export TMOUT=600 终端退出时间  
-	HISTSIZE=1000
-	export HISTTIMEFORMAT="%F %T"
+
 
 安全
 firewalld
@@ -26,18 +26,7 @@ firewalld
 linux下设置密码复杂度限制:
 /etc/login.defs        /etc/pam.d/system-auth
 
-异常用户
- w（/var/run/utmp）
- who /var/log/wtmp
- /var/log/message
- /var/log/secure
- history
- last：记录的登录系统的用户名单及是否在线(/var/log/wtmp) 
- lastb：记录的登入系统失败的用户名单(/var/log/btmp)
- lastlog
- 
-find   被攻击的时候可以看创建了什么文件
-find / -u nobody -iname test.txt -size +100k -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;
+敏感文件/命令MD5值校验：ls ps curl wget last w  /  conf  cron fstab
 
 创建账户：
 	Linux 主机并不会直接认识你的『账号名称』的，他仅认识 ID 啊 (ID 就是一组号码啦)
@@ -82,13 +71,13 @@ find / -u nobody -iname test.txt -size +100k -mtime +4/4 -type s -perm +7000 -ex
 
 登陆：	
 	取得 bash 时需要完整的登陆流程的，就称为 login shell(输入用户名密码shell才启动)，non-login shell，不需要登录就可以获取bash页面
-	/etc/profile (#login shell 才会读)   #全局配置
+	1./etc/profile (#login shell 才会读)   #全局配置
 		调用/etc/profile.d/*.sh
 		    /etc/inputrc  用来处理键盘映射表（自定义热键~/.inputrc）  
-	~/.bash_profile   ~/.bash_login    ~/.profile	#个人配置，按顺序只会读取上面三个文件的其中一个
+	  ~/.bash_profile   ~/.bash_login    ~/.profile	#个人配置，按顺序只会读取上面三个文件的其中一个
 		调用：~.bashrc(#non-login shell 会读) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
-	~/.bash_logout     #退出 
-	~/.bash_history    #历史记录
+	2.~/.bash_logout     #退出 
+	3.~/.bash_history    #历史记录
 
 同一账号同时多次登陆的 history 写入问题（一般在内存中，最后一个才会被记录）
   不会配置也可以删了，泄露信息
@@ -130,9 +119,17 @@ cd 等变换工作目录的命令,目录所需权限：使用者对这个目录�
 编辑文件，使用者在该文件所在的目录至少要有 x 权限；使用者对该文件至少要有 r, w 权限
 创建一个文件,使用者在该目录要具有 w,x 的权限，重点在 w 啦！
  
-异常命令：将排查的命令 ls ps netstat last w ..做个MD5值校验
 
 
+cat <<eof>>test
+HISTSIZE=1000
+HISTIGNORE=”pwd:ls:ls -ltr:”
+HISTTIMEFORMAT="%F %T "
+HISTCONTROL = ignorespace              #第一个字符为空格的时候，不会被记录到history
+HISTCONTROL=ignoredups				   #过滤相邻相同命令
+eof					  
+history -c       #临时清理history（包括家目录下的history）
+history -d num #删除指定history
 
 
 

@@ -1,3 +1,4 @@
+
 Linux Standard Base (LSB)等标准来规范开发者，以及目录架构的File system Hierarchy Standard (FHS)标准规范
 Kernel + Softwares + Tools的可完全安装，我们称之为Linux distributio
 Open Source (开放源码)的代表授权为GNU的GPL授权及BSD等等
@@ -32,7 +33,7 @@ apropos cat
 info info
 
 
-
+umask -S   #创建一般文件后的权限
 pwd -P(显示实际路径)
 cat  -A(显示特殊字符) -n
 mkdir -p  -m(带权限)
@@ -59,7 +60,21 @@ ls -l filename          列出文件的 mtime
 
 
 find   被攻击的时候可以看创建了什么文件
-find / -u nobody -name test.txt -size +100k -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;
+find / -u nobody -name test.txt -size +100k -depth 5 -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;   
+	 -empty           #空文件/目录  
+	 ! -name "*.log"  #排除文件  
+	 -mmin -30        #三十分钟内
+	 -nouser          #查无有效属主的文件，即文件的属主在/etc/passwd中不存
+     -newer   f1 !f2  #查更改时间比f1新但比f2旧的文件
+	 -follow          #如果遇到符号链接文件，就跟踪链接所指的文件
+	 -prune           #忽略某个目录
+    find ./ ! \( −path ′/proc*′ −o −path ′/sys*′ \) -a -name '*.txt' -print  #在除dir0、dir1及子目录以外的目录下查找txt后缀文件
+    find ./   \( −path ′./dir0*′ −o −path ′./dir1*′ \) -a -name '*.txt' -print  #在dir0、dir1及子目录下查找txt后缀文件
+	#注意，1.使用()要转义，并且前后要有空格  2.使用-path，一定要在路径后面加* ，这才表示在这个路径之后都不匹配
+
+
+xargs: -d分割符  -p交互  -t在执行前回显cmd
+ls | xargs -i mv {} {}.txt  #-i与{}搭配
 
 
 单纯的 tar 功能仅是『打包』而已，亦即是将很多文件集结成为一个文件
@@ -69,7 +84,7 @@ tar -cavf /root/etc.tar.gz  /root/etc      #压缩
 tar -caPf ${backup_dir}/data_views_nginx_`date +%Y%m%d%H%M`.tar.gz  cms_9001/views/  \      #这里是 \[Enter] 
     -C /opt/apps/nginx/ conf --exclude "Geo*"  #-P压缩绝对路径(可以tf查看),日志结尾加时间戳，-C切换路径，这样或备份在同一级目录下(后面写绝对路径也可以，备份会加上路径)，排除Geo文件
   --newer-mtime=DATE   #仅备份比给定时间之后更新的
-tar -cvf - /etc | tar -xvf -   #在管线命令当中，常常会使用到前一个命令的 stdout 作为这次的 stdin，将/etc下的文件压缩拷贝到当前目录下
+tar -cavf - /etc | tar -xvf -   #在管线命令当中，常常会使用到前一个命令的 stdout 作为这次的 stdin，将/etc下的文件压缩拷贝到当前目录下
 
 
 dump：完整/增量备份文件系统
@@ -86,9 +101,8 @@ shell有多种：bash是其中一个
 type
 
 unset myname
-env
-set
-export       #自定义变量转成环境变量
+env：环境变量       #export自定义变量转成环境变量
+set：本地变量
 	global
 	local
 read
@@ -97,29 +111,33 @@ declare / typeset :宣告变量的类型 (1.sum=100+300+50  2.declare -i sum=100
 	 declare -r sum(设置只读，不能修改和取消，还有别的选项)
 ulimit -a
 
-
-
 stty -a   # 可以设置热键  stty erase ^h 
 set [-uvCHhmBx]
 	-u  ：默认不激活。若激活后，当使用未配置变量时，会显示错误信息；
 	-v  ：默认不激活。若激活后，在信息被输出前，会先显示信息的原始内容；
-	-x  ：默认不激活。若激活后，在命令被运行前，会显示命令内容(前面有 ++ 符号)
+	-x  ：默认不激活。若激活后，在命令被运行前，会显示实际命令内容(前面有 ++ 符号)
+	-e  : 执行的时候如果出现了返回值为非零，整个脚本(终端)就会立即退出 
+	-n 　只读取指令，而不实际执行。
+	-t 　执行完随后的指令，即退出shell
 	-h  ：默认激活。与历史命令有关；
 	-H  ：默认激活。与历史命令有关；
 	-m  ：默认激活。与工作管理有关；
 	-B  ：默认激活。与刮号 [] 的作用有关；
 	-C  ：默认不激活。若使用 > 等，则若文件存在时，该文件不会被覆盖。
 
-
-
-
+cat <<eof>>test
+HISTFILE=/var/history/$USER-$UID.log
 HISTSIZE=1000
+HISTFILESIZE=5000
 HISTIGNORE=”pwd:ls:ls -ltr:”
-echo 'HISTTIMEFORMAT="%F %T "' >> ~/.bashrc
-export HISTCONTROL = ignorespace              #第一个字符为空格的时候，不会被记录到history
+HISTTIMEFORMAT="%F %T "
+HISTCONTROL = ignorespace              #第一个字符为空格的时候，不会被记录到history
+HISTCONTROL=ignoredups				   #过滤相邻相同命令
+shopt -s histappend					   #多个终端共享history，实时追加；	
+readonly PROMPT_COMMAND="history -a"   #这个意味着，每次执行命令都会在结束后执行"history -a"
+eof									   #readonly显示只读变量，readonly 变量  #定义只读变量						  
 history -c       #临时清理history（包括家目录下的history）
 history -d num #删除指定history
-
 
 
 
@@ -130,11 +148,8 @@ crontab ：crontab 这个命令所配置的工作将会循环的一直进行下�
 	*(星号)  ,(逗号)  -(减号)  /n(斜线)
 anacron 其实也是透过 crontab 来运行 ：可唤醒停机期间的工作任务，以天为单位或者是在启动后立刻进行 anacron 的动作   配置文件：/etc/anacrontab
 
-
-
 	
 /var/log/secure, /var/log/messages
-
 
 wall "I will shutdown my linux server..."  #广播
 
@@ -146,50 +161,39 @@ wall "I will shutdown my linux server..."  #广播
 在 Linux 的程序呼叫通常称为 fork-and-exec 的流程 (注1)！程序都会藉由父程序以复制 (fork) 的方式产生一个一模一样的子程序， 然后被复制出来的子程序再以 exec 的方式来运行实际要进行的程序，最终就成为一个子程序的存在
 exec：在当前bash下fork出一个bash运行程序，执行完成后退出
 
+
 &   jobs -l     bg   fg   ctrl+z
  nohup [命令与参数] &
 
+
 root 可随意调整自己或他人程序的 Nice 值，且范围为 -20 ~ 19 ；
 一般使用者仅可调整自己程序的 Nice 值，且范围仅为 0 ~ 19 (避免一般用户抢占系统资源)；
-
-
-
 一开始运行程序就立即给予一个特定的 nice 值：用 nice 命令；
 	nice [-n 数字] command
 调整某个已经存在的 PID 的 nice 值：用 renice 命令。
 	renice [number] PID
 
+
 找出进程pid
 	pidof init
 
+/etc/init.d/* ：启动脚本放置处
+	系统上几乎所有的服务启动脚本都放置在这里！事实上这是公认的目录，我们的 CentOS 实际上放置在 /etc/rc.d/init.d/ 啦！ 不过还是有配置连结档到 /etc/init.d/ 的！既然这是公认的目录，因此建议您记忆这个目录即可！
+/etc/sysconfig/* ：各服务的初始化环境配置文件
+	几乎所有的服务都会将初始化的一些选项配置写入到这个目录下，举例来说，登录档的 syslog 这支 daemon 的初始化配置就写入在 /etc/sysconfig/syslog 这里呢！而网络的配置则写在 /etc/sysconfig/network 这个文件中。 所以，这个目录内的文件也是挺重要的；
+/etc/xinetd.conf, /etc/xinetd.d/* ：super daemon 配置文件
+	super daemon 的主要配置文件 (其实是默认值) 为 /etc/xinetd.conf ，不过我们上面就谈到了， super daemon 只是一个统一管理的机制，他所管理的其他 daemon 的配置则写在 /etc/xinetd.d/* 里头喔！
+/etc/* ：各服务各自的配置文件
+/var/lib/* ：各服务产生的数据库
+	一些会产生数据的服务都会将他的数据写入到 /var/lib/ 目录中。举例来说，数据库管理系统 MySQL 的数据库默认就是写入 /var/lib/mysql/ 这个目录下啦！
+/usr/lib64：函数库
+/var/run/* ：各服务的程序之 PID 记录处
+	为了担心管理时影响到其他的程序， 因此 daemon 通常会将自己的 PID 记录一份到 /var/run/ 当中！例如登录文件的 PID 就记录在 /var/run/syslogd.pid 这个文件中。如此一来， /etc/init.d/syslog 就能够简单的管理自己的程序啰。
 
 
-    /etc/init.d/* ：启动脚本放置处
-    系统上几乎所有的服务启动脚本都放置在这里！事实上这是公认的目录，我们的 CentOS 实际上放置在 /etc/rc.d/init.d/ 啦！ 不过还是有配置连结档到 /etc/init.d/ 的！既然这是公认的目录，因此建议您记忆这个目录即可！
-
-    /etc/sysconfig/* ：各服务的初始化环境配置文件
-    几乎所有的服务都会将初始化的一些选项配置写入到这个目录下，举例来说，登录档的 syslog 这支 daemon 的初始化配置就写入在 /etc/sysconfig/syslog 这里呢！而网络的配置则写在 /etc/sysconfig/network 这个文件中。 所以，这个目录内的文件也是挺重要的；
-
-    /etc/xinetd.conf, /etc/xinetd.d/* ：super daemon 配置文件
-    super daemon 的主要配置文件 (其实是默认值) 为 /etc/xinetd.conf ，不过我们上面就谈到了， super daemon 只是一个统一管理的机制，他所管理的其他 daemon 的配置则写在 /etc/xinetd.d/* 里头喔！
-
-    /etc/* ：各服务各自的配置文件
-    第六章就讲过了，大家的配置文件都是放置在 /etc/ 底下的喔！
-
-    /var/lib/* ：各服务产生的数据库
-    一些会产生数据的服务都会将他的数据写入到 /var/lib/ 目录中。举例来说，数据库管理系统 MySQL 的数据库默认就是写入 /var/lib/mysql/ 这个目录下啦！
-
-	/usr/lib64：函数库
-
-    /var/run/* ：各服务的程序之 PID 记录处
-    我们在第十七章谈到可以使用讯号 (signal) 来管理程序， 既然 daemon 是程序，所以当然也可以利用 kill 或 killall 来管理啦！不过为了担心管理时影响到其他的程序， 因此 daemon 通常会将自己的 PID 记录一份到 /var/run/ 当中！例如登录文件的 PID 就记录在 /var/run/syslogd.pid 这个文件中。如此一来， /etc/init.d/syslog 就能够简单的管理自己的程序啰。
-
-
- /etc/hosts.allow 与 /etc/hosts.deny   #顺序读取
-	ldd   有没有支持libwrap.so 那个函式库
-
-<service(program_name)> : <IP, domain, hostname> : <action>
-rsync : 127.0.0.100 127.0.0.200 [: deny]
+/etc/hosts.allow 与 /etc/hosts.deny   #顺序读取，ldd   有没有支持libwrap.so 那个函式库
+	<service(program_name)> : <IP, domain, hostname> : <action>
+	rsync : 127.0.0.100 127.0.0.200 [: deny]
 
 yum -y install tcp_wrappers
 	spawn (action)
@@ -237,6 +241,9 @@ ldconfig -p   #查看
 
 
 *.src.rpm: 这种安装后是一个源码包，再包装成rpm包(制作rpm包)
+rpmbuild -ba rp-pppoe.spec  <==编译并同时产生RPM与SRPM文件
+rpmbuild -bb rp-pppoe.spec  <==仅编译成 RPM 文件
+
 
 
 平台名称	适合平台说明(硬件方面都可以向下兼容的)
@@ -246,7 +253,15 @@ i686		在 pentun II 以后的 Intel 系列 CPU ，及 K7 以后等级的 CPU 都
 x86_64		针对 64 位的 CPU 进行最佳化编译配置，包括 Intel 的 Core 2 以上等级 CPU ，以及 AMD 的 Athlon64 以后等级的 CPU ，都属於这一类型的硬件平台。
 noarch		就是没有任何硬件等级上的限制。一般来说，这种类型的 RPM 文件，里面应该没有 binary program 存在， 较常出现的就是属於 shell script 方面的软件。
 
+Alpha：是内部测试版,一般不向外部发布,会有很多Bug.一般只有测试人员使用。
+Beta：也是测试版，这个阶段的版本会一直加入新的功能。在Alpha版之后推出。
+RC：(Release　Candidate) 顾名思义么 ! 用在软件上就是候选版本。系统平台上就是发行候选版本。RC版不会再加入新的功能了，主要着重于除错。
+GA:General Availability,正式发布的版本，在国外都是用GA来说明release版本的。
+α、β、λ常用来表示软件测试过程中的三个阶段，α是第一阶段，一般只供内部测试使用；
+β是第二个阶段，已经消除了软件中大部分的不完善之处，但仍有可能还存在缺陷和漏洞，一般只提供给特定的用户群来测试使用；
+λ是第三个阶段，此时产品已经相当成熟，只需在个别地方再做进一步的优化处理即可上市发行。
 
+rpm：
 --replacefiles 	使用时机： 如果在安装的过程当中出现了『某个文件已经被安装在你的系统上面』的资讯，又或许出现版本不合的信息 (confilcting files) 时，可以使用这个参数来直接覆盖文件。危险性： 覆盖的动作是无法复原的！所以，你必须要很清楚的知道被覆盖的文件是真的可以被覆盖喔！否则会欲哭无泪！
 --test 	使用时机： 想要测试一下该软件是否可以被安装到使用者的 Linux 环境当中，可找出是否有属性相依的问题。范例为：
 	rpm -ivh pkgname.i386.rpm --test
@@ -272,12 +287,10 @@ noarch		就是没有任何硬件等级上的限制。一般来说，这种类型
 rpm -Va logrotate       列出目前系统上面所有可能被更动过的文件；
 rpm -Vf /etc/crontab    是否有被更动过
 
-rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5
+rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-5    #导入验证数据
 
 rpm --rebuilddb   <==重建数据库
 
-rpmbuild -ba rp-pppoe.spec  <==编译并同时产生 RPM 与 SRPM 文件
-rpmbuild -bb rp-pppoe.spec  <==仅编译成 RPM 文件
 
 yum:
 	-y ：当 yum 要等待使用者输入时，这个选项可以自动提供 yes 的回应；
@@ -296,12 +309,11 @@ yum grouplist/groupinfo
 
 
 
+VNC的服务端目的是分享其所运行机器的屏幕， 服务端被动的允许客户端控制它。 VNC客户端（或Viewer） 观察控制服务端，与服务端交互。 VNC 协议 Protocol (RFB)是一个简单的协议，传送服务端的原始图像到客户端（一个X,Y 位置上的正方形的点阵数据）
+	无法传输文件
+RDP文件传输协议:RDP远程协议是一个多通道协议，让用户通过本地电脑连接远程服务器。大部分的Windows、Linux服务器都有相应的客户端
 
-
-
-
-
-
+计算机与通信：C&C
 
 
 

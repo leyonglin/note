@@ -10,6 +10,7 @@ ldd -v 函数库  #查看依赖
 ldconfig  #将/etc/ld.so.conf 中动态函式库所在的目录下动态函数库加载到cache中
 ldconfig -p   #查看
 
+
 修改系统内核参数：
 cat /etc/sysctl.conf
     fs.file-max = 65535                                          最大文件打开数量
