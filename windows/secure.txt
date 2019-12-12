@@ -11,7 +11,7 @@ c段入侵：网关抓包
 APT攻击
 渗透测试：处于保护目的，与入侵相反
 
-
+黑白盒测试：知道或不知道源码的区别
 
 vmware：VMware Workstation Pro下载这个版本
 
@@ -84,6 +84,43 @@ cat lanping.bat
 cat mima.bat                
 	assoc .exe=txtfile    #会将可执行文件改成文本   
 	assoc .exe=exefile    #将exe可执行文件改回可执行文件
+
+linux的url大小写敏感，windows不敏感
+inurl:php?id=
+伪静态，  *.html 可以改成*.php这些
+
+C:\Users\bangde\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+
+color -a
+
+start url/file/dir  #打开网址或本地命令
+
+shutdown -s -t 120 -c "message"
+
+
+
+net user k:  \\ip\c
+net user ..
+
+
+
+
+nmap 127.0-4.0.1-4 -n --reason --top-ports 20 -e ens33 --open
+nmap iL file_name #文件扫描
+ --exclude       IP
+ --excludefile   file_name
+ -p20,25
+ -p-                           #所有端口
+ -sn     #ping
+ -Pn  [--traceroute]   #少了ping和tcping包
+ -PS/PA/PU/PY    发包SYN/ACK/UDP/SCTP
+ --scanflags syn,ack,
+ -sl   #僵尸扫描
+
+Parsero，可以探测指定网站的robots.txt文件，并确认实际可访问性
+
+
+
 
 
 

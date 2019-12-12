@@ -7,13 +7,16 @@ top --> 1  查看cpu是内核态还是用户态负载高和负载高的进程pid
 -o  -f  -p  -c  -e  -r(打印出相对时间戳) [-t(输出绝对时间戳) -T输出每个系统调用花费的时间 -tt毫秒] -v 对于某些相关调用，把完整的环境变量，文件stat结构等打出来,-s 当系统调用的某个参数是字符串时，最多输出指定长度的内容，默认是32个字节
 strace -cp 24303
 starce -rf [-s 1024] -e clone -p 24303
-
+-c      count
+-p  	pid
+-r      print relative timestamp
+-f      follow forks
 [pstack(gdb程序调试器)]和ltrace用来跟踪进程调用(用户态)库函数的情况（动态库？）
 使用strace输出很少不代表进程很空闲
 
 
-LSOF：	匹配内容^表示取反 (/path/filename) (+d/+D dir) (-d fd) (-c <进程名> -c ...) (-u 用户名) (-p PID,PID...) 
-		(-i :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) -U(socket) -n(不dns) +/-r(持续) #协议指tcp和udp
+LSOF：	匹配内容^表示取反 (/path/filename) (+d/+D dir) (-d fd) (-c cmd -c ...) (-u 用户名) (-p PID,PID...) 
+		(-i(select IPv[46] files) :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) -U(socket) -n(不dns) +/-r(持续) #协议指tcp和udp
 	lsof | head
 		COMMAND     PID   TID    USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
 		删除恢复：
@@ -33,3 +36,4 @@ TCPDUMP:  or/and/not
 
 
 ldd CMD:命令调用的库函数
+ldconfig：加载动态库

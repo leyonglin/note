@@ -14,7 +14,7 @@ yum  --help
 yum -y install   chrony psmisc net-tools findutils coreutils  bash-completion wget vim-enhanced yum-utils \
                 tree epel-release telnet tcpdump bind-utils dos2unix lrzsz iproute iotop strace procps-ng lsof \
 				httping bridge-utils traceroute nmap sysstat htop sysstat socat nethogs screen postfix mailx
-#rm -f epel-testing.repo && yum -y install httping htop	patch
+#rm -f epel-testing.repo && yum -y install httping htop	patch mtr
 sed -i "s/0.centos.pool.ntp.org/ntp6.aliyun.com/" /etc/chrony.conf  && sed [-i]  "4,6s/server/#server/" /etc/chrony.conf			
 systemctl restart chronyd	
 chronyc sources -v

@@ -71,11 +71,11 @@ linux下设置密码复杂度限制:
 
 登陆：	
 	取得 bash 时需要完整的登陆流程的，就称为 login shell(输入用户名密码shell才启动)，non-login shell，不需要登录就可以获取bash页面
-	1./etc/profile (#login shell 才会读)   #全局配置
+	1./etc/profile (#login shell登陆)   #全局配置
 		调用/etc/profile.d/*.sh
 		    /etc/inputrc  用来处理键盘映射表（自定义热键~/.inputrc）  
 	  ~/.bash_profile   ~/.bash_login    ~/.profile	#个人配置，按顺序只会读取上面三个文件的其中一个
-		调用：~.bashrc(#non-login shell 会读) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
+		调用：~.bashrc(#non-login shell) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
 	2.~/.bash_logout     #退出 
 	3.~/.bash_history    #历史记录
 
