@@ -242,7 +242,6 @@ wc：-c 统计字节数   -l 统计行数    -m 统计字符数，这个标志不能与 -c 标志一起使用
 lsof -n |awk '{print $2}'|sort|uniq -c |sort -nr|more     查看文件句柄数量
 
 nc -zvw3  ip  port                             netcat查看端口是否开启(z不读写扫描v显性输出w3超时3秒)
-nmap ip -p port                                nmap可用审计
 telnet ip port
 
 dig 默认会解析A记录与CNAME记录
