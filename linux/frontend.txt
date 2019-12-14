@@ -15,6 +15,14 @@ commonjs:模块，包
 REPL：命令行运行环境
 
 静态页面(h5-css-js-jq) --> Ajax --> mvc框架 --> mvvm --> spa阶段(vue/angular/react..)
+动态 HTML技术是通过调用客户端脚本语言 JavaScript，实现对 HTML的 Web 页面的动态改造。
+利用 DOM（Document Object Model，文档对象模型）可指定欲发生动态变化的 HTML元素，DOM 内存在各种函数，DOM 是用以操作 HTML文档和 XML文档的 API（Application Programming Interface，应用编程接口）。使用 DOM 可以将 HTML内 的元素当作对象操作，如取出元素内的字符串、改变那个 CSS 的属 性等，使页面的设计发生改变。
+	var content = document.getElementsByTagName('P'); 
+	content[2].style.color = '#FF0000';
+	
+xml比html能够让程序更容易读取到数据的数据结构
+JavaScript 衍生的轻量级易用 JSON
+
 
 
 

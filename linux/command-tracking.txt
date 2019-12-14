@@ -31,9 +31,11 @@ TCPDUMP:  or/and/not
 	        [-p] 协议
 			src/dst port/portrange PORT		src/dst host ip/域名/网络位	  
 			-w 文件		-r 指定文件读出	#可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
-  tcpdump  -nn -i any '(((dst host 104.193.88.77) or (dst host 104.193.88.123)) and (tcp[tcpflags] & (tcp-ack|tcp-fin|tcp-syn) !=0))'
+  tcpdump  -c 100 -t -v -n -i any '(((dst host 104.193.88.77) or (dst host 104.193.88.123)) and (tcp[tcpflags] & (tcp-ack|tcp-fin|tcp-syn) !=0))'
 
 
 
 ldd CMD:命令调用的库函数
 ldconfig：加载动态库
+
+
