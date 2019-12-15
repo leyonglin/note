@@ -1,4 +1,9 @@
 
+命令行工具 -> 从系统库（glibc）调用函数 -> 调用系统调用
+例如：ls 命令内部从 Linux 上的系统库（即 glibc）调用函数
+
+[pstack(gdb程序调试器)]和ltrace用来跟踪进程调用(用户态)库函数的情况（动态库？）
+
 都是使用ptrace系统调用跟踪调试运行中的进程
 如果没有自动挂载proc文件系统的话:mount -t procfs proc /proc
 
@@ -11,8 +16,16 @@ starce -rf [-s 1024] -e clone -p 24303
 -p  	pid
 -r      print relative timestamp
 -f      follow forks
-[pstack(gdb程序调试器)]和ltrace用来跟踪进程调用(用户态)库函数的情况（动态库？）
+
 使用strace输出很少不代表进程很空闲
+	open() : 用于打开或创建一个文件。
+	read() : 用于读取一个文件。
+	write() : 写文件。
+	connect() : 建立网络连接。
+	sendto() : 发送网络数据。
+	recvfrom() : 接收网络数据。
+	futex() : 锁相关操作。
+	更多关于某个系统调用的含义/用途可以通过 man 2 <syscall>
 
 
 LSOF：	匹配内容^表示取反 (/path/filename) (+d/+D dir) (-d fd) (-c cmd -c ...) (-u 用户名) (-p PID,PID...) 

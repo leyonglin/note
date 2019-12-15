@@ -109,3 +109,25 @@ multitail：
 	分成两列监控，第一列3个，第二列2个： multitail -s 2 -sn 3,2	 log1 log2 log3 log4 log5
 	
 	
+https://blog.csdn.net/freeking101/article/details/53691481/
+wget是个专职的下载利器，简单，专一，极致。
+curl可以下载，但是长项不在于下载，而在于模拟提交web数据，POST/GET请求，调试网页，等等）可以把 curl 看做是一个精简的命令行网页浏览器	
+	断点下载  后台下载   用户名和密码  cookie(获取与使用)  proxy(代理服务器)  user_agent(浏览器)  reference(反盗链选项)
+	分块下载  批量下载 -X指定请求方式   证书和协议  超时重试   response头部(-I/-D)   限制/限速   (-L)重定向页面
+		curl -o /dev/null -s -w %{http_code} www.linux.com #-w/--write-out [format]仅输出http_code
+		curl -c cookiec.txt  http://www.linux.com   #保存cookie
+		curl -b cookiec.txt http://www.linux.com    #使用cookie
+		wget --mirror -p --convert-links -P baidu  http://www.baidu.com    #打包下载网站
+			–miror:开户镜像下载 -p:下载所有为了html页面显示正常的文件 –convert-links:下载后，转换成本地的链接 -P ./LOCAL：保存所有文件和目录到本地指定目录 
+		wget --mirror -p --convert-links --spider http://www.baidu.com    #测试下载链接
+		wget -i filelist.txt #下载多个文件，-c  断点下载   -b后台下载
+				
+	
+	
+	
+	
+	
+	
+	
+	
+	

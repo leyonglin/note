@@ -1,0 +1,212 @@
+
+hostnamectl set-hostname k8s-master01
+yum install -y conntrack ntpdate ntp ipvsadm ipset jq iptables curl sysstat libseccomp wget vim net-tools git
+设置iptables并且清空规则
+systemctl stop firewalld && systemctl disable firewalld yum -y install iptables-services && systemctl start iptables && systemctl enable iptables && iptables -F && service iptables save
+关闭selinux和swap
+swapoff -a && sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab 
+setenforce 0 && sed -i 's/^SELINUX=.*/SELINUX=disabled/' /etc/selinux/config
+设置时间
+systemctl start chronyd
+
+内核参数
+cat > kubernetes.conf <<EOF 
+net.bridge.bridge-nf-call-iptables=1 
+net.bridge.bridge-nf-call-ip6tables=1 
+net.ipv4.ip_forward=1 
+net.ipv4.tcp_tw_recycle=0 
+vm.swappiness=0          # 禁止使用 swap 空间，只有当系统 OOM 时才允许使用它
+vm.overcommit_memory=1    # 不检查物理内存是否够用
+vm.panic_on_oom=0		  # 开启 OOM
+fs.inotify.max_user_instances=8192 
+fs.inotify.max_user_watches=1048576 
+fs.file-max=52706963 
+fs.nr_open=52706963 
+net.ipv6.conf.all.disable_ipv6=1 
+net.netfilter.nf_conntrack_max=2310720 
+EOF 
+cp kubernetes.conf /etc/sysctl.d/kubernetes.conf 
+sysctl -p /etc/sysctl.d/kubernetes.conf
+
+
+设置日志收集服务
+mkdir /var/log/journal
+mkdir /etc/systemd/journald.conf.d
+cat > /etc/systemd/journald.conf.d/99-prophet.conf <<EOF 
+[Journal] 
+Storage=persistent 
+Compress=yes 
+SyncIntervalSec=5m 
+RateLimitInterval=30s 
+RateLimitBurst=1000 
+SystemMaxUse=10G
+SystemMaxFileSize=200M
+MaxRetentionSec=2week
+ForwardToSyslog=no 
+EOF
+
+升级内核
+rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
+yum --enablerepo=elrepo-kernel install -y kernel-lt
+grub2-set-default 'CentOS Linux (4.4.189-1.el7.elrepo.x86_64) 7 (Core)'
+reboot
+
+开启ipvs(kube-proxy开启ipvs的前置条件)
+cat>/etc/sysconfig/modules/ipvs.modules<<EOF
+#!/bin/bash
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+modprobe -- nf_conntrack_ipv4
+EOF
+chmod 755 /etc/sysconfig/modules/ipvs.modules&&bash /etc/sysconfig/modules/ipvs.modules&&lsmod|grep -e ip_vs -e nf_conntrack_ipv4
+
+安装docker
+yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+yum-config-manager    --add-repo     https://download.docker.com/linux/centos/docker-ce.repo
+yum install -y  device-mapper-persistent-data   lvm2  
+yum install docker-ce docker-ce-cli containerd.io
+
+配置docker
+mkdir /etc/docker
+cat > /etc/docker/daemon.json <<EOF
+{
+"exec-opts": ["native.cgroupdriver=systemd"], "log-driver": "json-file",
+"log-opts": {
+"max-size": "100m"
+},
+"insecure-registries": ["https://hub.atguigu.com"]
+} 
+EOF
+mkdir -p /etc/systemd/system/docker.service.d
+systemctl daemon-reload && systemctl restart docker && systemctl enable docker
+
+安装 Kubeadm
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo 
+[kubernetes]
+name=Kubernetes 
+baseurl=http://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64 
+enabled=1
+gpgcheck=0 
+repo_gpgcheck=0
+gpgkey=http://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg 
+http://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg 
+EOF
+yum -y install kubeadm-1.15.1 kubectl-1.15.1 kubelet-1.15.1 
+systemctl enable kubelet.service
+
+配置初始化文件
+kubeadm config print init-defaults > kubeadm-config.yaml    #导出kubeadm初始化配置文件
+对配置进行修改
+    localAPIEndpoint:
+        advertiseAddress: 192.168.66.10     #本机ip
+	kubernetesVersion: v1.15.1              #版本
+	networking:
+        podSubnet: "10.244.0.0/16"          #额外添加
+		serviceSubnet: 10.96.0.0/12         #默认
+---											#额外添加，指定调度方式未ipvs
+apiVersion: kubeproxy.config.k8s.io/v1alpha1 
+kind: KubeProxyConfiguration
+featureGates:
+    SupportIPVSProxyMode: true 
+mode: ipvs
+
+初始化
+kubeadm init --config=kubeadm-config.yaml --experimental-upload-certs | tee kubeadm-init.log
+kubectl get node
+
+安装flannel
+wget  https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+kubectl get pod -n kube-system
+
+添加子节点：
+
+kubectl get pod -n kube-system -o wide   #详细查看kube-system名称空间的pod信息
+kubectl get pod -n kube-system -w		 #watch监看kube-system名称空间的pod
+
+k8s/
+├── init
+│   ├── kubeadm-config.yaml
+│   └── kubeadm-init.log
+└── plugin
+    └── flannel
+        └── kube-flannel.yml
+
+kubectl explain pod.spec  		#查看字段含义
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+安装harbor
+yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+yum-config-manager    --add-repo     https://download.docker.com/linux/centos/docker-ce.repo
+yum install -y  device-mapper-persistent-data   lvm2  
+yum install docker-ce docker-ce-cli containerd.io
+配置docker
+mkdir /etc/docker
+cat > /etc/docker/daemon.json <<EOF
+{
+"exec-opts": ["native.cgroupdriver=systemd"], "log-driver": "json-file",
+"log-opts": {
+"max-size": "100m"
+},
+"insecure-registries": ["https://hub.atguigu.com"]
+} 
+EOF
+
+curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compose-$(uname -s)-$(uname -m) >  /usr/local/bin/docker-compose
+sudo chmod a+x /usr/local/bin/docker-compose
+docker-compose -version
+
+
+Harbor 官官方方地地址址：：https://github.com/vmware/harbor/releases 
+配置置harbor.cfg  
+	hostname：域名
+	harbor_admin_password: admin密码
+
+创建证书：
+mkdir /data/cert 
+openssl genrsa -des3 -out server.key 2048 
+openssl req -new-key server.key -out server.csr 
+cp server.key server.key.org 							#备份私钥
+openssl rsa -in server.key.org -out server.key    		#取出密码
+openssl x509 -req -days 365 -in server.csr-signkey server.key -out server.crt  #生成证书
+chmod -R 777 /data/cert
+
+./install.sh
+
+docker login http://hub.atguigu.com
+docker tag wangyanglinux/myapp:v1 hub.atguigu.com/library/myapp:v1
+docker push hub.atguigu.com/library/myapp:v1
+kubectl run nginx-deployment --image=hub.atguigu.com/library/myapp:v1 --port=80 --replicas=1
+kubectl get deployment
+kubectl get rs
+kubectl get pod -o wide
+kubectl delete pod nginx-deployment-85756b779-xwdf6
+kubectl scale --replicas=3 deployment/nginx-deployment
+kubectl get svc
+kubectl expose -h
+kubectl expose deployment nginx-deployment --port=30000 --target-port=80
+ipvsadm -Ln
+kubectl get svc
+curl ip:30000/hostname.html
+
+
+
+
+
+
+
+
+
