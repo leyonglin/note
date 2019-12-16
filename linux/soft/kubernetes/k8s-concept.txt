@@ -6,30 +6,34 @@ K8s中所有的内容都抽象为资源，资源实例化之后，叫做对象
 	配置与存储型资源：Volume(存储卷)、CSI(容器存储接口,可以扩展各种各样的第三方存储卷)
 	特殊类型的存储卷：ConfigMap(当配置中心来使用的资源类型)、Secret(保存敏感数据)、DownwardAPI(把外部环境中的信息输出给容器)
 集群级资源：Namespace、Node、Role、ClusterRole、RoleBinding、ClusterRoleBinding
-元数据型资源：HPA、PodTemplate、LimitRange（提供一组指标）
+元数据型资源：HPA、PodTemplate、LimitRange（提供一组标签/指标）
 
-
-
-
-
-
+kubectl explain pod.spec  				#查看字段含义
+kubectl  describe pod metadata_name     #查看错误
+kubectl log metadata_name -c pod_name   #查看日志
 
 
 pod：
   生命周期
-	init容器：第一部分被启动且必须被启动成功的容器
-		poststart：pod启动前  钩子，不保证成功
-		任务容器：
-			存活和就绪检查
-			valume：挂载+特殊挂载(密码、配置映射、下载api信息，服务账号token)
-			资源限制
-		prestop：停止前钩子，执行过程会阻塞杀死容器
+	pause（初始化网络和数据卷）
+		init容器：第一部分按顺序被启动且必须启动成功的容器（0-n个）
+			poststart：pod启动前钩子，不保证成功
+			任务容器：
+				就绪检查readinessProbe和存活检查livenessProbe
+				valume：挂载+特殊挂载(密码、配置映射、下载api信息，服务账号token)
+				资源限制
+			prestop：停止前钩子，执行过程会阻塞杀死容器
 
-节点选择，(反)亲和性，污点
+节点/标签选择：(反)亲和性，污点
 统一对某一标签的pob添加字段
 kubectl -n kube-system describe pods NAME
 kubectl get pod/pods -n kube-system NAME -o wide/yaml
 kubectl get pods -w
+
+pod分类：1.自主式pod    2.控制器管理的pod  
+命令式编程：rs create
+声明式编程：deployment apply
+
 
 控制器：policy
 	replicaset（启动与预期数量的容器,容器数量伸缩）
@@ -40,7 +44,7 @@ kubectl get pods -w
 		    1.normal service -- 解析到cluster IP
 			2.headless  -- 多个解析，分别对应每个pod（cluster IP:None）
 	daemonset：保证有且仅有一个pod
-	job/cronjob：离线/单次任务/定时任务
+	job/cronjob：离线/单次任务/定时循环任务
 		
 crd：自定义资源，拓展kubernetes的API   （operator）	
 RBAC：基于角色的访问控制
@@ -52,5 +56,43 @@ storage:
 	storageclass：创建存储池，会根据配置自动创建pv和pvc
 		ceph:rook operator
 		local volume manager  -- > local PV PVC
-		
+
+
+Service能够提供负载均衡的能力,但是只提供4层负载均衡能力，而没有7层功能
+kube-proxy 会监视 Kubernetes Service 对象和Endpoints，调用接口netlink以相应地创建ipvs 规则并定期与 Kubernetes Service对象和Endpoints对象同步 ipvs 规则，以确保 ipvs 状态与期望一致
+创建时：apiserver将请求数据存储到etcd中，kube-proxy进程负责感知service，pod的变化，并将变化信息写入本地的iptables规则中，iptables 使用NAT等技术将virtualIP的流量转至endpoint中
+endpoint是k8s集群中的一个资源对象，存储在etcd中，用来记录一个service对应的所有pod的访问地址
+LVS的IP负载平衡技术就是通过IPVS模块来实现的，IPVS是LVS集群系统的核心软件
+通过查发报文的IP和TCP报文头地址，保证此连接的后继报文被转发到相同的服务器,IPVS无法检查到请求的内容再选择服务器，这就要求后端的服务器组是提供相同的服务
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
 		

@@ -133,7 +133,327 @@ k8s/
     └── flannel
         └── kube-flannel.yml
 
-kubectl explain pod.spec  		#查看字段含义
+
+kubectl explain pod.spec  				#查看字段含义
+kubectl  describe pod metadata_name     #查看错误
+kubectl log metadata_name -c pod_name   #查看日志
+
+init容器
+apiVersion: v1
+kind: Pod
+metadata:  
+  name: myapp-pod  
+  labels:    
+    app: myapp
+spec:  
+  containers:  
+  - name: myapp-container    
+    image: busybox    
+    command: ['sh','-c','echo The app is running! && sleep 3600']  
+  initContainers:  
+  - name: init-myservice    
+    image: busybox    
+    command: ['sh','-c','until nslookup myservice; do echo waiting for myservice; sleep 2;done;']  
+  - name: init-mydb    
+    image: busybox    
+    command: ['sh','-c','until nslookup mydb; do echo waiting for mydb; sleep 2; done;']
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:  
+#  name: myservice
+#spec:  
+#  ports:    
+#  - protocol: TCP      
+#    port: 80      
+#    targetPort: 9376
+##---
+##kind: Service
+##apiVersion: v1
+##metadata:  
+##  name: mydb
+##spec:  
+##  ports:    
+##  - protocol: TCP      
+##    port: 80
+##	targetPort: 9377
+
+kubectl create -f init-pod.yml
+kubectl delete deployment --all
+kubectl delete pod --all
+kubectl delete svc nginx-deployment
+kubectl delete -f liveness-exec.yml
+
+就绪探针：
+apiVersion: v1
+kind: Pod
+metadata:  
+  name: readiness-httpget-pod  
+  namespace: default
+spec:  
+  containers:  
+  - name: readiness-httpget-container    
+    image: wangyanglinux/myapp:v1    
+    imagePullPolicy: IfNotPresent    
+    readinessProbe:      
+      httpGet:        
+        port: 80        
+        path: /index1.html      
+      initialDelaySeconds: 1      
+      periodSeconds: 3
+
+存活探针：
+apiVersion: v1
+kind: Pod
+metadata:  
+  name: liveness-exec-pod  
+  namespace: default
+spec:  
+  containers:  
+  - name: liveness-exec-container    
+    image: hub.atguigu.com/library/busybox    
+    imagePullPolicy: IfNotPresent    
+    command: ["/bin/sh","-c","touch /tmp/live ; sleep 60; rm -rf /tmp/live; sleep3600"]    
+    livenessProbe:      
+      exec:        
+        command: ["test","-e","/tmp/live"]      
+      initialDelaySeconds: 1     
+      periodSeconds: 3
+	  
+	  
+apiVersion: v1
+kind: Pod
+metadata:  
+  name: liveness-httpget-pod  
+  namespace: default
+spec:
+  containers:  
+  - name: liveness-httpget-container    
+    image: hub.atguigu.com/library/myapp:v1    
+    imagePullPolicy: IfNotPresent    
+    ports:    
+    - name: http      
+      containerPort: 80    
+    livenessProbe:      
+      httpGet:        
+        port: http        
+        path: /index.html      
+      initialDelaySeconds: 1      
+      periodSeconds: 3      
+      timeoutSeconds: 10
+
+apiVersion: v1
+kind: Pod
+metadata:  
+  name: probe-tcp
+spec:  
+  containers:  
+  - name: nginx    
+    image: hub.atguigu.com/library/myapp:v1    
+    livenessProbe:      
+      initialDelaySeconds: 5      
+      timeoutSeconds: 1      
+      tcpSocket:        
+        port: 80
+
+启动和退出
+apiVersion: v1
+kind: Pod
+metadata:  
+  name: lifecycle-demo
+spec:  
+  containers:  
+  - name: lifecycle-demo-container    
+    image: nginx    
+    lifecycle:      
+      postStart:        
+        exec:          
+          command: ["/bin/sh", "-c", "echo Hello from the postStart handler >/usr/share/message"]      
+      preStop:        
+        exec:
+          command: ["/bin/sh", "-c", "echo Hello from the poststop handler >/usr/share/message"]
+
+
+cat>rs.yml<<EOF
+apiVersion: extensions/v1beta1 
+kind: ReplicaSet
+metadata:
+  name: frontend 
+spec:
+  replicas: 3 
+  selector:
+    matchLabels:
+      tier: frontend 
+  template:
+    metadata:
+      labels:
+        tier: frontend 
+    spec:
+      containers:
+      - name: php-redis
+        image: gcr.io/google_samples/gb-frontend:v3 
+	    env:
+        - name: GET_HOSTS_FROM 
+          value: dns
+        ports:
+        - containerPort: 80
+EOF
+
+kubectl get pod --show-labels
+kubectl label pod frontend-mfrkr tier=frontend1 --overwrite=True
+kubectl get pod --show-labels
+
+cat>deployment<<eof
+apiVersion: extensions/v1beta1 
+kind: Deployment
+metadata:
+  name: nginx-deployment 
+spec:
+  replicas: 3 
+  template:
+    metadata: labels:
+      app: nginx 
+	spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9 
+	    ports:
+        - containerPort: 80
+eof
+
+kubectl apply -f deployment.yml  --record
+kubectl get deployment
+kubectl get rs
+kubectl get pod
+kubectl scale deployment nginx-deployment --replicas 10    #不改变配置文件
+kubectl set image deployment/nginx-deployment nginx=nginx:1.9.1
+kubectl rollout undo deployment/nginx-deployment
+kubectl rollout undo deployment/nginx-deployment --to-revision=2	## 可以使用 --revision参数指定某个历史版本
+kubectl rollout status deployment/nginx-deployment
+kubectl rollout history deployment/nginx-deployment
+kubectl rollout pause deployment/nginx-deployment	## 暂停 deployment 的更新
+
+
+服务发现：
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: myapp-deploy 
+  namespace: default
+spec:
+  replicas: 3 
+  selector:
+    matchLabels: 
+	  app: myapp
+      release: stabel 
+	template:
+      metadata: 
+	  labels:
+        app: myapp 
+	    release: stabel 
+	    env: test
+      spec:
+        containers:
+        - name: myapp
+          image: wangyanglinux/myapp:v2 
+		  imagePullPolicy: IfNotPresent 
+		  ports:
+          - name: http 
+            containerPort: 80
+---
+apiVersion: v1
+kind: Service 
+metadata:
+  name: myapp 
+  namespace: default
+spec:
+  type: ClusterIP 
+  selector:
+    app: myapp 
+    release: stabel
+  ports:
+  - name: http 
+    port: 80
+    targetPort: 80
+
+
+ipvsadm -Ln
+
+cat>headless-svc.yml<<eof
+apiVersion: v1
+kind: Service 
+metadata:
+  name: myapp-headless 
+  namespace: default
+spec:
+  selector:
+    app: myapp 
+  clusterIP: "None" 
+  ports:
+  - port: 80
+    targetPort: 80
+eof
+
+kubectl apply -f headless-svc.yml
+kubectl get svc
+kubectl get pod -n kube-system -o wide
+dig -t A myapp-headless.default.svc.cluster.local @10.244.0.8     #没有clsterIP,但是还是可以访问域名
+
+
+cat>node-svc.yml<<eof
+apiVersion: v1
+kind: Service 
+metadata:
+  name: myapp 
+  namespace: default
+spec:
+  type: NodePort 
+  selector:
+    app: myapp 
+    release: stabel
+  ports:
+  - name: http 
+    port: 80
+    targetPort: 80
+eof
+
+ipvsadm -Ln
+
+loadBalancer 和 nodePort 其实是同一种方式。区别在于 loadBalancer 比 nodePort 多了一步，就是可以调用cloud provider 去创建 LB 来向节点导流
+
+
+ExternalName：把集群外部的服务引入到集群内部来，在集群内部直接使用
+当查询主机 my-service.defalut.svc.cluster.local ( SVC_NAME.NAMESPACE.svc.cluster.local )时，集群的DNS 服务将返回一个值 my.database.example.com  的 CNAME  记录
+kind: Service 
+apiVersion: v1 
+metadata:
+  name: my-service
+  namespace: default
+spec:
+  type: ExternalName 
+  externalName: hub.atguigu.com
+
+
+ingress-nginx: 写多个的话，是在一个ingress-nginx容器中的nginx.conf配置的(其实就是创建了规则)
+apiVersion: extensions/v1beta1 
+kind: Ingress
+metadata:
+  name: nginx-test
+spec:
+  rules:
+  - host: www1.atguigu.com http:
+    paths:
+    - path: / 
+	  backend:
+        serviceName: nginx-svc 
+	    servicePort: 80
+
+
+
+
+
+
+
 
 
 
@@ -173,11 +493,12 @@ docker-compose -version
 Harbor 官官方方地地址址：：https://github.com/vmware/harbor/releases 
 配置置harbor.cfg  
 	hostname：域名
+	ui_url_protocol: 协议
 	harbor_admin_password: admin密码
 
 创建证书：
 mkdir /data/cert 
-openssl genrsa -des3 -out server.key 2048 
+openssl genrsa -des3 -out server.key 2048 				#生成私钥
 openssl req -new-key server.key -out server.csr 
 cp server.key server.key.org 							#备份私钥
 openssl rsa -in server.key.org -out server.key    		#取出密码
@@ -201,7 +522,7 @@ kubectl expose deployment nginx-deployment --port=30000 --target-port=80
 ipvsadm -Ln
 kubectl get svc
 curl ip:30000/hostname.html
-
+kubectl  edit svc nginx-deployment    #修改直接生效
 
 
 
