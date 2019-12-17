@@ -434,7 +434,10 @@ spec:
   externalName: hub.atguigu.com
 
 
-ingress-nginx: 写多个的话，是在一个ingress-nginx容器中的nginx.conf配置的(其实就是创建了规则)
+
+wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
+wget https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/baremetal/service-nodeport.yaml
+ingress-nginx: 先创建普通的svc(扁平化网络)，在创建ingress-svc时通过rules字段将普通的svc关联起来
 apiVersion: extensions/v1beta1 
 kind: Ingress
 metadata:
@@ -449,15 +452,127 @@ spec:
 	    servicePort: 80
 
 
+kubectl get svc
+kubectl get svc -n ingress-nginx
+kubectl get pod -n ingress-nginx
+kubectl exec -it -n ingress-nginx nginx-ingress-controller-799dbf6fbd-x9mtj /bin/bash
+grep server_name nginx.conf
+kubectl get ingress       #有几个rules字段
+
+
+configmap：明文
+	文件/目录创建：kubectl create configmap game-config --from-file=文件/目录
+	字面值创建：kubectl create configmap special-config --from-literal=special.how=very --from- literal=special.type=charm
+	查看：kubectl get cm game-config -o yaml
+secret：
+	Service Account ：用来访问 Kubernetes API，由 Kubernetes 自动创建，并且会自动挂载到 Pod 的/run/secrets/kubernetes.io/serviceaccount目录中（pod数量是动态的，因为使用证书认证，太消耗资源了）
+	Opaque ：base64编码格式的Secret，用来存储密码、密钥等（加载到pod中会自动解密）
+	kubernetes.io/dockerconﬁgjson ：用来存储私有 docker registry 的认证信息
+volume：
 
 
 
+鉴权：
+useradd devuser
 
+cat >devuser-csr.json<<eof
+{
+  "CN": "devuser",
+  "hosts": [], 
+  "key": {
+    "algo": "rsa", 
+	"size": 2048
+  },
+"names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+eof
 
+wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64 
+wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64 
+wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64 
+chmod +x cfssl*
+mv cfssl_linux-amd64 /usr/local/bin/cfssl
+mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo
 
+cd /etc/kubernetes/pki
+cfssl gencert -ca=ca.crt -ca-key=ca.key -profile=kubernetes /root/k8s/config/permission/cert/devuser/devuser-csr.json | cfssljson -bare devuser
+cfssl-certinfo -cert devuser.pem
 
+cd -
+export KUBE_APISERVER="https://172.20.0.113:6443"
+kubectl config set-cluster kubernetes \
+--certificate-authority=/etc/kubernetes/pki/ca.crt \
+--embed-certs=true \
+--server=${KUBE_APISERVER} \
+--kubeconfig=devuser.kubeconfig
 
+cat devuser.kubeconfig
 
+kubectl config set-credentials devuser \
+--client-certificate=/etc/kubernetes/pki/devuser.pem \
+--client-key=/etc/kubernetes/pki/devuser-key.pem \
+--embed-certs=true \
+--kubeconfig=devuser.kubeconfig
+
+cat devuser.kubeconfig
+
+kubectl config set-context kubernetes \
+--cluster=kubernetes \
+--user=devuser \
+--namespace=dev \
+--kubeconfig=devuser.kubeconfig
+
+cat devuser.kubeconfig
+
+#kubectl create rolebinding devuser-admin-binding --clusterrole=admin --user=devuser --namespace=dev
+cat>pod-reader.yaml<<eof
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: dev 
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+eof
+
+cat>devuser-role-bind.yaml<<eof
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: read-pods
+  namespace: dev 
+subjects:
+- kind: User
+  name: devuser   
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+eof
+
+cp -f ./devuser.kubeconfig /home/devuser/.kube/config
+chown devuser:devuser /home/devuser/.kube/config
+
+su devuser
+cd .kube
+kubectl config use-context kubernetes --kubeconfig=config 
+
+kubectl get pod --all-namespaces -o wide | grep nginx
+  
+
+	
 
 
 
@@ -522,7 +637,7 @@ kubectl expose deployment nginx-deployment --port=30000 --target-port=80
 ipvsadm -Ln
 kubectl get svc
 curl ip:30000/hostname.html
-kubectl  edit svc nginx-deployment    #修改直接生效
+kubectl  edit svc nginx-deployment    #修改某些字段直接生效
 
 
 

@@ -66,15 +66,25 @@ LVS的IP负载平衡技术就是通过IPVS模块来实现的，IPVS是LVS集群�
 通过查发报文的IP和TCP报文头地址，保证此连接的后继报文被转发到相同的服务器,IPVS无法检查到请求的内容再选择服务器，这就要求后端的服务器组是提供相同的服务
 
 
+Ingress-Nginx github 地址：https://github.com/kubernetes/ingress-nginx  // Ingress-Nginx 官方网站：https://kubernetes.github.io/ingress-nginx/
+ingress-nginx: 先创建普通的svc(扁平化网络)，再在创建ingress-svc时通过rules字段将普通的svc关联起来
 
 
 
+安全认证：与apiserver认证
+  pod：
+	使用service accout --> service-accout-token（JWT）
+  组件：
+    kubeconfig：
+	  同主机：回环地址认证
+	  远程主机：https证书认证
+鉴权：
+	rbac：基于角色的访问控制
+	    role/clusterrole：角色，实质是一组规则，定义了一组对kubernetes API的操作权限
+	    subject：权限列表，即服务账号/被作用者
+	    rolebinding/clusterrolebinding：API对象，定义role和subject的绑定关系
 
-
-
-
-
-
+准入控制：通过不同插件实现额外的控制
 
 
 
