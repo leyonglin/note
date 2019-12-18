@@ -469,6 +469,236 @@ secret：
 	Opaque ：base64编码格式的Secret，用来存储密码、密钥等（加载到pod中会自动解密）
 	kubernetes.io/dockerconﬁgjson ：用来存储私有 docker registry 的认证信息
 volume：
+1.1 emptydir：pod中容器共享
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd
+spec:
+  containers:
+  - image: hub.atguigu.com/library/myapp:v1
+    name: test-container
+    volumeMounts:
+    - mountPath: /cache
+      name: cache-volume
+  - name: livene
+    image: busybox
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh","-c","sleep 3600s"]
+    volumeMounts:
+    - mountPath: /test
+      name: cache-volume
+  volumes:
+  - name: cache-volume
+    emptyDir: {}
+	
+1.2 hostPath：卷将主机节点的文件系统中的文件或目录挂载到集群中
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd
+spec:
+  containers:
+  - image: hub.atguigu.com/library/myapp:v1
+    name: test-container
+    volumeMounts:
+    - mountPath: /test-pd
+      name: test-volume
+  volumes:
+  - name: test-volume
+    hostPath:
+      path: /data
+      type: Directory
+
+1.3 PV也是集群中的资源，PVC用户存储的请求，pod被删除，pv和pvc也会保持绑定关系，一对一绑定
+
+yum install -y nfs-common nfs-utils rpcbind 
+mkdir /nfsdata
+chmod 666 /nfsdata
+chown nfsnobody /nfsdata 
+cat >/etc/exports<<eof
+/nfsdata *(rw,no_root_squash,no_all_squash,sync) 
+/nfsdata1 *(rw,no_root_squash,no_all_squash,sync) 
+/nfsdata2 *(rw,no_root_squash,no_all_squash,sync) 
+eof
+systemctl start rpcbind
+systemctl start nfs
+防火墙开放nfs和mountd和111三个端口
+
+#showmount -e 192.168.3.70
+#mount -vt nfs 192.168.3.70:/nfsdata /test
+
+创建PV：可以直接被pod使用，但不会这样使用
+apiVersion: v1
+kind: PersistentVolume 
+metadata:
+  name: nfspv1 
+spec:
+  capacity:
+    storage: 1Gi 
+  accessModes:
+  - ReadWriteOnce 
+  persistentVolumeReclaimPolicy: Recycle 
+  storageClassName: nfs
+  nfs:
+    path: /data/nfs 
+	server: 192.168.3.70
+kubectl get pv
+创建pvc：
+apiVersion: v1 
+kind: Service 
+metadata:
+  name: nginx 
+  labels:
+    app: nginx 
+spec:
+  ports:
+  - port: 80 
+    name: web
+  clusterIP: None 
+  selector:
+    app: nginx
+---
+apiVersion: apps/v1 
+kind: StatefulSet 
+metadata:
+  name: web 
+spec:
+  selector:
+    matchLabels:
+      app: nginx 
+  serviceName: "nginx" 
+  replicas: 3 
+  template:
+    metadata:
+      labels:
+         app: nginx 
+    spec:
+      containers:
+      - name: nginx
+        image: hub.atguigu.com/library/myapp:v1 
+        ports:
+        - containerPort: 80 
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html 
+  volumeClaimTemplates:
+  - metadata:
+      name: www 
+    spec:
+      accessModes: [ "ReadWriteOnce" ] 
+      storageClassName: "nfs" 
+      resources:
+        requests: 
+          storage: 1Gi
+删除的时候相反，先删除pod，在删除pvc，在删除pv，最后删物理存储
+
+HELM: 包管理工具
+cat>servercount.yml<<eof
+apiVersion: v1
+kind: ServiceAccount 
+metadata:
+  name: tiller 
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1 
+kind: ClusterRoleBinding
+metadata:
+   name: tiller 
+roleRef:
+  apiGroup: rbac.authorization.k8s.io 
+  kind: ClusterRole
+  name: cluster-admin 
+subjects:
+- kind: ServiceAccount 
+  name: tiller 
+  namespace: kube-system
+eof
+
+kubectl apply -f servercount.yml
+helm init --service-account tiller --skip-refresh    #部署helm
+helm help
+helm repo update
+
+cat >kubernetes-dashboard.yaml<<eof
+image:
+  repository: k8s.gcr.io/kubernetes-dashboard-amd64 
+  tag: v1.10.1
+ingress:
+  enabled: true 
+  hosts:
+  - k8s.frognew.com 
+  annotations:
+  nginx.ingress.kubernetes.io/ssl-redirect: "true" 
+  nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+tls:
+- secretName: frognew-com-tls-secret 
+  hosts:
+  - k8s.frognew.com
+rbac:
+  clusterAdminRole: true
+eof  
+  
+  
+helm install . -n kubernetes-dashboard --namespace kube-system -f kubernetes-dashboard.yaml
+可以修改svc服务暴露类为NodePort，就可以在物理机上访问了
+
+访问：https://192.168.3.69:31770/			#通过svc暴露的端口访问
+kubectl get secret -n kube-system | grep  kubernetes-dashboard-token
+kubectl describe secret kubernetes-dashboard-token-k4pjk -n kube-system     #获取token进行令牌登录
+
+prometheus：kubectl top node
+git clone https://github.com/coreos/kube-prometheus.git 
+cd kube-prometheus/manifests
+	1.grafana-service.yaml
+	2.prometheus-service.yaml
+	3.alertmanager-service.yaml
+		spec:
+		type: NodePort       #!!
+		ports:
+		- name: web 
+		  port: 9093
+		  targetPort: web 
+		  nodePort: 30300    #!!  递增
+		  
+kubectl create -f manifests/setup
+until kubectl get servicemonitors --all-namespaces ; do date; sleep 1; echo ""; done
+kubectl create -f manifests/
+http://192.168.3.65:30100/    #admin  admin
+
+HPA: Horizontal Pod Autoscaling
+kubectl run php-apache --image=gcr.io/google_containers/hpa-example --requests=cpu=200m --expose --port=80
+kubectl get pod
+kubectl top pod php-apache-69dd84889f-f9jnj									#查看资源
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10   #自动伸展
+kubectl get hpa
+kubectl run -i --tty load-generator --image=busybox /bin/sh			#压测
+	while true; do wget -q -O- http://php-apache.default.svc.cluster.local; done
+
+
+资源限制 - Pod：requests 要分分配的资源，limits 为最高请求的资源值
+resources: 
+  limits:
+    cpu: "4" 
+	memory: 2Gi
+  requests: 
+    cpu: 250m
+    memory: 250Mi
+资源限制 - 名称空间
+1.apiVersion: v1 
+  kind: ResourceQuota
+2.apiVersion: v1 
+  kind: LimitRange    #default即limit的值   defaultRequest即request的值
+
+
+
+
+
+
+
+
+
 
 
 
@@ -561,6 +791,9 @@ roleRef:
   name: pod-reader
   apiGroup: rbac.authorization.k8s.io
 eof
+
+kubectl apply -f pod-reader.yaml
+kubectl apply -f devuser-role-bind.yaml
 
 cp -f ./devuser.kubeconfig /home/devuser/.kube/config
 chown devuser:devuser /home/devuser/.kube/config

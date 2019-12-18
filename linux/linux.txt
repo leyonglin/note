@@ -76,6 +76,7 @@ find / -u nobody -name test.txt -size +100k -depth 5 -mtime +4/4 -type s -perm +
 
 
 xargs: -t在执行前回显cmd  -p交互  -d(把...当作分割符)  -n3三行一组  -0
+ls | xargs ls -l
 ls | xargs -i mv {} {}.txt  #-i与{}搭配
 cat arg.txt | xargs -I {} ./sk.sh -p {} -l
 
@@ -219,16 +220,11 @@ rsyslog配置文件：/etc/rsyslog.conf
     init 运行 /etc/rc.d/rc.local 文件；自定义自启脚本
     init 运行终端机模拟程序 mingetty 来启动 login 程序，最后就等待使用者登陆啦；
 
+
 .configure：侦测程序来侦测使用者的作业环境， 以及该作业环境是否有软件开发商所需要的其他功能,常见出Makefile(记录了原始码如何编译的详细资讯)
 make: 依据Makefile编译成可执行文件(gcc命令的集合)
 make install：移动到指定路径
 
-
-
-diff -Naur 旧文件 新文件 > /opt/diff.patch      #diff制作补丁文件的原理：告诉我们怎么修改第一个文件后能得到第二个文件
-patch -p0 [旧文件] < /opt/diff.patch    #没加路径会提示，Reversed这种是因为反向补丁了，*.orig是备份  
-	patch -p0 < patch_file 时，所在路径就是补丁文件（第二个路径*.old） 的diff比较路径 则升级的文件是『 /home/guest/example/expatch.old 』，如果『 patch -p1 < patch_file』，则升级的文件为『home/guest/example/expatch.old』，如果『patch -p4 < patch_file』则升级『expatch.old』，也就是说， -pxx 那个 xx 代表『拿掉几个斜线(/)』的意思！
-patch -RE < test.patch //还原旧版本，反向修复
 
 
 ldd 命令

@@ -59,15 +59,15 @@ storage:
 
 
 Service能够提供负载均衡的能力,但是只提供4层负载均衡能力，而没有7层功能
+	1.clusterIP（特殊：headless）  2.NodePort  3.LB  4.ExternalName   5.ingress(插件)
 kube-proxy 会监视 Kubernetes Service 对象和Endpoints，调用接口netlink以相应地创建ipvs 规则并定期与 Kubernetes Service对象和Endpoints对象同步 ipvs 规则，以确保 ipvs 状态与期望一致
 创建时：apiserver将请求数据存储到etcd中，kube-proxy进程负责感知service，pod的变化，并将变化信息写入本地的iptables规则中，iptables 使用NAT等技术将virtualIP的流量转至endpoint中
 endpoint是k8s集群中的一个资源对象，存储在etcd中，用来记录一个service对应的所有pod的访问地址
 LVS的IP负载平衡技术就是通过IPVS模块来实现的，IPVS是LVS集群系统的核心软件
 通过查发报文的IP和TCP报文头地址，保证此连接的后继报文被转发到相同的服务器,IPVS无法检查到请求的内容再选择服务器，这就要求后端的服务器组是提供相同的服务
 
-
 Ingress-Nginx github 地址：https://github.com/kubernetes/ingress-nginx  // Ingress-Nginx 官方网站：https://kubernetes.github.io/ingress-nginx/
-ingress-nginx: 先创建普通的svc(扁平化网络)，再在创建ingress-svc时通过rules字段将普通的svc关联起来
+ingress-nginx: 先创建普通的svc(扁平化网络)，再在创建ingress-svc时通过rules字段将普通的svc关联起来，实现七层负载
 
 
 
@@ -87,19 +87,38 @@ ingress-nginx: 先创建普通的svc(扁平化网络)，再在创建ingress-svc�
 准入控制：通过不同插件实现额外的控制
 
 
+k8s调度：1.过滤不满足的节点：predicate   2.按优先级排序：priority  
+亲和性（可以结合使用）：1.节点亲和性nodeAffinity:软策略prefer和硬策略required   2.pod亲和性podAffinity/podAiniAffinity：软策略prefer和硬策略required
+  kubectl get node --show-labels
+  kubectl label pod web-0 app=tomcat --overwrite=true  #存在则覆盖
+  
+节点污点Taint ：1.PreferNoSchedule  2.NoSchedule   3.NoExecute  
+	 污点 ( Taint ) 的组成：key=value:effect
+        设置污点
+        kubectl taint nodes node1 key1=value1:NoSchedule
+        节点说明中，查找 Taints 字段
+        kubectl describe pod pod-name
+        去除污点
+        kubectl taint nodes node1 key1:NoSchedule-
+pod容忍度Toleration
+	tolerations:
+	- key: "key1" 
+	operator: "Equal" 
+	value: "value1" 
+	effect: "NoSchedule"
+	tolerationSeconds: 3600
 
+固定节点：
+	1.nodeName: k8s-node01
+	2.nodeSelector:
+		key: value
 
+Helm 是官方提供部署环境的流程封装,Helm 包含两个组件：Helm 客户端和 Tiller 服务器
+chart 是创建一个应用的信息集合,release 是 chart 的运行实例
 
+HPA: Horizontal Pod Autoscaling
 
-
-
-
-
-
-
-
-
-
+资源限制：1.Pod  2.名称空间
 
 
 
