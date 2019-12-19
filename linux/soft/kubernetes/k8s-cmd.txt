@@ -460,7 +460,7 @@ grep server_name nginx.conf
 kubectl get ingress       #有几个rules字段
 
 
-configmap：明文
+configmap：明文(配置文件注册中心)
 	文件/目录创建：kubectl create configmap game-config --from-file=文件/目录
 	字面值创建：kubectl create configmap special-config --from-literal=special.how=very --from- literal=special.type=charm
 	查看：kubectl get cm game-config -o yaml
@@ -594,6 +594,7 @@ spec:
           storage: 1Gi
 删除的时候相反，先删除pod，在删除pvc，在删除pv，最后删物理存储
 
+
 HELM: 包管理工具
 cat>servercount.yml<<eof
 apiVersion: v1
@@ -620,6 +621,18 @@ kubectl apply -f servercount.yml
 helm init --service-account tiller --skip-refresh    #部署helm
 helm help
 helm repo update
+helm repo remove stable
+helm repo add stable https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
+helm repo list
+
+helm create mychart
+helm install -f myvalues.yaml ./redis
+helm install --name my-kibana --namespace test stable/kibana
+helm status mysql
+helm delete --purge mysql
+helm hist mysql
+
+
 
 cat >kubernetes-dashboard.yaml<<eof
 image:
@@ -690,15 +703,6 @@ resources:
   kind: ResourceQuota
 2.apiVersion: v1 
   kind: LimitRange    #default即limit的值   defaultRequest即request的值
-
-
-
-
-
-
-
-
-
 
 
 
@@ -805,6 +809,9 @@ kubectl config use-context kubernetes --kubeconfig=config
 kubectl get pod --all-namespaces -o wide | grep nginx
   
 
+	
+	
+	
 	
 
 

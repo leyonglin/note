@@ -1,4 +1,29 @@
 
+kubelet:运行在cluster所有节点上,负责启动POD和容器
+kubeadm:用于初始化cluster
+kubectl:kubectl是kubenetes命令行工具，通过kubectl可以部署和管理应用，查看各种资源，创建，删除和更新组件
+
+apiserver：所有服务访问统一入口
+crontroller manager：维持副本期望数目
+scheduler：：负责介绍任务，选择合适的节点进行分配任务
+etcd：键值对数据库  储存k8s集群所有重要信息（持久化）
+kubelet：直接跟容器引擎交互实现容器的生命周期管理
+kube-proxy：负责写入规则至 iptables、ipvs 实现服务映射访问的
+coredns：可以为集群中的svc创建一个域名ip的对应关系解析
+dashboard：给 k8s 集群提供一个 b/s 结构访问体系
+ingress controller：官方service只能实现四层代理，ingress 可以实现七层代理
+federation：提供一个可以跨集群中心多k8s统一管理功能
+prometheus：提供k8s集群的监控能力
+
+集群高可用
+keeplive+haproxy  	#高可用vip+负载均衡
+	Apiserver	   		#相当于web接口，可同时运行
+	ETCD		   		#自动部署成高可用
+	controller-manager  #自动选举
+	scheduler			#自动选举
+	kubelet				#运行在工作节点上
+	kube-proxy			#运行在工作节点上
+
 K8s中所有的内容都抽象为资源，资源实例化之后，叫做对象
 名称空间
 	级别工作负载型资源(workload)：Pod、ReplicaSet、Deployment、StatefulSet、DaemonSet、Job、CronJob(ReplicationController在v1.11版本被废弃)
@@ -118,10 +143,30 @@ chart 是创建一个应用的信息集合,release 是 chart 的运行实例
 
 HPA: Horizontal Pod Autoscaling
 
-资源限制：1.Pod  2.名称空间
+资源限制 - Pod：requests 要分分配的资源，limits 为最高请求的资源值
+resources: 
+  limits:
+    cpu: "4" 
+	memory: 2Gi
+  requests: 
+    cpu: 250m
+    memory: 250Mi
+资源限制 - 名称空间
+1.apiVersion: v1 
+  kind: ResourceQuota
+2.apiVersion: v1 
+  kind: LimitRange    #default即limit的值   defaultRequest即request的值
 
 
 
 
+	
+	
+	
+	
+	
+	
+	
+	
 	
 		

@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1 
+kind: Ingress
+metadata:
+  name: ingress1 
+spec:
+  rules:
+  - host: www1.atguigu.com 
+    http:
+      paths:
+      - path: / 
+        backend:
+          serviceName: svc-1 
+          servicePort: 80
+---
+apiVersion: extensions/v1beta1 
+kind: Ingress
+metadata:
+  name: ingress2
+spec:
+  rules:
+  - host: www2.atguigu.com 
+    http:
+      paths:
+      - path: / 
+        backend:
+          serviceName: svc-2
+          servicePort: 80

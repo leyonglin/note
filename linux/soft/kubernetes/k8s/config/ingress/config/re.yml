@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1 
+kind: Ingress
+metadata:
+  name: nginx-test 
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: https://www3.atguigu.com:32692/
+spec:
+  rules:
+  - host: re.atguigu.com
+    http:
+      paths:
+      - path: / 
+        backend:
+          serviceName: nginx-svc 
+          servicePort: 80
