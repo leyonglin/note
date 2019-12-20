@@ -87,6 +87,8 @@ vnc bypass检查
 	1.head /dev/urandom | tr -dc '0-9/A-Za-z0-9~!@#$%^&*' | head -c 20(生成随机数字)
 	2.head -c 16 /dev/urandom | base64 (random会阻塞)
 	3.openssl rand -hex 10
+	
+tr pattern1 [pattern2]   #字符替换，将1替换成2，参数：-d 删除1 / -dc 保留1  /  -s 将1中相邻重复的输出为一个
 date [-R] [+"%Y-%m-%d %H:%M.%S"] ["+现在的时间是：%Y-%m-%d %H:%M.%S"] [+%s%N]   [-d "Dec 5, 2009 12:00:37 AM" +"%Y-%m-%d %H:%M.%S"] [-d "-1 day" +%Y%m%d] [-s "2012-05-23 01:01:01"]
 
 scp  -p复制权限  -r递归  -v调试信息  -P指定端口  -C启动压缩  -i指定私钥 -F指定ssh_config -l限制带宽 -q静默模式 -c其它加密方式 -o指定某个选项(ssh_config) #同时还能在两个远程主机上传输文件

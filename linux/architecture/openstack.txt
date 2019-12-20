@@ -47,3 +47,20 @@ RabbitMQ：异步处理的消息队列中间件
 	
 	
 	
+controller
+	缓存memcached  11211
+	数据库mariadb 	3306
+	消息队列rabbitmq	5672
+	身份认证keystone
+			apache
+				wsgi
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

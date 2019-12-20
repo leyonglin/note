@@ -4,14 +4,14 @@
 	1.\b  \c  \n  \f  \v  \t  \r  \\
 	2. 40-47背景 30-37字体   0/1/4/5/7/8  #在第一第二部分则表示作用于内容，在第三部分则表示作用于终端
  
- seq [-s +] [-w] 1 [2 10]
+ seq [-s +] [-w] 1 [2 10]  		 #for i in `seq 1 2 10`; do echo $i; done
  seq -f "dir%g" ["%03g"]  5
  
  printf '\x45\n'
  printf "%s [%s...]\n" a 1 b 2 c 3  # %3.2f\n
  grep -i(忽略大小写) -v(取反) -n(显示行数) -c(统计) -o(仅输出匹配关键词) -ABC(上下文) -w(匹配单词) -e(支持正则) -q(静默)   (grep(基本正则) egrep(正则) fgrep(速度快不支持正则))
  grep -n '[^[:lower:]]oo' regular_express.txt
- grep -n 'o\{2\}' regular_express.txt
+ egrep -n 'o\{2\}' regular_express.txt
  
  ！！！脚本是重复改变但有规律的事情，例：pool${i}/config/.git  别急
  man bash 如果写shell脚本一定要提前阅读该说明
@@ -20,6 +20,7 @@
  #!/bin/bash   或者 #!/usr/bin/env bash
  set -e        执行错误即退出(man bash查看该命令错误的定义)
  set -x        输出执行代码(变量会被替换)与执行结果
+ set -v        输出执行的命令
                shellcheck,不写进代码行中,代码检测网站https://www.shellcheck.net/，也可以下载命令行，并且可以集成到编辑器中(但是效果并不是很好)
  			  变量操作(man bash  全文查找Parameter Expansion)
                函数中，局部变量加local
@@ -27,8 +28,9 @@
  			  https://explainshell.com/执行过程
  2. sh [-nvx] scripts.sh
  -n  ：不要运行 script，仅查询语法的问题；
- -v  ：再运行 sccript 前，先将 scripts 的内容输出到萤幕上；
  -x  ：将使用到的 script 内容显示到萤幕上，这是很有用的参数！
+ -v  ：再运行 sccript 前，先将 scripts 的内容输出到萤幕上；
+ 
 
  
  exec 3<>hello.txt	        hello.txt以读写方式绑定到文件描述符"3"
@@ -323,6 +325,7 @@ SED：
 -r  ：sed 的动作支持的是延伸型正规表示法的语法。(默认是基础正规表示法语法)
 -i  ：直接修改读取的文件内容，而不是由萤幕输出。
 
+
 动作说明：  [n1[,n2]]function
 n1, n2 ：不见得会存在，一般代表『选择进行动作的行数』，举例来说，如果我的动作
 		是需要在 10 到 20 行之间进行的，则『 10,20[动作行为] 』
@@ -333,8 +336,10 @@ d   ：删除，因为是删除啊，所以 d 后面通常不接任何咚咚；
 i   ：插入， i 的后面可以接字串，而这些字串会在新的一行出现(目前的上一行)；
 p   ：列印，亦即将某个选择的数据印出。通常 p 会与参数 sed -n 一起运行～
 s   ：取代，可以直接进行取代的工作哩！通常这个 s 的动作可以搭配
- 
- 
+sed -n '/8002/'p  test
+sed -n '/\b80/{/tcp[ ]/p}'  /etc/services    #双条件
+sed -nr 's/80/nishizhu/p'  /etc/services
+sed 's/^/添加的头部&/g;s/$/&添加的尾部/g' /etc/services    #可以先使用p输出，同时执行两个替换规则
  
  #awk编程语言/数据处理引擎
  #1.前置命令 | awk [选项] '[条件]{指令}'
