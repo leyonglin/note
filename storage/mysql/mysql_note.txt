@@ -85,6 +85,7 @@
  
  授权：grant  all(select ,update) on  库名(*).表名(*)  to  'user'@'%' identified by "passwd" [with grant option];         
  撤销：revoke all on *.* from dba@localhost; 
+ 删除：drop user xxx@ip
  
  删除授权
  Delete FROM mysql.user Where User='gameplat_analysis_dev' and Host='$i';

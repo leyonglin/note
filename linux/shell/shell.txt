@@ -317,7 +317,7 @@ ${变量//旧字符串/新字符串}	若变量内容符合『旧字符串』则�
  #动作指令：p打印  d删除   s替换                                      # ！取反  s/old/new/ 3g  替换第一个，第三个，全部      $d删除文件最后一行
  #          i行前插入  a行后插入 c替换
 		   
-SED：
+SED：sed -h
 	'2,5d'   '2a drink tea'  '2,5c No 2-5 number'   's/#.*$//g'  '$a # This is a test' regular_express.txt  '2,5!p'  '2!p;6!p'     '/hello/aworld\nwestos'   '/^#/d' 
 -n  ：使用安静(silent)模式。在一般 sed 的用法中，只有经过sed 特殊处理的那一行(或者动作)才会被列出来。
 -e  ：直接在命令列模式上进行 sed 的动作编辑；
