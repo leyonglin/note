@@ -34,14 +34,12 @@ Vim： :h   帮助   :help xxx(i)/'number'/<Esc>/-t/i_<Esc>(插入模式下Esc�
 	y/Y{motion} c/d/C/D{motion}	x/s/X/S{motion}删除一个字符(不进入插入模式/进入插入模式)
 	*/#：查找  /？查找   ma/`a   	`.      
 	[J 合并下一行] [xp交换当前字符和其后一个字符]  :!ls 列出当前目录下文件  
-	可视化：v  V  C+v  (也能使用motion，例如v+e)
-	寄存:"a..  查看:reg a    例如:"kyy -- :reg k -- "kp     
+	可视化：v  V  C+v  (也能使用motion，例如v+e)   
 	.重复上一个动作
 	qa--动作--q     @register
 	% 按对匹配 {} [] ()
 	>>：缩进所有选择的代码
 	<<：和上面类似，但是反缩进
-	:vs  垂直分屏 vertical split（同步变化，可以来对照C+w切换）   :sp  横向分屏 split
 	gd：到达光标所在处函数或者变量的定义处（好像是往前，并非定义处）。
 	K：在 Man 里面查找光标当前所在处的词。
 	Ctrl - Z 挂起vim，回到shell，按fg可以返回vim
@@ -72,7 +70,7 @@ Vim查找支持正则表达式，例如/vim$匹配行尾的"vim"		:set paste ：
       flags常用标志：g (global)表示全局范围内执行 c (confirm) 表示确认，可以确认或者拒绝修改  i  表示忽略大小写  n (number) 报告匹配的次数而不替换，可以用来查询匹配次数
     :2,$d :2,3 s/^/#/g :%s/^/#/g    :/FROM/,/;/s/=/<>/g(从FROM至分号部分中的所有等号（=）替换为不等号（<>）)
 	:s/\<term\>/replace/gc(精确)  :%s/Kang\|Kodos/alien/gc（多项）
-	:%s/foo/bar/gc   replace with bar (y/n/a/q/l/^E/^Y)?
+	:%s/foo/bar/gc   %表示文件，replace with bar (y/n/a/q/l/^E/^Y)  	
    按下y表示替换，n表示不替换，a表示替换所有，q表示退出查找模式， l表示替换当前位置并退出。^E与^Y是光标移动快捷键
    行移动：通过h← j↓ k↑ l→ i来进行左下上右的光标移动。10j可以向下移动10行(方向键也可以)
   单词移动：
@@ -99,11 +97,13 @@ vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式
   多文件分割  vim -o -O FILE1 FILE2 …  -o: 水平分割  -O: 垂直分割  在窗口间切换：Ctrl+w
   
 	
-寄存器："ayy/dd/cc/x/s
-:reg（命令ex模式输入）
+寄存器：
+"ayy/dd/cc/x/s   	  #寄存，例如:"kyy -- :reg k -- "kp  
+:reg a    			  #查看单个 
+:reg（命令ex模式输入）#查看全部
 :help registers	
 10个数字命名寄存器 "0 - "9p —— vim缓存yank和delete行操作命令产生的文本
-26个字母命名寄存器 "a - "z / "A - "Z —— 完全由用户指定内容的寄存器
+26个字母命名寄存器 "a - "z / "A - "Z  完全由用户指定内容的寄存器（a-z存在覆盖，A-Z会以小写存入，存在则追加(含特殊符号)）
 1个非行删除内容缓存寄存器 "- —— vim缓存delete操作在非行上时产生的文本
 未命名寄存器 ""  —— vim使用的默认寄存器，文本来源命令：d/c/s/x/y
 4个只读寄存器 ". "% "# ":  
@@ -116,6 +116,6 @@ vim .vimrc
 :set nu	
 :set autoindent	
 :syntax on（默认）
-:set cursorline
+:set cursorline （下划线标识所在行）
 
 	

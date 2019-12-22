@@ -118,8 +118,8 @@ curl可以下载，但是长项不在于下载，而在于模拟提交web数据�
 	断点下载  后台下载   用户名和密码  cookie(获取与使用)  proxy(代理服务器)  user_agent(浏览器)  reference(反盗链选项)
 	分块下载  批量下载 -X指定请求方式   证书和协议  超时重试   response头部(-I/-D)   限制/限速   (-L)重定向页面
 		curl -O http://www.linux.com/dodo[1-5].JPG  #-O可以多页下载
-		curl -# -O http://www.linux.com/dodo1.JPG   #显示下载进度条
-		curl -C -O http://www.linux.com/dodo1.JPG   #断点续传
+		curl -# -O http://www.linux.com/dodo1.JPG   #以“#”号输出进度条,显示下载进度条
+		curl -C -O http://www.linux.com/dodo1.JPG   #断点续传  -C 抵消
 		curl -vL www.baidu.com    //   curl --trace-ascii [-trace dump.txt] www.baidu.com   #v调试模式 L重定向 
 		curl -o /dev/null -s -w %{http_code} www.linux.com   #-w/--write-out [format]仅输出http_code
 		curl -c cookiec.txt  http://www.linux.com   #保存cookie
@@ -136,9 +136,11 @@ curl可以下载，但是长项不在于下载，而在于模拟提交web数据�
 			multipart/form-data：使用表单上传文件时使用这个形式(-F【<form>标签指定一个表单】默认)；
 			application/json：提交JSON格式的数据；
 			text/xml：提交XML格式的数据。
-		curl -d '{I Am A JSON FORM}' -H 'Content-Type: application/json' http://example.com   #-H就是用来指定一个具体的Header的选项
+		curl -H 'Content-Type: application/json' -d '{I Am A JSON FORM}' http://example.com   #-H就是用来指定一个具体的Header的选项
 		curl --data-binary @filename http://example.com   #二进制数据
 		重定向后也不希望curl默认使用GET方法，那么我们可以使用--post301,--post302和--post303选项来指定。
+		curl -u aiezu:password http://www.aiezu.com #用户名密码认证
+		curl -E mycert.pem https://www.baidu.com #采用证书认证
 		
 		wget --mirror -p --convert-links -P baidu  http://www.baidu.com    #打包下载网站
 			–miror:开户镜像下载 -p:下载所有为了html页面显示正常的文件 –convert-links:下载后，转换成本地的链接 -P ./LOCAL：保存所有文件和目录到本地指定目录 

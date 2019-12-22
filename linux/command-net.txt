@@ -91,9 +91,9 @@ SHAPING(限制)
 当流量被限制，它的传输速率就被控制在某个值以下。限制值可以大大小于有效带宽，这样可以平滑突发数据流量，使网络更为稳定。shaping（限制）只适用于向外的流量
 SCHEDULING(调度)
 通过调度数据包的传输，可以在带宽范围内，按照优先级分配带宽。SCHEDULING(调度)也只适于向外的流量
-POLICING(策略)  
+POLICING(策略)
 SHAPING用于处理向外的流量，而POLICIING(策略)用于处理接收到的数据
-DROPPING(丢弃)  
+DROPPING(丢弃)
 如果流量超过某个设定的带宽，就丢弃数据包，不管是向内还是向外
 
 查看：tc -s -d qdisc show dev eth0

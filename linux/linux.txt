@@ -62,7 +62,7 @@ ls -l filename          列出文件的 mtime
 
 
 find   被攻击的时候可以看创建了什么文件
-find / -u nobody -name test.txt -size +100k -depth 5 -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;   
+find / -user nobody -name test.txt -size +100k -max[min]depth 5 -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;   
 	 -empty           #空文件/目录  
 	 ! -name "*.log"  #排除文件  
 	 -mmin -30        #三十分钟内
@@ -76,9 +76,13 @@ find / -u nobody -name test.txt -size +100k -depth 5 -mtime +4/4 -type s -perm +
 
 
 xargs: -t在执行前回显cmd  -p交互  -d(把...当作分割符)  -n3三行一组  -0
-ls | xargs ls -l
-ls | xargs -i mv {} {}.txt  #-i与{}搭配
-cat arg.txt | xargs -I {} ./sk.sh -p {} -l
+cat /etc/passwd | xargs -d ':'  echo
+ls | xargs ls -l			#默认带一个参数
+ls | xargs -i mv {} {}.txt  #-i与{}搭配，即需要两个参数的时候
+cat arg.txt | xargs -I {} echo -p {} -l   		#管道左边输出等于-I右边的{}，然后传递给第二个{}
+find . -type f | xargs -I {}.t  cp {}.t {}.txt	#管道左边的输出等于{}.t传递给后面的两个{}.t
+find . -name "*.txt" -print0 | xargs -0 rm      #find -print0表示在find的每一个结果之后加一个NULL字符，而不是默认加一个换行符。find的默认在每一个结果后加一个'\n'，所以输出结果是一行一行的。当使用了-print0之后，就变成一行了，然后xargs -0表示xargs用NULL来作为分隔符。这样前后搭配就不会出现空格和换行符的错误了。选择NULL做分隔符，是因为一般编程语言把NULL作为字符串结束的标志，所以文件名不可能以NULL结尾，这样确保万无一失。
+ls | awk -F'.' '{print $1}'|xargs -i mv {}.bak {} #删除文件后缀
 
 
 单纯的 tar 功能仅是『打包』而已，亦即是将很多文件集结成为一个文件
@@ -179,7 +183,7 @@ root 可随意调整自己或他人程序的 Nice 值，且范围为 -20 ~ 19 �
 
 
 找出进程pid
-	pidof init
+	pidof CMD
 
 /etc/init.d/* ：启动脚本放置处
 	系统上几乎所有的服务启动脚本都放置在这里！事实上这是公认的目录，我们的 CentOS 实际上放置在 /etc/rc.d/init.d/ 啦！ 不过还是有配置连结档到 /etc/init.d/ 的！既然这是公认的目录，因此建议您记忆这个目录即可！
@@ -304,7 +308,7 @@ yum grouplist/groupinfo
 
 
 核心模块：/lib/modules/$(uname -r)/kernel/ 
-核心是直接被读入到主内存当中的
+核心(内核)是直接被读入到主内存当中的
 
 
 
@@ -321,7 +325,7 @@ ISP（Internet Service Provider）：因特网服务提供者（提供商）
 NIC（Network Interface Card，网络适配器，即网卡）
 IP 间的通信依赖 MAC 地址
 
-网关是转发其他服务器通信数据的服务器(nginx),可以连接非http服务(mysql)
+网关是转发其他服务器通信数据的服务器(nginx),可以连接非http服务(mysql)【存储节点？】
 代理是一种有转发功能的应用程序，它扮演了位于服务器和客户 端“中间人”的角色(cdn,连接http服务器)via字段
 隧道的目的是确保客户端能与服务器进行安全的 通信。 隧道本身不会去解析 HTTP 请求
 缓存分服务器和客户端缓存

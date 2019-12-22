@@ -1,4 +1,6 @@
 
+api接口：是一个函数或者类暴露出来给开发者使用的，方便开发者调用但不用深入了解背后的函数或类
+
 MapReduce：MapReduce既是一个编程模型，又是一个计算框架，并行运算，Map（映射）”和“Reduce（归纳）
 	Master将M分成许多小份，然后每一份分给一个Mapper来做，Mapper干完活儿（执行完函数），将自己那一份儿活儿的结果传给Reducer。Reducer之后统计汇总各个Mapper传过来的结果，得到最后的任务的答案
 	简单在于其编程模型只包含map和reduce两个过程，map的主要输入是一对<key , value>值，经过map计算后输出一对<key , value>值；然后将相同key合并，形成<key , value集合>；再将这个<key , value集合>输入reduce，经过计算输出零个或多个<key , value>对
