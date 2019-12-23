@@ -5,10 +5,12 @@
 	ip -4 a
 	timedatectl
 	df -hT
+	lsblk
 	free -h
 	hostname
-	uname -m && getconf LONG_BIT      
+	uname -a && getconf LONG_BIT      
 	uname -r    #内核版本
+	ulimit -a
 	uptime    #负载与开机时间，awk '{a=$1/86400;b=($1%86400)/3600;c=($1%3600)/60;d=$1%60} {printf("%ddays, %d:%d:%d\n",a,b,c,d)}' /proc/uptime
 	ps -ef | egrep "python| exec"
 	cat /etc/redhat-release  //  cat /etc/issue // cat /proc/version // cat /etc/os-release // cat /etc/lsb-release #查看服务器内核版本
