@@ -1,0 +1,74 @@
+
+
+FTP简称文件传输协议，全称（File Transfer Protocol),FTP服务在互联网上任意两台计算机之间提供文件传输服务及共享服务
+FTP服务登录模式：
+匿名用户登录模式：只需要输入用户anonymous/ftp，并将自己的E-mail作为口令即可登录FTP服务器，又称为（anonymousFTP服务器）
+本地账户登录模式：当进入FTP登录窗口是，需要输入正确的用户名（user）和密码（passwd）即可登录FTP服务器。
+虚拟用户登录模式：将登录用户映射到指定的系统账号(/sbin/nologin)来访问FTP资源，这样就起到安全的效果
+
+ftp指定的根目录权限为755
+上传目录是1777权限
+
+三种传输模式：
+主动模式：有FTP服务器(20)向客户端发送一个用于数据传输的连接，客户端的连接端口由服务器和客户端通过协商确定，
+被动模式PASV：由客户端发送PASV命令使服务器处于被动模式，FTP的数据连接和控制连接方向一致，由客户端向服务器端发送一个用于数据传输的连接，
+单端口模式，由服务器端发起，使用该模式时，客户端的控制连接端口和数据连接端口一致，这种模式无法在短时间内连续输入数据并传送命令
+#pasv_enable=YES  
+#port_enable=YES  
+    以上两个选项是FTP服务器的工作模式，两者只能出现一个，而且另一个必须注释掉。
+	
+#dirmessage_enable=YES           ##如果目录存在.message隐藏文件时，当进入此目录时，会显示.message里面的内容	
+
+#白名单：
+userlist_enable=YES
+userlist_deny=NO
+userlist_file=/etc/vsftpd/user_list
+
+#不允许离开主目录
+chroot_local_user=YES
+
+# 增加匿名访问目录
+anon_root=/var/ftp
+# 打开匿名用户上传 / 删除 / 重命名权限
+anon_upload_enable=YES
+anon_mkdir_write_enable=YES
+#anon_other_write_enable=YES
+#匿名用户的掩码（如需要，需自己添加，含义：如 umask 是 022, 这时创建一个权限为 666 的文件，文件的实际权限为 666-022=644）
+anon_umask=022
+#匿名上传的所有者
+chown_uploads=YES
+chown_username=whoever
+#设置匿名用户最大的传输速率为10kbps 
+anon_max_rate=10k        
+
+#虚拟用户
+vim vsftpd.conf (好像不用也行)
+#local_root=/data/ftp
+#write_enable=YES
+#anon_umask=022
+#anon_world_readable_only=NO
+#anon_upload_enable=YES
+#anon_mkdir_write_enable=YES
+#anon_other_write_enable=YES
+# 创建用户密码文本，注意奇行是用户名，偶行是密码，本地用户也可以写进去
+vi /etc/vsftpd/vuser_passwd.txt
+test
+123456
+# 生成虚拟用户认证的 db 文件
+db_load -T -t hash -f /etc/vsftpd/vuser_passwd.txt /etc/vsftpd/vuser_passwd.db
+# 编辑认证文件，全部注释掉原来语句，再增加以下两句
+vi /etc/pam.d/vsftpd
+auth required pam_userdb.so db=/etc/vsftpd/vuser_passwd
+account required pam_userdb.so db=/etc/vsftpd/vuser_passwd
+
+
+
+SFTP，即SSH文件传输协议（ SSH File Transfer Protocol ），或者说是安全文件传输协议（ Secure File Transfer Protocol ）。通过安全连接以相似的方式工作。
+	使用：sftp user@ip  #优势在于可以利用安全的连接传输文件，还能遍历本地和远程系统上的文件系统。
+与FTP相比TFTP的功能要弱得多: TFTP能够用于那些有UDP而无TCP的环境且不用密码认证；
+	使用类似ftp且可以非交互上传下载
+
+
+
+
+
