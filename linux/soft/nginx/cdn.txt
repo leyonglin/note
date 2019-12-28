@@ -1,0 +1,166 @@
+软件包：pcre-8.37.tar.gz nginx-1.9.10.tar.gz ngx_cache_purge-2.3.tar.gz
+./configure --prefix=/usr/local/nginx --user=nginx --group=nginx --with-http_stub_status_module --with-openssl=/usr/ --with-pcre=/home/pro/pcre-8.37 --add-module=/home/pro/ngx_cache_purge-2.3
+	#–with-pcre=/home/pro/pcre-8.37和–add-module=/home/pro/ngx_cache_purge-2.3指向的是源码包解压的路径，而不是安装的路径
+
+创建缓存目录：
+mkdir -p /home/nginx/proxy_cache_dir  /home/nginx/proxy_temp_dir
+chown nginx.nginx -R /home/nginx/proxy_cache_dir  /home/nginx/proxy_temp_dir
+
+	主配置文件：
+cat>nginx.conf<<eof
+#所属用户、用户组
+user nginx nginx;
+#nginx进程数，建议设置为等于CPU总核心数
+worker_processes 1;
+error_log /home/nginx/error.log;
+#error_log logs/error.log notice;
+#error_log logs/error.log info;
+#pid logs/nginx.pid;
+events {
+use epoll;
+#单个进程最大连接数（最大连接数=连接数*进程数）
+worker_connections 65535;
+}
+http {
+#加载缓存
+include proxy.conf;
+#加载被代理服务器信息(可定义为负载均衡轮询)
+include mysvrhost.conf;
+#加载mime类型
+include mime.types;
+#默认文件类型
+default_type application/octet-stream;
+#log_format main ‘$remote_addr – $remote_user [$time_local] “$request” ‘
+#’$status $body_bytes_sent “$http_referer” ‘
+#'”$http_user_agent” “$http_x_forwarded_for”‘;
+#access_log logs/access.log main;
+#服务器名字的hash表大小
+server_names_hash_bucket_size 128;
+#上传文件大小限制
+client_header_buffer_size 32k;
+#设定请求缓存
+large_client_header_buffers 4 32k;
+client_max_body_size 300m;
+#开启高效文件传输模式
+sendfile on;
+tcp_nopush on;
+#keepalive_timeout 0;
+#长连接超时时间，单位是秒
+keepalive_timeout 60;
+#防止网络阻塞
+tcp_nodelay on;
+#不显示nginx版本信息
+server_tokens off;
+gzip on;
+gzip_min_length 1k;
+gzip_buffers 4 16k;
+gzip_http_version 1.1;
+gzip_comp_level 2;
+gzip_types text/plain application/x-javascript text/css application/xml;
+gzip_vary on;
+#禁止nginx空主机头
+server {
+listen 80 default;
+server_name _;
+location / {
+root html;
+return 404;
+}
+location ~ /.ht {
+deny all;
+}
+}
+#加载站点配置信息
+include /home/nginx/vhost/*.conf;
+}
+eof
+
+
+	创建缓存区配置文件：proxy.conf
+cat>proxy.conf<<eof
+#指定临时文件目录
+proxy_temp_path /home/nginx/proxy_temp_dir;
+#指定缓存区路径，设置Web缓存区名称为cache_one，内存缓存为500MB，自动清除1天内没有被访问的文件，硬盘缓存为30GB。
+proxy_cache_path /home/nginx/proxy_cache_dir levels=1:2 keys_zone=cache_one:500m inactive=1d max_size=30g;
+#定义缓冲区代理缓冲客户端请求的最大字节数
+client_body_buffer_size 512k;
+#定义连接后端服务器超时时间
+proxy_connect_timeout 60;
+#定义后端服务器响应请求超时时间
+proxy_read_timeout 60;
+#定义后端服务器发送数据超时时间
+proxy_send_timeout 60;
+#定义代理请求缓存区大小
+proxy_buffer_size 32k;
+proxy_buffers 4 64k;
+#定义系统繁忙时可申请的proxy_buffers大小
+proxy_busy_buffers_size 128k;
+#定义proxy缓存临时文件的大小
+proxy_temp_file_write_size 128k;
+#定义故障转移，如果后端的服务器返回502、504、执行超时等错误，自动将请求转发到upstream负载均衡池中的另一台服务器，实现故障转移。
+proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_404;
+#定义使用web缓存区cache_one
+proxy_cache cache_one;
+eof
+
+	创建upstream 被代理服务器文件：
+cat>mysvrhost.conf<<eof
+upstream susecuihost {
+#每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。
+ip_hash;
+#upstream的负载均衡，weight是权重，可以根据机器配置定义权重。weigth参数表示权值，权值越高被分配到的几率越大。
+#max_fails 允许请求失败的次数默认为1.当超过最大次数时，返回proxy_next_upstream 模块定义的错误。
+#fail_timeout 是max_fails次失败后，暂停的时间。
+server 被代理服务器IP:80 weight=1 max_fails=2 fail_timeout=30s;
+#server 被代理服务器IP 2 :80 weight=1 max_fails=2 fail_timeout=30s;
+}
+eof
+
+	创建站点信息配置文件：
+cat>cnyunwei.conf<<eof
+server {
+listen 80;
+server_name 站点域名;
+location /
+{
+#mysvrhost.conf 中配置的upstream 服务器池
+proxy_pass http://susecuihost;
+#增加设置web缓存的key值，nginx根据key值md5哈希存储缓存
+proxy_cache_key $host$uri$is_args$args;
+proxy_set_header Host $host;
+#后端的Web服务器可以通过X-Forwarded-For获取用户真实IP
+proxy_set_header X-Forwarded-For $remote_addr;
+proxy_cache_valid 200 304 12h;
+expires 2d;
+proxy_ignore_headers “Cache-Control” “Expires” “Set-Cookie”;
+}
+#清除缓存（指定清除缓存参数）
+location ~ /purge(/.*)
+{
+#允许所有IP可清理缓存
+allow all;
+#allow 192.168.21.0/24;
+#deny all;
+proxy_cache_purge cache_one $host$1$is_args$args;
+}
+#列出的扩展名文件不缓存
+location ~ .*\.(php|jsp|cgi|asp|aspx|flv|swf|xml)?$
+{
+proxy_set_header Host $host;
+proxy_set_header X-Forwarded-For $remote_addr;
+proxy_pass http://susecuihost;
+}
+access_log off;
+}
+eof
+
+
+
+
+
+
+
+
+
+
+

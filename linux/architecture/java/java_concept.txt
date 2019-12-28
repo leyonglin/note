@@ -120,7 +120,11 @@ tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路�
                redirectPort="8443" />
 	4.conf/web.xml
 		<session-timeout>30</session-timeout>
-	
+如果客户端与OS完成三次握手建立了连接，则OS将该连接放入accept队列	
+当Tomcat接收的连接数达到maxConnections时，Acceptor线程不会读取accept队列中的连接，-1，则连接数不受限制（如果配置了Executor，则默认值是Executor的maxThreads）。
+请求处理线程的最大数量。默认值是200（Tomcat7和8都是的）。如果该Connector绑定了Executor，这个值会被忽略，因为该Connector将使用绑定的Executor，而不是内置的线程池来执行任务
+Executor元素代表Tomcat中的线程池
+
 
 运行中的日志catalina.out：tomcat的标准输出(stdout)和标准出错(stderr)和应用里使用其他的日志框架，配置了向Console输出的
 访问日志信息localhost_access_log：内部代码丢出的日志和记录的访问的时间，IP，访问的资料等相关信息

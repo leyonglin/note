@@ -1,9 +1,10 @@
 
-
-		
-top(1/2/3)free/df/vmstat/iostat/iotop/nethogs
-ps命令：1.ps -uroot  2.ps -ef  3.ps -C 命令或进程名   4.ps -l(后台非进程) 5.ps aux 内存/cpu中的程序
-        6.ps L （例如：ps -o pid,ppid）  7.O或-O  增加pid、state、tname、time和command字段  使用w或-w选项，就会将完整的进程命令信息显示，多出的部分换行显示
+diff <(ls /tmp/1) <(ls -l /tmp/1)   #比较两条命令输出结果的不同
+bind -P 							#列出所有 bash 的快捷键
+bind -x '"\C-l":ls -l'              #设置 CTRL+l 为执行 ls -l 命令
+cp /tmp/test{,.bak}					#快速复制
+mv /tmp/test{.bak,.txt}				#快速改名
+curl -L cheat.sh                   # 速查表大全 whatis cmd
 
 
 NC：
@@ -34,7 +35,10 @@ iostat -x :util%：表示io等待占比，正常情况下该值和磁盘读写�
 	
 cpu:top/lscpu	  top -H -p PID 查看进程下的线程 
 	
-	
+
+top(1/2/3)free/df/vmstat/iostat/iotop/nethogs
+ps命令：1.ps -uroot  2.ps -ef  3.ps -C 命令或进程名   4.ps -l(后台非进程) 5.ps aux 内存/cpu中的程序   ps -Tfp pid  查看线程
+        6.ps L （例如：ps -o pid,ppid）  7.O或-O  增加pid、state、tname、time和command字段  使用w或-w选项，就会将完整的进程命令信息显示，多出的部分换行显示
 ps -aux 的STAT
 	S等待态(可中断)  D等待态(不可中断)  T等待态(暂停状态/后台挂起)  R运行态(包含就绪态)  Z僵尸进程
 	<高优先级进程  N优先级较低  l有子进程  s会话组组长(一组会话组)  +前台进程(当前终端运行，可直接运行的进程)

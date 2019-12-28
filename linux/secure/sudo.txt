@@ -3,7 +3,7 @@
 1. sudo -u ybdeploy /etc/init.d/code_rollback
 2. su ${sql_user} -s /bin/bash -c "${MYSQL_PATH}/bin/mysqld --defaults-file=${sql_conf_file} --user=${sql_user} &"
 3. sudo script.sh ( 包含2 )
- su -  与 su  除了目录不一样，还有PATH等变量不一样，总体"su -"会好一些
+ su -  与 su  除了目录不一样，还有PATH等变量不一样(shell环境不一样)，总体"su -"会好一些
  sudo [-b] [-u 新使用者账号]            # /etc/sudoers 
  	-b  ：将后续的命令放到背景中让系统自行运行，而不与目前的 shell 产生影响
  	-u  ：后面可以接欲切换的使用者，若无此项则代表切换身份为 root 

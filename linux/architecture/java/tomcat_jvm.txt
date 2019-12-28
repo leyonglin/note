@@ -210,3 +210,18 @@
  
  
  
+ #######JDK环境变量###########
+ export JAVA_HOME=/opt/apps/jdk
+ export JRE_HOME=$JAVA_HOME/jre
+ export CLASSPATH=$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+ export PATH=$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
+ 
+ CLASSPATH环境变量保存的是一些目录和jar文件的地址，这些路径是为Java程序在编译和运行的时候搜索类而用的。
+ 写法与Path变量类似，每个路径用分号进行分开，如果是一个jar文件，则直接写明该文件的绝对路径
+ 
+ 
+ 
+ 
+ 
+ 
+ 

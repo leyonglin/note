@@ -35,7 +35,18 @@ Java进程CPU占用高导致的网页请求超时的故障排查
 
 
 ps -ylC nginx --sort:rss
+ps -Tfp pid  查看线程
 
 ssh：...: No route to host   1.被防火墙拦截了   2.没路由
 ping： Time to live exceeded   没路由
+
+netstat -na | grep ESTAB | egrep "80|443" | awk '{print $5}'    #查看连接，一个网页一个连接
+
+
+
+
+
+
+
+
 
