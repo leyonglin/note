@@ -65,7 +65,7 @@ servlet 服务器小程序
        1.处理业务逻辑   2.处理页面展示
 jsp就是servlet处理页面展示(脚本<%%>可以处理业务逻辑)	   
 
-.net 只是微软推出的一种编程开发环境/软件框架
+.net 微软推出的一种编程开发环境/软件框架
 
 
 前后分离：
@@ -82,14 +82,28 @@ CSS 预处理器：让css能编程
 前端--node.js--后端     node.js后端技术，能作为前端中间件,方便前端开发应用
 
 
-
+调优：1.JVM内存优化   2.线程优化   3.IO优化(BIO/NIO/AIO)
 下载：https://tomcat.apache.org/  -- Archives
 文档：http://localhost:8080/docs/config
+帮助文档：https://zhuanlan.zhihu.com/p/34426768
 tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路径会自动去webapps(资源根目录)下找）
 	1.启动服务状态查看：manager
 		修改conf/tomcat-users.xml
 		修改manager/META-INF/context.xml    #allow允许访问地址
-	2.内存调优：bin/catalina.sh  -- 111行			
+	2.内核优化
+	  cat >> /etc/sysctl.conf<<eof
+	  net.ipv4.ip_forward = 0
+	  fs.file-max = 8061540   #系统级限制（Connection reset by peer）
+	  eof
+	  cat >> /etc/security/limit.conf<<eof
+	  * soft nproc 65535      #用户级限制（open too many file）
+      * hard nproc 65535
+      * soft nofile 65535
+      * hard nofile 65535
+	  eof
+	3.内存调优：bin/catalina.sh  -- 111行	
+        Java堆（Java Heap）是Java虚拟机所管理的内存中最大的一块，Java堆是垃圾收集器管理的主要区域，因此很多时候也被称做“GC堆”
+		对于习惯在HotSpot虚拟机上开发和部署程序的开发者来说，很多人愿意把方法区称为“永久代”（Permanent Generation），本质上两者并不等价
 		export JAVA_OPTS="-Dfile.encoding=UTF-8 -server -Xms1200m -Xmx1200m -Xmn500m(-Xss512k线程栈大小) 
 						  -XX:+UseConcMarkSweepGC -XX:SurvivorRatio=8 -XX:CMSInitiatingOccupancyFraction=70 -XX+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=5 -XX:+HeapDumpOnOutOfMemoryError"
 						  -XX:+AggressiveOpts(自动加载新特性) -XX:+UseBiasedLocking(高并发时自动优化) -XX:PermSize=128M -XX:MaxPermSize=256M(这两个好像和依赖包有关系) -XX:+DisableExplicitGC -XX:MaxTenuringThreshold(老年区)=31 -Djava.awt.headless=True(避免需要使用某些图像的时候错乱)
@@ -100,9 +114,11 @@ tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路�
 						  有问题参数：-XX:PermSize和-XX:MaxPermSize在jdk1.8中被弃用了,参数正确应为：–XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m，替代有+/-的表示启用/禁用，后面不带值，没有的后面会带值
 									  -XX:+UseParNewGc -XX:+UseCMSCompactAtFullCollection -XX:+UseFastAccessorMethods	-XX:+UseConcMarkSweepGC -XX:PermSize=128M -XX:MaxPermSize=256M -XX:+AggressiveOpts
 						  
-	3.并发优化
+	4.并发优化
 		修改：conf/server.xml
 		    <Connector port="8080" protocol="HTTP/1.1"   #协议修改protocol="org.apache.coyote.http11.Http11NioProtocol"     bio < nio < apr
+				namePrefix="catalina-exec-"              #名称
+				maxHttpHeaderSize="4096"				 #请求头大小
 				maxThreads="600"                         #最大线程数/并发数(单机:600-900)
 				minSpareThreads="100"					 #最小备用线程数
 				maxSpareThreads="500"					 #最大备用线程数，一旦创建的线程超过这个值，tomcat就会关闭不需要的socket线程
@@ -110,15 +126,18 @@ tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路�
 				URIEncoding="UTF-8"
 				enableLookups="false"                    #不允许dns查询，即不反差域名
 				disableUploadTimeout="true" 			 #不给上传的附件单独做超时设置
-				minProcessors							 #最小的处理线程数，即空闲时线程等待数
-				maxProcessors							 #最大的处理线程数，超过则等待
+				#minProcessors							 #最小的处理线程数，即空闲时线程等待数
+				#maxProcessors							 #最大的处理线程数，超过则等待
 				useURIValidationHack					 #减少对url的不必要检查
 				compression="on"						 #压缩 GZip
 				compressionMinSize="2048"
-				compressableMimeType="type压缩类型"
+				compressableMimeType="text/html,text/xml,text/javascript,text/css,text/plain"
 			   connectionTimeout="20000"				 #单位毫秒，-1表示永不超时
                redirectPort="8443" />
-	4.conf/web.xml
+		自定义路径(追加):
+		      <Context crossContext="true" debug="5" docBase="/opt/apache-tomcat-9.0.1/webapps/ROOT" path="/" reloadable="false"> </Context>    #  http://192.168.3.70:8080/index.jsp
+			  <Context crossContext="true" debug="5" docBase="/opt/webapps/ROOT" path="/A" reloadable="false"></Context>						#  http://192.168.3.70:8080/A/index.jsp
+	5.conf/web.xml
 		<session-timeout>30</session-timeout>
 如果客户端与OS完成三次握手建立了连接，则OS将该连接放入accept队列	
 当Tomcat接收的连接数达到maxConnections时，Acceptor线程不会读取accept队列中的连接，-1，则连接数不受限制（如果配置了Executor，则默认值是Executor的maxThreads）。
@@ -149,9 +168,10 @@ apr: http://apr.apache.org/download.cgi (apr-1.5.2  apr-iconv-1.2.1   apr-util-1
 			URIEncoding="UTF-8"
 			enableLookups="false"               
 			disableUploadTimeout="true" 												
-			compression="on"					
-			compressionMinSize="2048"
-			compressableMimeType="text/html,text/xml,text/javascript,text/css,text/plain"
+			#可用让负载服务器进行压缩
+			#compression="on"					
+			#compressionMinSize="2048"
+			#compressableMimeType="text/html,text/xml,text/javascript,text/css,text/plain"
 			connectionTimeout="20000"			
 			redirectPort="8443" />
 
