@@ -115,6 +115,7 @@ vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式
 vim .vimrc	
 :set nu	
 :set autoindent	
+:set paste（自动缩进和智能缩进，粘贴时候使用）
 :syntax on（默认）
 :set cursorline （下划线标识所在行）
 

@@ -263,7 +263,7 @@ ${变量//旧字符串/新字符串}	若变量内容符合『旧字符串』则�
 		\Z == $                 匹配字符串的结束位置
 		\b						匹配单词边界位置(普通字符和非普通字符交界认为是单词边界)
 		\B						匹配非单词边界位置
-		
+		\cx						匹配由x指明的控制字符。例如， \cM 匹配一个 Control-M 或回车符。x 的值必须为 A-Z 或 a-z 之一
 	匹配单个字符： a . \d \D \w \W \s \S [..] [^..] 	
 	匹配重复：*  +  ?  {n}	 {m,n}
 	匹配位置:  ^  $  \A  \Z  \b  \B
@@ -304,11 +304,29 @@ ${变量//旧字符串/新字符串}	若变量内容符合『旧字符串』则�
 			2.子组一般由外到内，由左到右称之为第一组，第二组...
 			3.子组不能重叠，嵌套也不宜很多
 	
+	
 	捕获组和非捕获组
 		格式：(?P<name>pattern)
 			作用：可以通过组名更方便获取某组内容
 				re.search(r"(?P<dog>ab)cdef",'abcdef').group('dog')
- 
+	
+	对字符串："industry  industries  industr123"的匹配结果：
+		(pattern)
+			industr(y|ies) ---> industry  industries
+		非获取匹配，不进行存储供以后使用,不会把pattern结果放到Matches的集合中
+			(?:pattern) 消耗字符，下一字符匹配会从已匹配后的位置开始。
+				industr(?:y|ies) ---> industry industries
+			1.(?=pattern) 不消耗字符，下一字符匹配会从预查之前的位置开始。				
+				industr(?=y|ies) ---> industr industr（12）
+			2.(?!pattern)
+				industr(?!y|ies) ---> industr（3）
+			3.(?<=pattern)
+				(?<=95|98|NT|2000)Windows“能匹配”2000Windows“中的”Windows“，但不能匹配”3.1Windows“中的” Windows
+			4.(?<!pattern)
+				(?<!95|98|NT|2000)Windows“能匹配”3.1Windows“中的”Windows“，但不能匹配”2000Windows“中的” Windows“	
+	向后引用（back-reference）一个子字符串（substring），该子字符串与正则表达式的第 num 个用括号围起来的子表达式（subexpression）匹配,从 1 开始的正整数，其上限可能是 99。例如：”(.)\1“匹配两个连续的相同字符
+		
+		
  
  #sed流式编辑器：
  #1. 前置命令 | sed [选项] '条件+指令'
