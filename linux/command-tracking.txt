@@ -28,7 +28,7 @@ starce -rf [-s 1024] -e clone -p 24303
 	更多关于某个系统调用的含义/用途可以通过 man 2 <syscall>
 
 
-LSOF：	匹配内容^表示取反 (/path/filename) (+d/+D dir) (-d fd) (-c cmd -c ...) (-u 用户名) (-p PID,PID...) 
+LSOF：	匹配内容^表示取反 (/path/filename) (-a 两条件同时满足) (+d/+D dir) (-d fd) (-c cmd -c ...) (-u 用户名 -g gid) (-p PID,PID...) 
 		(-i(select IPv[46] files) :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) -U(socket) -n(不dns) +/-r(持续) #协议指tcp和udp
 	lsof | head
 		COMMAND     PID   TID    USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME

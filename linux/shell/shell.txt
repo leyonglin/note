@@ -73,7 +73,7 @@
  file="/tmp/pack1.txt"
  while read -r pack
  do apt -y remove $pack
- done<"$file"
+ done<"$file"             # 重定向stdin到文件$Filename
  		  
  for i in "1 2"; do echo ${i}; echo ok; done		  
  
@@ -321,9 +321,9 @@ ${变量//旧字符串/新字符串}	若变量内容符合『旧字符串』则�
 			2.(?!pattern)
 				industr(?!y|ies) ---> industr（3）
 			3.(?<=pattern)
-				(?<=95|98|NT|2000)Windows“能匹配”2000Windows“中的”Windows“，但不能匹配”3.1Windows“中的” Windows
+				(?<=NT|2000)Windows“能匹配”2000Windows“中的”Windows“，但不能匹配”3.1Windows“中的” Windows
 			4.(?<!pattern)
-				(?<!95|98|NT|2000)Windows“能匹配”3.1Windows“中的”Windows“，但不能匹配”2000Windows“中的” Windows“	
+				(?<!NT|2000)Windows“能匹配”3.1Windows“中的”Windows“，但不能匹配”2000Windows“中的” Windows“	
 	向后引用（back-reference）一个子字符串（substring），该子字符串与正则表达式的第 num 个用括号围起来的子表达式（subexpression）匹配,从 1 开始的正整数，其上限可能是 99。例如：”(.)\1“匹配两个连续的相同字符
 		
 		
@@ -338,11 +338,12 @@ ${变量//旧字符串/新字符串}	若变量内容符合『旧字符串』则�
 		   
 SED：sed -h
 	'2,5d'   '2a drink tea'  '2,5c No 2-5 number'   's/#.*$//g'  '$a # This is a test' regular_express.txt  '2,5!p'  '2!p;6!p'     '/hello/aworld\nwestos'   '/^#/d' 
--n  ：使用安静(silent)模式。在一般 sed 的用法中，只有经过sed 特殊处理的那一行(或者动作)才会被列出来。
--e  ：直接在命令列模式上进行 sed 的动作编辑；
--f  ：直接将 sed 的动作写在一个文件内， -f filename 则可以运行 filename 内的sed 动作；
--r  ：sed 的动作支持的是延伸型正规表示法的语法。(默认是基础正规表示法语法)
--i  ：直接修改读取的文件内容，而不是由萤幕输出。
+	s/my/**&**/  #符号&代表查找串。my将被替换为**my**
+-n：使用安静(silent)模式。在一般 sed 的用法中，只有经过sed 特殊处理的那一行(或者动作)才会被列出来。
+-e：直接在命令列模式上进行 sed 的动作编辑；
+-f：直接将 sed 的动作写在一个文件内， -f filename 则可以运行 filename 内的sed 动作；
+-r：sed 的动作支持的是延伸型正规表示法的语法。(默认是基础正规表示法语法)
+-i：直接修改读取的文件内容，而不是由萤幕输出。
 
 
 动作说明：  [n1[,n2]]function
@@ -355,10 +356,11 @@ d   ：删除，因为是删除啊，所以 d 后面通常不接任何咚咚；
 i   ：插入， i 的后面可以接字串，而这些字串会在新的一行出现(目前的上一行)；
 p   ：列印，亦即将某个选择的数据印出。通常 p 会与参数 sed -n 一起运行～
 s   ：取代，可以直接进行取代的工作哩！通常这个 s 的动作可以搭配
-sed -n '/8002/'p  test
-sed -n '/\b80/{/tcp[ ]/p}'  /etc/services    #双条件
-sed -nr 's/80/nishizhu/p'  /etc/services
-sed 's/^/添加的头部&/g;s/$/&添加的尾部/g' /etc/services    #可以先使用p输出，同时执行两个替换规则
+sed -n '/8002/p'  test     					 #过滤8002行并整行输出
+sed -nr 's/80/nishizhu/p'  /etc/services	 #将替换结果显示出来
+sed -n '/\b80/{/tcp[ ]/p}'  /etc/services    #双条件 \b表示边界
+sed 's/^/添加的头部&/g;s/$/&添加的尾部/g' /etc/services    #符号&代表查找串，可以先使用p输出，同时执行两个替换规则
+sed -n 's/asd$/123/gp' test     #同一行多个匹配的情况下只匹配并替换asd结尾的哪一个
  
  #awk编程语言/数据处理引擎
  #1.前置命令 | awk [选项] '[条件]{指令}'
@@ -445,22 +447,35 @@ awk '($1~/[0-9]/&&$2~/[0-9]/)||($3~/[a-zA-Z]/){print $0}' awk.txt  #与或
 
 cat << EOF > /root/test.txt 或 cat > /root/test.txt <<EOF     #覆盖 PATH=\$PATH:\$HOME/bin 涉及到变量操作时是需要进行转义(原始覆盖，不转义则会变量替换才覆盖)
 cat << EOF >> /root/test.txt 或  cat >> /root/test.txt <<EOF  #追加
+read -n 4 >file            # 只读取4个字符到文件file
+command < file1 > file2    #命令参数从file1读入，输入到file2中
 
-
+shell script : fork出一个子进程，再执行命令   -- bash /root/sh.sh ---   bash(88820)───bash(88932)───sleep(88933)
+source : 在当前bash环境下执行命令			  --   source  sh.sh  ---   bash(88485)───sleep(88594)
+exec：将当前bash替换成命令执行，执行完成退出  --    exec ./sh.sh  ---   sh.sh(88701)───sleep(88733)    #exec在对文件描述符进行操作的时候，也只有在这时，exec不会覆盖你当前的 shell 环境
 exec命令：
-exec        不退出终端，啥也没发生，应该是不启动子进程(执行pstree会启动子进程)
-exec ls  	在shell中执行ls，ls结束后不返回原来的shell中了（退出当前shell）
-exec <file	file中的内容作为标准输入（替代STDIN）
-exec >file	将标准输出写入file（替代STDOUT）
-exec 3<file	将file读入到文件描述符3中（此时，创建了文件描述符3）
-sort <&3	将文件描述符3作为临时输入，用于sort排序
-exec 4>file	将写入文件描述符4中的内容写入file中（此时，创建了文件描述符4）
-ls >&4	Ls将不会有显示，直接写入文件描述符4中了，即上面的file中
-exec 5<&4	创建文件描述符4的拷贝文件描述符5
-exec &- 关闭标准输出
-exec 3<&-	关闭文件描述符3
-exec 5>&- # 关闭 FD5
-exec 0&- # 关闭 FD1
+    n>&-               #关闭输出文件描述符n.
+    n<&-               #关闭输入文件描述符n.
+      exec 1&-           # 关闭 FD1  默认对文件描述符1进行操作
+      exec 5>&-          # 关闭 FD5
+  exec 4<&1          # 备份当前stdout至FD4
+  exec 1>1.txt       # stdout重定向至1.txt
+  exec 1<&4          # 恢复stdout
+  exec 4>&-          # 关闭 FD4
+    [j]<>filename     # 为了读写"filename", 把文件"filename"打开, 并且将文件描述符"j"分配给它.
+  exec <filename命令会将stdin重定向到文件中. 从这句开始, 所有的stdin就都来自于这个文件了
+  exec >filename命令将会把stdout重定向到一个指定的文件中. 这样所有命令的输出就都会发送到那个指定的文件
+	
+    exec <file	file中的内容作为标准输入（替代STDIN）
+    exec >file	将标准输出写入file（替代STDOUT）
+    exec 3<file	将file读入到文件描述符3中（此时，创建了文件描述符3）
+    sort <&3	将文件描述符3作为临时输入，用于sort排序
+    exec 4>file	将写入文件描述符4中的内容写入file中（此时，创建了文件描述符4）
+    ls >&4	Ls将不会有显示，直接写入文件描述符4中了，即上面的file中
+    exec 5<&4	创建文件描述符4的拷贝文件描述符5
+    exec &- 关闭标准输出
+    exec 3<&-	关闭文件描述符3
+
 
 
 

@@ -81,6 +81,22 @@ zabbix使用的是lamp架构 被动和主动模式可以同时存在  官方文�
 
 
 
+cacti：绘图
+	服务端：https://www.jianshu.com/p/d6533f2382e1
+Nagios：插件多，状态检查和报警(配置复杂)
+
+
+Rails 是使用 Ruby 语言编写的 Web 应用开发框架，目的是通过解决快速开发中的共通问题，简化 Web 应用的开发。与其他编程语言和框架相比，使用 Rails 只需编写更少代码就能实现更多功能
+NewRelic是一家提供Rails性能监测服务的网站, NewRelic提供了不同级别的监测功能，免费的是Lite版本，最高有Gold版本.
+New Relic监控类别:
+	1.浏览器端监控（Customer Experience）:  
+	2.服务端监控（APM）:服务端监控是用来收集Web应用在服务器端的性能数据。该数据和客户端数据能够关联起来，使得分析完整的事物性能成为可能   
+	3.基础架构监控（Infrastructure）:服务器监控（Server Monitor）的升级替代产品
+		原理是利用插入到服务端程序的代理，来收集数据并汇集到New Relic位于全球各地的数据中心(访问NewRelic网站),支持多达七种编程语言，包括ruby，Java， Node.js，PHP，.NET，Python， Go等
+Pingdom:第三方网站进行监控
+PagerDuty是一款能够在服务器出问题时发送提醒的软件。在发生问题时，提醒的方式包括屏幕显示、电话呼叫、短信通知、电邮通知等，而且在无人应答时还会自动将提醒级别提高。该软件通过一个控制面板对问题进行监控
+
+
 
 
 
