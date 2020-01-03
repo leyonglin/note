@@ -1,7 +1,11 @@
 
 逻辑分组的概念,可以跨多个 Node
-
+TSDB(Time Series Database)时序列数据库:数据中的数组是由时间进行索引的
 api接口：是一个函数或者类暴露出来给开发者使用的，方便开发者调用但不用深入了解背后的函数或类
+Portal是一个基于web的应用程序，它主要提供个性化、单点登录、不同来源的内容整合以及存放信息系统的表示层
+
+RRDtool (Round Robin Database Tool)就是一个强大的绘图的引擎,展现一个时事状态图
+“Round Robin” 其实是一种存储数据的方式，使用固定大小的空间来存储数据，并有一个指针指向最新的数据的位置。
 
 MapReduce：MapReduce既是一个编程模型，又是一个计算框架，并行运算，Map（映射）”和“Reduce（归纳）
 	Master将M分成许多小份，然后每一份分给一个Mapper来做，Mapper干完活儿（执行完函数），将自己那一份儿活儿的结果传给Reducer。Reducer之后统计汇总各个Mapper传过来的结果，得到最后的任务的答案

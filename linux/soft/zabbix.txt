@@ -79,6 +79,10 @@ zabbix使用的是lamp架构 被动和主动模式可以同时存在  官方文�
 配置文件：server和agent中：SourceIP  =  server  =  serveractive  必须保持一致
 添加主机：Host name 必须和  agent/proxy 配置文件的参数 Hostname  一致（严格区分大小写和时间同步）
 
+Zabbix监控场景：硬件监控、系统监控，网络监控，部分应用监控（如：Oracle）,其他监控（URL监控、端口监控）
+Prometheus监控场景： 业务监控、性能监控、容器监控、微服务监控、部分应用监控（能够做的应用监控）
+Open-falcon监控场景：CPU、Load、内存、磁盘、IO、网络相关、内核参数、ss 统计输出、端口采集、核心服务的进程存活信息采集、关键业务进程资源消耗、NTP offset采集、DNS解析采集等监控
+
 
 
 cacti：绘图
@@ -97,13 +101,15 @@ Pingdom:第三方网站进行监控
 PagerDuty是一款能够在服务器出问题时发送提醒的软件。在发生问题时，提醒的方式包括屏幕显示、电话呼叫、短信通知、电邮通知等，而且在无人应答时还会自动将提醒级别提高。该软件通过一个控制面板对问题进行监控
 
 
+Telegraf/cadvisor(收集)+influxdb(存储)+grafana（web展示）
 
 
 
-
-
-
-
+Open-falcon:最初为小米公司开发，采用多模块架构，监控功能相对完善,目前有开源社区人员维护，版本迭代无法保证
+http://book.open-falcon.org/zh/
+Prometheus:告警功能简单，但是开源社区异常火爆，作为CNCF第二开源项目,具有数据存储能力，还在数据指标采集能力	
+	基本原理是通过 HTTP 周期性抓取被监控组件的状态，任意组件只要提供对应的 HTTP 接口并且符合 Prometheus 定义的数据格式，就可以接入 Prometheus 监控
+	大部分的监控对象都需要特定类型 exporter
 
 
 

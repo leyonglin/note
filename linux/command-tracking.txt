@@ -17,7 +17,7 @@ starce -rf [-s 1024] -e clone -p 24303
 -r      print relative timestamp
 -f      follow forks
 
-使用strace输出很少不代表进程很空闲
+使用strace输出很少不代表进程很空闲,使用ltrace命令试试
 	open() : 用于打开或创建一个文件。
 	read() : 用于读取一个文件。
 	write() : 写文件。
@@ -26,6 +26,12 @@ starce -rf [-s 1024] -e clone -p 24303
 	recvfrom() : 接收网络数据。
 	futex() : 锁相关操作。
 	更多关于某个系统调用的含义/用途可以通过 man 2 <syscall>
+		文件和设备访问类 比如open/close/read/write/chmod等
+		进程管理类 fork/clone/execve/exit/getpid等
+		信号类 signal/sigaction/kill 等
+		内存管理 brk/mmap/mlock等
+		进程间通信IPC shmget/semget * 信号量，共享内存，消息队列等
+		网络通信 socket/connect/sendto/sendmsg 等
 
 
 LSOF：	匹配内容^表示取反 (/path/filename) (-a 两条件同时满足) (+d/+D dir) (-d fd) (-c cmd -c ...) (-u 用户名 -g gid) (-p PID,PID...) 

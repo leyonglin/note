@@ -433,6 +433,7 @@ awk [--re-interval] '/ro{1,2}t/{print $0}' passwd   #--re-interval 匹配指定�
 awk '/shutdown/,/operator/{print NR,$0}' passwd			#范围性输出，输出第一个匹配/root/和/operator/之间(包括)的行
 awk 'NR>=3&&NR<=6{print NR,$0}' passwd					#3-6行	
 cat -n passwd|awk -F: '{print $1}{print NR}'		#对于一行，输出$1再输出$2 等同于cat -n passwd|awk -F: '{print $1;print NR}'	
+awk '{sum+=$2}END{print sum}' date  // cat data|awk '{sum+=$1} END {print "Average = ", sum/NR}'  //  cat data|awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}'  //   
 awk '($1~/[0-9]/&&$2~/[0-9]/)||($3~/[a-zA-Z]/){print $0}' awk.txt  #与或	
 	内置函数
 		rand，srand，int
