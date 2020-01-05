@@ -92,7 +92,7 @@ tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路�
 		修改manager/META-INF/context.xml    #allow允许访问地址
 	2.内核优化
 	  cat >> /etc/sysctl.conf<<eof
-	  net.ipv4.ip_forward = 0
+	  net.ipv4.ip_forward = 1
 	  fs.file-max = 8061540   #系统级限制（Connection reset by peer）
 	  eof
 	  cat >> /etc/security/limit.conf<<eof

@@ -176,10 +176,11 @@ ipset destroy blacklist  删除ipset
 ipset restore -f blacklist.txt  导入ipset规则  
 
 
+命令选项输入顺序：iptables -t 表名 <-A/I/D/R> 规则链名 [规则号] <-i/o 网卡名> -p 协议名 <-s 源IP/源子网> --sport 源端口 <-d 目标IP/目标子网> --dport 目标端口 -j 动作
 
 iptables [-t filter] --line -nvL  [INPUT]   			    #查看 -x选项表示详细显示
 	Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
-	num(-I/-D)   pkts(报文数) bytes target(-j action)   prot(协议-p) opt(选项)  in(-i)  out(-o)  source(-s / ! -s)   destination(-d) 
+	num(-I/-D)   pkts(报文数) bytes(报文大小) target(-j action)   prot(协议-p) opt(选项)  in(-i)  out(-o)  source(-s / ! -s)   destination(-d) 
 
 取反：! [-s -d] [--sport --dport port/:port/port:] [-i -o] [--src/dst-range]	
 iptables -t filter -I INPUT 2 -s 192.168.3.6 -j DROP 		#插入一条编号为2的规则，默认规则编号为1，A则是追加到规则尾部

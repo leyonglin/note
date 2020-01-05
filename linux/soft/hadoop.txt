@@ -1,0 +1,60 @@
+
+Hive：不支持更改数据的操作，Hive基于按列存储的数据仓库，提供静态数据的动态查询。其使用类SQL语言，底层经过编译转为MapReduce程序，在Hadoop上运行，数据存储在HDFS上。
+Hive 能够直接处理我们输入的 HiveQL 语句，调用 MapReduce 计算框架完成数据分析操作
+		
+MapReduce：MapReduce既是一个编程模型，又是一个计算框架，并行运算，Map（映射）”和“Reduce（归纳）
+	Master将M分成许多小份，然后每一份分给一个Mapper来做，Mapper干完活儿（执行完函数），将自己那一份儿活儿的结果传给Reducer。Reducer之后统计汇总各个Mapper传过来的结果，得到最后的任务的答案
+	简单在于其编程模型只包含map和reduce两个过程，map的主要输入是一对<key , value>值，经过map计算后输出一对<key , value>值；然后将相同key合并，形成<key , value集合>；再将这个<key , value集合>输入reduce，经过计算输出零个或多个<key , value>对
+map-reduce的四个关键阶段：
+	file切分：将一个大文件分为多份给每一个map计算节点
+	map阶段：map操作：key:value (可以自定义函数对数据进行初次加工)
+	shuffle阶段：将所有map的输出中key相同的部分汇总到一起作为一个reduce的输入(也可以自定义函数：如何传给reduce)
+	reduce阶段：将key相同的进行累计
+我们只要开发map-reduce的作业(job)，然后提交到hadoop平台，它就会帮我们跑这个map-reduce的作业，我们只需自定义map和reduce阶段。
+
+Sqoop：该工具用于在结构化数据存储和HDFS之间高效批量传输数据，也就是数据同步的工具
+Oozie：该服务用于运行和调度Hadoop作业，可以理解为一个工作流调度系统
+YARN(Yet Another Resource Negotiator)是Hadoop2.0集群中负责资源管理和调度以及监控运行在它上面的各种应用
+hadoop2.x，HDFS和MapReduce之间增加了Yarn部件，这个暂且可以理解为是一个“管理平台”，MapReduce就变成了一个可插拔的“插件
+
+
+
+
+https://mp.weixin.qq.com/s?__biz=MzIzMTE1ODkyNQ==&mid=2649411210&idx=1&sn=749f6a034d91ed3292a9f7167dee9c41&chksm=f0b60b68c7c1827e82d4d3ba39cd1acd4f564ec556ef7bbc023d6517fe563a34f3d385244b7a&scene=21#wechat_redirect
+HDFS:hadoop的分布式文件系统
+	HDFS是GFS的一种实现，他的完整名字是分布式文件系统，类似于FAT32，NTFS，是一种文件格式，是底层的。
+	Hive与Hbase的数据一般都存储在HDFS上。hadoop HDFS为他们提供了高可靠性的底层存储支持。
+用户 --- client(对外提供统一操作接口，文件分割/写入) --- NameNode(记录位置，元数据写入editlog文件中) [secondNameNode作用：定期将editlog写入fsimage内存快照，再清空editlog，实现元数据增量恢复]--- DataNode(数据冗余通过节点同步)
+								   主备NameNode(主NameNode将元数据写入editlog文件中，同时editlog文件会被记录到journalNode，备NameNode通过journalNode进行同步)
+HDFS缺点：1.不适合存储小文件，NameNode会造成元数据过多   2.不提供编辑功能，无法随机修改，只能追加/覆盖	3.不支持并发，查询效率低								
+HDFS是GFS的一种实现，他的完整名字是分布式文件系统
+GFS是一个可扩展的分布式文件系统，用于大型的、分布式的、对大量数据进行访问的应用		
+
+
+
+
+https://www.itcodemonkey.com/article/13385.html
+用户 --- client --- HMaster --- HRegionServer
+hbase:Hbase是Hadoop database，即Hadoop数据库。它是一个适合于非结构化数据存储的数据库，HBase基于列的而不是基于行的模式
+WAL（Write Ahead Log预写日志）是关系型数据库中用于实现事务性和持久性的一系列技术.
+hbase的wal机制通过日志恢复策略保证了数据不丢失(数据在写入内存时候，也先将数据的操作写入日志，宕机后可以将日志数据恢复到内存中)
+hbase存储中的第三层(LSM三层模型：数据--内存--小文件--大文件)会定期将磁盘(存储在hdfs)中的小文件进行合并成大文件
+hbase把合并分为两种，一种是小合并minor compact，这种方式只会将少数文件进行简单合并，不会进行数据的清理，还有一种是大合并major compact，这种方式会将大部分文件进行合并，并且清理数据
+hbase可以通过timestamp来标识数据的版本，通过添加记录进行数据修改和删除
+HBase使用HDFS作为底层存储
+hbase架构：meta表其实是在一个固定地方读取，然后根据meta表就知道数据在哪个HRegionServer上
+
+HMaster的任务相对不繁重，但是却比较重要，它主要是通过调整和管理Region分布来实现HRegionServer的负载均衡
+Region是hbase在rowkey上的切分，每个Region都可以通过startKey和endKey来确定rowkey的范围，一个HRegionServer上可能会有多个Region。
+缺点：事务支持差
+OLTP应用叫联机事务处理应用，就是类似银行转账等业务的，这类应用对事务要求比较高，而OLAP应用叫联机分析处理应用，比如推荐系统，是在收集了大量用户行为后进行分析，再得出结论的应用，主要侧重分析，对事务要求非常低
+
+Unbounded Data 和 Bounded Data
+批处理（Batching Processing）可以理解为一系列相关的任务按顺序（或者并行）地执行，一般来说批处理的输入都是有边界数据
+流处理（Streaming Processing）可以理解为系统需要接收并处理一系列连续不断变化的数据，特点就是快、低延迟，其响应时间一般都是以毫秒（或者微秒）级别来计算的
+
+
+数据倾斜：某一类数据很多，造成集群部分节点累死，部分空闲
+
+
+
