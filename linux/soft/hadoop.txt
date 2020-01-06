@@ -14,9 +14,7 @@ map-reduce的四个关键阶段：
 
 Sqoop：该工具用于在结构化数据存储和HDFS之间高效批量传输数据，也就是数据同步的工具
 Oozie：该服务用于运行和调度Hadoop作业，可以理解为一个工作流调度系统
-YARN(Yet Another Resource Negotiator)是Hadoop2.0集群中负责资源管理和调度以及监控运行在它上面的各种应用
-hadoop2.x，HDFS和MapReduce之间增加了Yarn部件，这个暂且可以理解为是一个“管理平台”，MapReduce就变成了一个可插拔的“插件
-
+YARN(Yet Another Resource Negotiator)是Hadoop2.0集群中负责资源管理和调度以及监控运行在它上面的各种应用,有了 Yarn ，更多计算框架可以接入到 Hdfs 中，而不单单是 MapReduce
 
 
 

@@ -105,8 +105,8 @@ Telegraf/cadvisor(收集)+influxdb(存储)+grafana（web展示）
 
 
 http://book.open-falcon.org/zh/
-Open-falcon:最初为小米公司开发，采用多模块架构，监控功能相对完善,目前有开源社区人员维护，版本迭代无法保证
-Prometheus:告警功能简单，但是开源社区异常火爆，作为CNCF第二开源项目,具有数据存储能力，还在数据指标采集能力	
+Open-falcon:最初为小米公司开发，采用多模块架构，监控功能相对完善,目前有开源社区人员维护，版本迭代无法保证（插件化安装）
+Prometheus:自动发现，告警功能简单，但是开源社区异常火爆，作为CNCF第二开源项目,具有数据存储能力，还在数据指标采集能力	
 	基本原理是通过 HTTP 周期性抓取被监控组件的状态，任意组件只要提供对应的 HTTP 接口并且符合 Prometheus 定义的数据格式，就可以接入 Prometheus 监控
 	大部分的监控对象都需要特定类型 exporter
 
