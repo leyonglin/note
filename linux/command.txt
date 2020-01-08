@@ -302,6 +302,15 @@ file [-z压缩文件 -L链接 -i] filename可以查看文件类型/目录          type cmd 可以
 man： 如man 5 ssh_config
 参数[-aw(显示所有手册路径)   -f简短描述信息 
 n(指定章节手册) 1用户命令 2系统调用 3 c库函数调用 4.设备文件及特殊文件(/dev下的各种设备文件) 5配置文件 6系统游戏使用帮助 7附件/变量 8管理工具(root)及守护进程 9含糊的内核规范和接口]  
+	NAME 功能的简单描述
+	SYNOPSIS 语法格式
+	DESCRIPTION 描述
+	OPTIONS 选项
+	ERRORS 描述出错场景，这在排查错误时很有帮助
+	NOTES 注意事项
+	FILES 相关文件，例如对于man命令的FILES部分内容显示了它的配置文件位置等信息
+	EXAMPLES 使用示例，会提供一些简单的示例
+	BUGS 存在的bug，当遇到奇怪的问题时，不妨看看当前命令是否有已知的bug
 apropos cat
 
 Rpm：-q 查询是否下载  -qa下载多少软件包  -qi软件包信息  -ql文件安装目录   -qf+文件路径  -ivh下载  -Uvh升级 -e删除  

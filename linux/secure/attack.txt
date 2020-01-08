@@ -26,6 +26,16 @@ url的post暴力尝试，根据报错推测   # 不使用通用的url路径(admi
  last：记录的登录系统的用户名单及是否在线(/var/log/wtmp) 
  lastb：记录的登入系统失败的用户名单(/var/log/btmp)
  lastlog
+ w输出详解：
+	USER：显示登陆用户帐号名。用户重复登陆，该帐号也会重复出现。
+	TTY：用户登陆所用的终端。
+	FROM：显示用户在何处登陆系统。
+	LOGIN@：是LOGIN AT的意思，表示登陆进入系统的时间。
+	IDLE：用户空闲时间，从用户上一次任务结束后，开始记时。
+	JCPU：一终端代号来区分，表示在某段时间内，所有与该终端相关的进程任务所耗费的CPU时间。
+	PCPU：指WHAT域的任务执行后耗费的CPU时间。
+	WHAT：表示当前执行的任务
+pkill -kill -t pts/3
 
 异常进程：top  --  ps -ef
    将相关依赖去除/别名 /exec/curl/wget/tty模块

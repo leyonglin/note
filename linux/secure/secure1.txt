@@ -78,6 +78,7 @@ linux下设置密码复杂度限制:
 		调用：~.bashrc(#non-login shell) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
 	2.~/.bash_logout     #退出 
 	3.~/.bash_history    #历史记录
+用户进入操作系统以后，常常会再手动开启一个shell/su。这个shell就叫做 non-login shell,意思是它不同于登录时出现的那个shell，不读取/etc/profile和.profile等配置文件。
 
 同一账号同时多次登陆的 history 写入问题（一般在内存中，最后一个才会被记录）
   不会配置也可以删了，泄露信息

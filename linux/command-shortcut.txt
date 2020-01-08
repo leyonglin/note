@@ -25,11 +25,17 @@ Ctrl+
 
 bash(命令行)
 	!! ：执行上一条命令。!wget ：执行最近的以wget开头的命令。!wget:p ：仅打印最近的以wget开头的命令，不执行。
-	^abc ：删除上一条命令中的第一个abc。    ^foo^bar ：把上一条命令里的foo替换为bar，并执行。
-	!$ ：上一条命令的最后一个参数  !$ ：上一条命令的最后一个参数  !*:p ：打印上一条命令是所有参数，也即 !*的内容。
+	!^ : 使用上条命令的第一个参数  !$ ：上一条命令的最后一个参数  !* : 使用上条命令的所有参数  !*:p ：打印上一条命令是所有参数，也即 !*的内容。
+	![命令名]:[参数号] : 使用上条命令指定的参数     !:- : 去掉最后一个参数执行上一个命令
+	!-2   #感叹号后面跟着一个负数，负几代表倒数第几条history   !cmd / !num : 执行history命令
+	!!:gs/old/new：将这条命令中的old更换为new    ls !(*.cfg)：删除除了cfg结尾以外的所有文件
+	^abc ：删除上一条命令中的第一个abc。    ^foo^bar ：把上一条命令里的foo替换为bar，并执行
 
+vim +n filename	打开文件，并定位到第n行
+vim + filename	打开文件，并定位到最后一行
+vim +/pattern filename	定位至第一次被pattern匹配到的行的行首
 Vim： :h   帮助   :help xxx(i)/'number'/<Esc>/-t/i_<Esc>(插入模式下Esc的帮助)(显示xxx(i)的帮助)         [action][a/i][motion] 
-	+n进入文件光标位于第n(默认最后)行      i/I/a/A/o/O      ：w保存  ：-p退出   wq=x=ZZ   D删除当前光标到行尾	    
+	i/I/a/A/o/O      ：w保存  ：-p退出   wq=x=ZZ   D删除当前光标到行尾	    :e!	丢弃修改并打开原文件  :e filename 打开新文件  :r filename 读取文件并插入到当前文件
 	motion跨过   [h左j下k上l右] [H上M中L下]  [w前e尾b后]   [0^$首首尾]  f/F+字符(跳向下/上个字符)t/T前一个字符   [gg/G]一个g可以移动到...
 	y/Y{motion} c/d/C/D{motion}	x/s/X/S{motion}删除一个字符(不进入插入模式/进入插入模式)
 	*/#：查找  /？查找   ma/`a   	`.      
@@ -62,7 +68,7 @@ Vim： :h   帮助   :help xxx(i)/'number'/<Esc>/-t/i_<Esc>(插入模式下Esc�
    5 再插入注释符,比如"#"
    6 再按Esc,就会全部注释了
 
-Vim查找支持正则表达式，例如/vim$匹配行尾的"vim"		:set paste ：原样粘贴  
+Vim查找支持正则表达式，例如/vim$匹配行尾的"vim"		  
    查找：/foo\c将会查找所有的"foo","FOO","Foo"等字符串  \c表示大小写不敏感查找，\C表示大小写敏感查找
    替换r：连续字符替换：命令模式按R
    :[range]s/{pattern}/{string}/[flags] 	
@@ -115,8 +121,14 @@ vim普通模式下按Q进入ex      ex命令模式下按：vi进入命令模式(
 vim .vimrc	
 :set nu	
 :set autoindent	
-:set paste（自动缩进和智能缩进，粘贴时候使用）
+:set paste（原样粘贴,粘贴时候使用）
 :syntax on（默认）
 :set cursorline （下划线标识所在行）
 
-	
+:set smartindent  智能缩进
+:set ic	          忽略大小写
+:set is	          部分匹配（like)
+:set tabstop=4	  tab空格数
+:set shiftwidth=4 移位>>空格数
+:set expandtab	  tab转空格
+:set scrolloff = 5 显示初始光标所在行数
