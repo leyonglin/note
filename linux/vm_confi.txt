@@ -14,7 +14,7 @@ yum  --help
 yum -y install \
 chrony psmisc net-tools findutils coreutils bash-completion wget vim-enhanced lsof \
 tree epel-release telnet tcpdump bind-utils dos2unix lrzsz iproute iotop strace procps-ng \
-bridge-utils traceroute nmap sysstat socat nethogs screen patch mtr rsync git unzip \
+bridge-utils traceroute nmap sysstat socat nethogs screen patch mtr rsync git unzip expect 
 				
 #rm -f epel-testing.repo && yum -y install httping htop rpm-build  postfix mailx yum-utils make gcc
 sed -i "s/0.centos.pool.ntp.org/ntp6.aliyun.com/" /etc/chrony.conf  && sed [-i]  "4,6s/server/#server/" /etc/chrony.conf			

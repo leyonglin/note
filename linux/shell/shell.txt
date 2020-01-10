@@ -68,7 +68,25 @@
          expect eof
  EOF
  done
- 
+
+#!/bin/bash
+ip=192.168.3.67
+mypassword=admin
+mycommand=ls
+# 向远程服务器请求打开一个telnet会话，并等待服务器询问用户名
+expect << EOF
+    spawn ssh $ip "touch expect"
+    expect "password:" {send "$mypassword\r"} {send "exit\r"}     #这种有可能出现延迟
+    
+    spawn ssh $ip 
+    expect "password:"     
+      send "$mypassword\r"
+    expect "#" #{ls"\r"}
+      send "$mycommand\r"
+      send "exit\r"
+    expect eof
+EOF
+
  
  #!/bin/bash
  file="/tmp/pack1.txt"
