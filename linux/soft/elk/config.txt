@@ -1,0 +1,293 @@
+日志在/var/log/program/*.log
+程序家目录在/usr/local/efk/alone/
+es配置config/elasticsearch.yml
+	cluster.name: elasticsearch          #集群名，同时也是日志名
+	node.name: efk0
+	path.data: /var/lib/es/data
+	path.logs: /var/log/elasticsearch    #日志目录
+	network.host: 0.0.0.0 
+	http.cors.enabled: true
+	http.cors.allow-origin: "*"
+
+kibana配置config/kibana.yml
+	server.host: "0.0.0.0"
+	server.name: "kibanaud"
+	elasticsearch.hosts: ["http://127.0.0.1:9200"]
+	kibana.index: ".kibanaud"
+
+logstash配置
+  first-pipeline.conf
+	input {
+		beats {
+			port => "5044"
+		}
+	}
+	filter {
+	grok {
+		match => { "message" => "%{COMBINEDAPACHELOG}" }
+	}
+	geoip {
+		source => "clientip"
+	}
+	}
+	#在日志中输出
+	output {
+	stdout { codec => rubydebug }
+	}
+
+filebeat配置filebeat.yml
+	#=========================== Filebeat inputs =============================
+	filebeat.inputs:
+	- type: log
+	enabled: true
+	# 要抓取的文件路径 
+	paths:
+		- /var/log/nginx/*.log
+	# 添加额外的字段
+	fields:
+		log_source: varlog 
+	fields_under_root: true
+	# 多行处理
+	# 不以"yyyy-MM-dd"这种日期开始的行与前一行合并 
+	#multiline.pattern: ^\d{4}-\d{1,2}-\d{1,2}
+	#multiline.negate: true
+	#multiline.match: after
+	
+	# 5秒钟扫描一次以检查文件更新
+	#scan_frequency: 5s
+	# 如果文件1小时都没有更新，则关闭文件句柄
+	#close_inactive: 1h  
+	# 忽略24小时前的文件
+	#ignore_older: 24h
+	
+	
+	#- type: log
+	#  enabled: true
+	#  paths:
+	#    - /usr/local/efk/alone/filebeat/logstash-tutorial.log
+	#  fields:
+	#    log_source: efk-test
+	#  fields_under_root: true
+	#multiline.pattern: ^\d{4}-\d{1,2}-\d{1,2}
+	#multiline.negate: true
+	#multiline.match: after
+	#scan_frequency: 5s
+	#close_inactive: 1h  
+	#ignore_older: 24h
+	
+	#================================ Outputs =====================================
+	
+	#-------------------------- Elasticsearch output ------------------------------
+	output.elasticsearch:
+	# Array of hosts to connect to.
+	hosts: ["127.0.0.1:9200"]
+	#设置es上的索引名称，这个能更好的辨别是否上传成功，默认是filebeat-%{[beat.version]}-%{+yyyy.MM}",不要认为这是 没有上传成功。
+	#  index: "nginx-www-access-%{[beat.version]}-%{+yyyy.MM}"
+	#setup.template.name: "nginx"
+	#setup.template.pattern: "nginx-*"
+	#setup.template.enabled: "true" 
+	#setup.template.overwrite: true
+	# Optional protocol and basic auth credentials.
+	#protocol: "https"
+	#username: "elastic"
+	#password: "changeme"
+	
+	#----------------------------- Logstash output --------------------------------
+	#output.logstash:
+	# The Logstash hosts
+	# hosts: ["127.0.0.1:5044"]
+	
+	# Optional SSL. By default is off.
+	# List of root certificates for HTTPS server verifications
+	#ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+	
+	# Certificate for SSL client authentication
+	#ssl.certificate: "/etc/pki/client/cert.pem"
+	
+	# Client Certificate Key
+	#ssl.key: "/etc/pki/client/cert.key"
+	
+	
+	#启动es
+	cd /usr/local/efk/alone/
+	/usr/local/efk/alone/es/bin/elasticsearch -d &>>/var/log/elasticsearch/elasticsearch.log &
+	
+	#启动kibana
+	cd /usr/local/efk/alone/
+	/usr/local/efk/alone/kibana/bin/kibana  &>>/var/log/kibana/kibana.log &
+	
+	#启动logstash
+		cd /usr/local/efk/alone/logstash
+		#bin/logstash -f first-pipeline.conf --config.test_and_exit &>>/var/log/logstash/logstash.log &
+		/usr/local/efk/alone/logstash/bin/logstash -f second-pipeline.conf --config.reload.automatic &>>/var/log/logstash/logstash.log &
+	
+	启动filebeat
+		cd /usr/local/efk/alone/filebeat
+		rm -f data/registry
+			#设置dashboard
+			#./filebeat setup --dashboards
+		nohup ./filebeat -e -c filebeat.yml -d "publish" &>> /var/log/filebeat/filebeat &
+
+
+#启动es
+cd /usr/local/efk/alone/
+/usr/local/efk/alone/es/bin/elasticsearch -d &>>/var/log/elasticsearch/elasticsearch.log &
+
+#启动kibana
+cd /usr/local/efk/alone/
+nohup /usr/local/efk/alone/kibana/bin/kibana  &>>/var/log/kibana/kibana.log &
+
+#启动logstash
+	cd /usr/local/efk/alone/logstash
+	#bin/logstash -f first-pipeline.conf --config.test_and_exit &>>/var/log/logstash/logstash.log &
+	nohup /usr/local/efk/alone/logstash/bin/logstash -f second-pipeline.conf --config.reload.automatic &>>/var/log/logstash/logstash.log &
+
+启动filebeat
+	cd /usr/local/efk/alone/filebeat
+	rm -f data/registry
+		#设置dashboard
+		#./filebeat setup --dashboards
+	nohup ./filebeat -e -c filebeat.yml -d "publish" &>> /var/log/filebeat/filebeat &		
+
+##########################################################################################
+
+elasticsearch-head 无法连接elasticsearch的原因和解决
+	1、5.x之后不支持直接集成到es中去(plugin目录下) 需要通过(nodejs)额外安装服务
+	2、通常会查看请求是否出错，关键是请求没有出错，就是没有返回值：
+		1.F12 --> network(出错查看原因) --> console(错误输出)
+			请求为option有可能是跨域问题，查看console
+	
+
+head插件
+1.安装环境支持，需要安装nodejs
+	yum install -y nodejs npm
+2.下载head插件
+	cd /usr/local/
+	git clone git://github.com/mobz/elasticsearch-head.git
+3.安装依赖包
+	cd /usr/local/elasticsearch-head
+	npm install 
+执行后会生成node_modules文件夹
+	#如果遇到异常cnpm不是内部或外部命令 cnpm: command not found，则运行如下脚本,使用淘宝镜像包
+	#npm install cnpm -g --registry=https://registry.npm.taobao.org
+	#cnpm install
+
+1.修改Gruntfile.js
+	cd elasticsearch-head
+	vim Gruntfile.js
+在该文件中添加如下，务必注意不要漏了添加“，”号，这边的hostname:’*’，表示允许所有IP可以访问,此处也可以修改端口号
+	server: {
+	options: {
+	hostname: '*',  -->97行
+	port: 9100,
+	base: '.',
+	keepalive: true
+	}
+	}
+3.修改elasticsearch-head默认连接地址
+	cd _site
+	vi app.js
+做如下修改，将ip地址修改为对应的服务器的ip地址
+	将localhost修改为elasticSearch IP
+	this.base_uri = this.config.base_uri || this.prefs.get("app-base_uri") || "http://10.0.0.11:9200";  --> 4374 行
+4.修改elasticSearch配置文件并启动ElasticSearch
+这边需要修改elasticsearch的配置文件elasticsearch.yml，以允许跨域访问，在文末追加如下代码即可
+	http.cors.enabled: true
+	http.cors.allow-origin: "*"
+5.修改完毕后重新启动ElasticSearch（注意不能使用root权限启动)
+6.启动elasticsearch-head
+	cd /usr/local/elasticsearch-head
+	nohup ./node_modules/grunt/bin/grunt server &>>/var/log/elasticsearch/elasticsearch.log &
+访问10.0.0.11:9100就能看到我们集群信息
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+###########################################################################	
+	
+
+	
+	
+
+查看集群健康状态：curl  "localhost:9200/_cat/health?v"
+	Green ： everything is good（一切都很好）（所有功能正常）
+	Yellow ： 所有数据都是可用的，但有些副本还没有分配（所有功能正常）
+	Red ： 有些数据不可用（部分功能正常）
+查看索引：curl "localhost:9200/_cat/indices?v"	
+创建索引：curl -X PUT "localhost:9200/customer?pretty"       
+	#pretty的意思是以JSON格式返回响应，Elasticsearch默认情况下为这个索引创建了一个副本。由于目前我们只有一个节点在运行，所以直到稍后另一个节点加入集群时，才会分配一个副本(对于高可用性)。一旦该副本分配到第二个节点上，该索引的健康状态将变为green。
+删除索引：curl -X DELETE "localhost:9200/customer?pretty"	
+创建文档：curl -X PUT "localhost:9200/customer/_doc/1?pretty" -H 'Content-Type: application/json' -d'{"name": "John Doe"}'      #如果没有索引会自动创建索引
+查看文档：curl  "localhost:9200/customer/_doc/1?pretty"
+删除文档：curl -X DELETE "localhost:9200/customer/_doc/2?pretty"
+
+Elasticsearch还可以使用_bulk API批量同时执行增删查改操作
+	curl -X POST "localhost:9200/customer/_doc/_bulk?pretty" -H 'Content-Type: application/json' -d'
+	{"update":{"_id":"1"}}
+	{"doc": { "name": "John Doe becomes Jane Doe" } }
+	{"delete":{"_id":"2"}}
+	'
+导入文档：curl -H "Content-Type: application/json" -XPOST "localhost:9200/bank/_doc/_bulk?pretty&refresh" --data-binary "@accounts.json"	
+
+The Search API
+	运行搜索有两种基本方法：一种是通过REST请求URI发送检索参数，另一种是通过REST请求体发送检索参数。
+	一种是把检索参数放在URL后面，另一种是放在请求体里面。相当于HTTP的GET和POST请求
+		把检索参数放在URL后面(输出格式直观，但不好拓展)
+		curl -X GET "localhost:9200/bank/_search?q=*&sort=account_number:asc&pretty"
+			took ： Elasticsearch执行搜索的时间（以毫秒为单位）
+			timed_out ： 告诉我们检索是否超时
+			_shards ： 告诉我们检索了多少分片，以及成功/失败的分片数各是多少
+			hits ： 检索的结果
+			hits.total ： 符合检索条件的文档总数
+			hits.hits ： 实际的检索结果数组（默认为前10个文档）
+			hits.sort ： 排序的key（如果按分值排序的话则不显示）
+			hits._score 和 max_score 现在我们先忽略这些字段
+		把检索参数放在放在请求体里面(输出格式不直观，但好拓展)
+		curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+		{
+		"query": { "match_all": {} },
+		"sort": [
+			{ "account_number": "asc" }
+		]}'
+
+查询语言	
+Elasticsearch提供了一种JSON风格的语言，您可以使用这种语言执行查询。这被成为查询DSL	
+bool查询允许我们使用布尔逻辑将较小的查询组合成较大的查询。
+range查询，它允许我们通过一系列值筛选文档。这通常用于数字或日期查询
+分数是一个数值，它是文档与我们指定的搜索查询匹配程度的相对度量/相似度
+聚集：相当于SQL中的聚集函数，比如分组、求和、求平均数之类的
+把检索参数放在放在请求体里面	
+	
+	
+	
+###############################################################################################
+logstash:
+	No configuration found in the configured sources  #程序家目录权限不对	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
