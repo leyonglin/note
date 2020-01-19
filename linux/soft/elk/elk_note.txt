@@ -3,6 +3,7 @@
 elasticsearch下载（旧版本）:https://www.elastic.co/cn/downloads/past-releases#elasticsearch
 静态配置：https://www.elastic.co/guide/en/elasticsearch/reference/版本/path-settings.html			
 非官方文档:https://blog.csdn.net/alex_xfboy/article/details/85015994
+		   https://www.cnblogs.com/cjsblog/p/9517060.html
 
 Logstash（管道收集+分析）：是开源的服务器端数据处理管道，能够同时从多个来源采集数据，转换数据，然后将数据发送到您最喜欢的 “存储库” 中
 Elasticsearch（搜索+存储）：是一个分布式、RESTful 风格的搜索和数据分析引擎

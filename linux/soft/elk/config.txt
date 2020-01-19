@@ -202,14 +202,107 @@ head插件
 
 
 
+filebeat模块：只能输出到es上
+	配置：
+		filebeat.config.modules:
+		# Glob pattern for configuration loading
+		path: /usr/local/efk/alone/filebeat/modules.d/*.yml
+		# Set to true to enable config reloading
+		reload.enabled: true
+		# Period on which files under path should be checked for changes
+		#reload.period: 10s
+	查看模块:
+		./filebeat modules list
+	启用你想运行的模块:
+		./filebeat modules enable system nginx mysql
+	第4步：设置初始环境：
+		./filebeat setup -e
+	第5步：运行Filebeat
+		./filebeat -e
+验证auth：
+output.elasticsearch:
+  hosts: ["myEShost:9200"]
+  username: "filebeat_internal"
+  password: "YOUR_PASSWORD" 
+setup.kibana:
+  host: "mykibanahost:5601"
+  username: "my_kibana_user"  
+  password: "YOUR_PASSWORD"
+
+filebeat配置文件参数：
+filebeat.inputs:
+- type: log 　　
+  paths:
+  - /var/log/nginx/access.log
+encoding: 读取的文件的编码
+exclude_lines: ['^DBG']  #一组正则表达式，用于匹配你想要排除的行。Filebeat会删除
+include_lines:  ['^ERR', '^WARN'] #一组正则表达式，用于匹配你想要包含的行,比exclude_lines优先
+harvester_buffer_size #当抓取一个文件时每个harvester使用的buffer的字节数。默认是16384。
+max_bytes：单个日志消息允许的最大字节数。超过max_bytes的字节将被丢弃且不会被发送
+exclude_files：一组正则表达式，用于匹配你想要忽略的文件。默认没有文件被排除
+ignore_older：如果启用，那么Filebeat会忽略在指定的时间跨度之前被修改的文件
+close_*：close_*配置项用于在一个确定的条件或者时间点之后关闭harvester
+close_inactive：当启用此选项时，如果文件在指定的持续时间内未被获取，则Filebeat将关闭文件句柄
+close_renamed：当启用此选项时，Filebeat会在重命名文件时关闭文件处理器
+close_removed：当启用此选项时，Filebeat会在删除文件时关闭harvester
+close_timeout：当启用此选项是，Filebeat会给每个harvester一个预定义的生命时间
+scan_frequency：Filebeat多久检查一次指定路径下的新文件
+scan.sort：如果你指定了一个非空的值，那么你可以决定用scan.order的升序或者降序。可能的值是 modtime 和 filename
+multiline.pattern：指定用于匹配多行的正则表达式
+multiline.negate：定义模式是否被否定。默认false。
+multiline.match：指定Filebeat如何把多行合并成一个事件。可选的值是 after 或者 before
+multiline.flush_pattern：指定一个正则表达式，多行将从内存刷新到磁盘。
+multiline.max_lines：可以合并成一个事件的最大行数。如果一个多行消息包含的行数超过max_lines，则超过的行被丢弃
+
+加载外部配置文件，Filebeat允许将配置分隔为多个较小的配置文件，然后加载外部配置文件。
+filebeat.config.inputs:
+  enabled: true
+  path: configs/*.yml
+模块配置
+filebeat.config.modules:
+  enabled: true
+  path: ${path.config}/modules.d/*.yml
+ 
+#output.logstash: 
+output.elasticsearch:
+  hosts: ["https://localhost:9200"]
+  #hosts: ["localhost:5044", "localhost:5045"]
+  username: "filebeat_internal"
+  password: "YOUR_PASSWORD"
+  index: "filebeat-%{[beat.version]}-%{+yyyy.MM.dd}"
+ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+ssl.certificate: "/etc/pki/client/cert.pem"
+ssl.key: "/etc/pki/client/cert.key"
+
+output.elasticsearch:
+  hosts: ["http://localhost:9200"]
+  index: "logs-%{[beat.version]}-%{+yyyy.MM.dd}"
+  indices:
+    - index: "critical-%{[beat.version]}-%{+yyyy.MM.dd}"
+      when.contains:
+        message: "CRITICAL"
+    - index: "error-%{[beat.version]}-%{+yyyy.MM.dd}"
+      when.contains:
+        message: "ERR"
+
+setup.template.enabled: "true"
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
+#setup.template.fields
+setup.template.overwrite
+#setup.template.settings._source
 
 
 
-
-
-
-
-
+es/kibana认证x-pack:
+xpack.security.audit.enabled: true      	#启用审计  
+xpack.license.self_generated.type: basic	#有trial和basic两种
+xpack.security.transport.ssl.enabled: true  #启用认证
+	elastic　　超级用户
+	Kibana　　用于连接并且和Elasticsearch通信的
+	logstash_system     用于在Elasticsearch中存储监控信息
+	beats_system    用于在Elasticsearch中存储监控信息
+	
 
 
 	
@@ -218,7 +311,7 @@ head插件
 
 	
 	
-
+	
 查看集群健康状态：curl  "localhost:9200/_cat/health?v"
 	Green ： everything is good（一切都很好）（所有功能正常）
 	Yellow ： 所有数据都是可用的，但有些副本还没有分配（所有功能正常）
@@ -267,6 +360,34 @@ range查询，它允许我们通过一系列值筛选文档。这通常用于数
 分数是一个数值，它是文档与我们指定的搜索查询匹配程度的相对度量/相似度
 聚集：相当于SQL中的聚集函数，比如分组、求和、求平均数之类的
 把检索参数放在放在请求体里面	
+
+# 查看所有用户
+curl -X GET -u elastic "localhost:9200/_xpack/security/user?pretty"
+# 查看指定用户
+curl -X GET -u elastic "localhost:9200/_xpack/security/user/jacknich?pretty"
+创建用户
+curl -X POST -u elastic "localhost:9200/_xpack/security/user/jacknich" -H 'Content-Type: application/json' -d'
+{
+  "password" : "j@rV1s",					#必须的
+  "roles" : [ "admin", "other_role1" ],		#必须的
+  "full_name" : "Jack Nicholson",
+  "email" : "jacknich@example.com",
+  "metadata" : {
+    "intelligence" : 7
+  }
+}
+'
+修改密码
+curl -X POST "localhost:9200/_xpack/security/user/jacknich/_password" -H 'Content-Type: application/json' -d'
+{
+  "password" : "s3cr3t"
+}
+'
+禁用/启用/删除用户
+curl -X PUT "localhost:9200/_xpack/security/user/jacknich/_disable"
+curl -X PUT "localhost:9200/_xpack/security/user/jacknich/_enable"
+curl -X DELETE "localhost:9200/_xpack/security/user/jacknich"	
+	
 	
 	
 	
