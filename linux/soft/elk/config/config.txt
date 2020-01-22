@@ -284,7 +284,7 @@ output.elasticsearch:
     - index: "error-%{[beat.version]}-%{+yyyy.MM.dd}"
       when.contains:
         message: "ERR"
-
+#filebeat加载模块好像只能输出到es，不能输出到logstash
 setup.template.enabled: "true"
 setup.template.name: "filebeat"
 setup.template.pattern: "filebeat-*"

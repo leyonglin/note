@@ -1,0 +1,15 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+  - /var/log/nginx/access.log
+  fields:
+    log_source: nginx-access
+- type: log
+  enabled: true
+  paths:
+  - /var/log/nginx/error.log
+  fields:
+    log_source: nginx-error
+output.logstash:
+  hosts: ["localhost:5044"]

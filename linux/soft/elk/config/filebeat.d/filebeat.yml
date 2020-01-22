@@ -1,0 +1,87 @@
+#=========================== Filebeat inputs =============================
+filebeat.inputs:
+- type: log
+  enabled: true
+  # 要抓取的文件路径 
+  paths:
+    - /var/log/nginx/access.log
+    #- /usr/local/efk/alone/filebeat/logstash-tutorial.log
+  # 添加额外的字段
+  fields:
+    log_source: nginx 
+  fields_under_root: true
+  # 多行处理
+  # 不以"yyyy-MM-dd"这种日期开始的行与前一行合并 
+  #multiline.pattern: ^\d{4}-\d{1,2}-\d{1,2}
+  #multiline.negate: true
+  #multiline.match: after
+
+  # 5秒钟扫描一次以检查文件更新
+  #scan_frequency: 5s
+  # 如果文件1小时都没有更新，则关闭文件句柄
+  #close_inactive: 1h  
+  # 忽略24小时前的文件
+  #ignore_older: 24h
+
+
+#- type: log
+#  enabled: true
+#  paths:
+#    - /usr/local/efk/alone/filebeat/logstash-tutorial.log
+#  fields:
+#    log_source: efk-test
+#  fields_under_root: true
+  #multiline.pattern: ^\d{4}-\d{1,2}-\d{1,2}
+  #multiline.negate: true
+  #multiline.match: after
+  #scan_frequency: 5s
+  #close_inactive: 1h  
+  #ignore_older: 24h
+
+#================================ Outputs =====================================
+
+#-------------------------- Elasticsearch output ------------------------------
+#output.elasticsearch:
+output.logstash:
+  # Array of hosts to connect to.
+  hosts: ["127.0.0.1:5044"]
+  #hosts: ["127.0.0.1:9200"]
+  #设置es上的索引名称，这个能更好的辨别是否上传成功，默认是filebeat-%{[beat.version]}-%{+yyyy.MM}",不要认为这是没有上传成功。启用filebeat模板的话只能输出到es上,如果是输出到logstash可以在logstash定义索引
+  #index: "nginx-%{+yyyy.MM}"
+#setup.template.name: "nginx"
+#setup.template.fields: "path/to/fields.yml"
+#setup.template.pattern: "nginx-*"
+#setup.template.enabled: "true" 
+#setup.template.overwrite: "true" 
+  # Optional protocol and basic auth credentials.
+  #protocol: "https"
+  #username: "elastic"
+  #password: "changeme"
+
+setup.kibana:
+  host: "127.0.0.1:5601"
+#----------------------------- Logstash output --------------------------------
+#output.logstash:
+  # The Logstash hosts
+ # hosts: ["127.0.0.1:5044"]
+
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  #ssl.certificate_authorities: ["/etc/pki/root/ca.pem"]
+
+  # Certificate for SSL client authentication
+  #ssl.certificate: "/etc/pki/client/cert.pem"
+
+  # Client Certificate Key
+  #ssl.key: "/etc/pki/client/cert.key"
+#-------------------------------------module---------------------------------
+#filebeat.config.modules:
+  # Glob pattern for configuration loading
+  #path: /usr/local/efk/alone/filebeat/modules.d/*.yml
+
+  # Set to true to enable config reloading
+  #reload.enabled: true
+
+  # Period on which files under path should be checked for changes
+  #reload.period: 10s
+
