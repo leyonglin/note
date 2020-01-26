@@ -156,7 +156,8 @@ elasticsearch-head 无法连接elasticsearch的原因和解决
 	2、通常会查看请求是否出错，关键是请求没有出错，就是没有返回值：
 		1.F12 --> network(出错查看原因) --> console(错误输出)
 			请求为option有可能是跨域问题，查看console
-	
+#User-agent  和 ingest-geoip 插件已经内置
+#https://www.elastic.co/guide/en/elasticsearch/reference/6.8/geoip-processor.html
 
 head插件
 1.安装环境支持，需要安装nodejs
@@ -286,12 +287,13 @@ output.elasticsearch:
         message: "ERR"
 #filebeat加载模块好像只能输出到es，不能输出到logstash
 setup.template.enabled: "true"
+setup.template.fields: "fields.yml"
 setup.template.name: "filebeat"
 setup.template.pattern: "filebeat-*"
-#setup.template.fields
-setup.template.overwrite
+setup.template.overwrite: false
 #setup.template.settings._source
-
+setup.template.settings:
+  index.number_of_shards: 1
 
 
 es/kibana认证x-pack:
@@ -395,8 +397,10 @@ curl -X DELETE "localhost:9200/_xpack/security/user/jacknich"
 logstash:
 	No configuration found in the configured sources  #程序家目录权限不对	
 	
-	
-	
+filebeat:	
+	Error creating runner from config: Can only start an input when all related states are finished
+		意思是读取到配置中心的新配置，但当前还有采集任务未完成。这个不会让 filbeat 进程挂掉，只是状态会变成 Error，还是会继续使用之前的配置文件运行。一般会自行恢复（下次再拉取配置文件的时候）。
+		如果持续出现，且未恢复到 running 状态，就需要考虑，前文所述的 clean_* 配置簇是否正确，及时清理文件注册状态，同时增大拉取配置的间隔（management.period，默认 1m），没必要频繁拉取	
 	
 	
 	

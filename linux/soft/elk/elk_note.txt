@@ -5,22 +5,16 @@ elasticsearch下载（旧版本）:https://www.elastic.co/cn/downloads/past-rele
 非官方文档:https://blog.csdn.net/alex_xfboy/article/details/85015994
 		   https://www.cnblogs.com/cjsblog/p/9517060.html
 
+apm搭建的时候，可以从kibana可视化中的apm中得到一些部署文档
+其它的也有些可以在可视化kibana中的到一些文档
+
 Logstash（管道收集+分析）：是开源的服务器端数据处理管道，能够同时从多个来源采集数据，转换数据，然后将数据发送到您最喜欢的 “存储库” 中
 Elasticsearch（搜索+存储）：是一个分布式、RESTful 风格的搜索和数据分析引擎
 Kibana（可视化展示）：数据进行可视化并在 Elastic Stack 进行操作
 
 Fluentd是统一日志层的开源数据收集器。Fluentd is an open source data collector for unified logging layer.
-filebeat 轻量型日志采集器，是Elastic Stack 一部分
 beataudit:轻量型审计日志采集器,收集您Linux 审计框架的数据，监控文件完整性。Auditbeat 实时采集这些事件，然后发送到 Elastic Stack 其他部分做进一步分析。
 
-
-Beats目前有官方支持的多个子产品，如下：
-Packetbeat：用于监控局域网内服务器之间的网络流量信息；
-Filebeat：收集服务器上的日志信息——它是用来替代Logstash Forwarder的下一代Logstash收集器，是为了更快速稳定轻量低耗地进行收集工作，它可以很方便地与 Logstash还有直接与Elasticsearch进行对接。
-Metricbeat：新推出的 可以定期获取外部系统的监控指标信息
-Winlogbeat：Windows事件日志轻量级工具
-Auditbeat：审计数据的轻量级工具
-Heartbeat：用于时间监控的轻量级工具
 
 用户 --> client node(获取数据，去重等二次操作) --> data node(存储节点)   master node(主要数据分配上的操作/元数据)
 
@@ -147,16 +141,6 @@ curl -XPUT 'http://localhost:9200/logstash-2016.01.01/_mapping'
 	#ingest node(预处理节点)在文档被索引执行发生之前对文档进行预处理(pre-process).
 
 
-组成：beats：可以使用产品的module，也可以自定义
-		filebeat(文件)：可以添加自定义字段(配置文件itcast-log.yml)    -->  logstash/fluentd
-			prospector 负责管理harvester并找到所有要读取的文件来源,并为每个文件启动一个harvester
-			harvester :负责读取单个文件的内容。读取每个文件	
-		metricbeat(服务器指标)：
-			module：收集的对象，系统/硬件/程序...
-			metricset：收集指标的集合，cpu/memory...
-
-
-
 
 ##################################################################################################
 
@@ -167,23 +151,67 @@ Elasticsearch还可以使用_bulk API批量执行上述任何操作。
 分数是一个数值，它是文档与我们指定的搜索查询匹配程度的相对度量/相似度
 聚集：相当于SQL中的聚集函数，比如分组、求和、求平均数之类的
 
-Beats是用于单用途数据传输，以轻量级代理的形式安装，并将来自成百上千台机器的数据发送到Logstash或Elasticsearch。通俗地理解，就是采集数据，并上报到Logstash或Elasticsearch，Elastic提供了各种Beats
 
 Logstash是一个开源的服务器端数据处理管道，可以同时从多个数据源获取数据，并对其进行转换，并将数据标准化到你所选择的目的地
 1.输入：采集各种"样式、大小和来源"的数据    2.过滤器：实时解析和转换数据     3.输出：选择你的存储，导出你的数据
 
 
+es权限设置
+多租户/多用户：
+	1.space：资源隔离（Manage spaces）      2.roles-users：权限的设置（Management.Security.Users/Roles）
+
+
+es --  Watcher 监控（Management.Watcher.Create advanced watch/Create threshold alert）需要开启x-pack(Management.License Management)
+	trigger: 间隔
+	input：查询结果（http/search）
+	condition：频率/触发条件
+	#transform: action前预处理
+	actions：报警路径（变量引用{{}} ）
+	
 
 
 
 
+####################################################################################################
 
 
+Beats是用于单用途数据传输，以轻量级代理的形式安装，并将来自成百上千台机器的数据发送到Logstash或Elasticsearch。通俗地理解，就是采集数据，并上报到Logstash或Elasticsearch，Elastic提供了各种Beats
 
+Beats目前有官方支持的多个子产品，如下：这些在官网中有更详细的介绍
+Packetbeat：用于监控局域网内服务器之间的网络流量信息；
+Filebeat：收集服务器上的日志信息——它是用来替代Logstash Forwarder的下一代Logstash收集器，是为了更快速稳定轻量低耗地进行收集工作，它可以很方便地与 Logstash还有直接与Elasticsearch进行对接。
+Metricbeat：新推出的 可以定期获取外部系统的监控指标信息
+Winlogbeat：Windows事件日志轻量级工具
+Auditbeat：审计数据的轻量级工具
+Heartbeat：用于时间监控的轻量级工具
 
+组成：beats：可以使用产品的module，也可以自定义
+		filebeat(文件)：可以添加自定义字段(配置文件itcast-log.yml)    -->  logstash/fluentd
+			prospector:负责管理harvester并找到所有要读取的文件来源,并为每个文件启动一个harvester
+			harvester:负责读取单个文件的内容。读取每个文件	
+			registry:记录偏移量
+		metricbeat(服务器指标)：
+			module：收集的对象，系统/硬件/程序...
+			metricset：收集指标的集合，cpu/memory...
+启动命令：nohup ./filebeat -e -c filebeat.d/$3 -d "publish" &>> /var/log/filebeat/filebeat &   #-d "publish" 将文件变化输出到filebeat日志中，生产环境下不用
+查看模块：./filebeat modules list
+启动模块：./filebeat modules enable redis
 
-
-
+定义数据采集	 -->  prospector配置    #filebeat.inputs: 或者filebeat.prospectors:
+建立数据模型 	 -->  index Template
+	./filebeat export template
+	配置文件：fields.yml
+	setup.template.enabled: "true"
+	setup.template.fields: "fields.yml"
+	setup.template.name: "filebeat"
+	setup.template.pattern: "filebeat-*"
+	setup.template.overwrite: false
+	#setup.template.settings._source
+	setup.template.settings:
+	index.number_of_shards: 1
+建立数据处理流程 -->  ingest pipeline
+	beats本身没有数据处理能力：解决方法 1.logstash   2.elasticsearch ingest node
+存储并分析数据   -->  kibana dashboards
 
 
 

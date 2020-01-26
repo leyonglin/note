@@ -1,0 +1,30 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+  - /var/log/nginx/access.log
+  fields:
+    log_source: nginx-access
+- type: log
+  enabled: true
+  paths:
+  - /var/log/nginx/error.log
+  fields:
+    log_source: nginx-error
+output.elasticsearch:
+  hosts: ["localhost:9200"]
+#  index: "nginx-%{+yyyy.MM}"
+  index: "nginx-%{+yyyy.MM.dd}"
+  when.equals:
+    fields:
+        log_source: "nginx-access"
+  index: "error-%{+yyyy.MM.dd}"
+  when.equals: 
+    fields.log_source: "nginx-error"
+
+
+setup.template.name: "nginx"
+#setup.template.fields: "path/to/fields.yml"
+setup.template.pattern: "nginx-*"
+setup.template.enabled: "true" 
+setup.template.overwrite: "true" 

@@ -1,0 +1,32 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  # 要抓取的文件路径 
+  paths:
+    #- /usr/local/tomcat/logs/localhost_access_log.%{+YYYY-MM-dd}.txt
+    - /usr/local/tomcat/logs/catalina.out
+  # 添加额外的字段
+  fields:
+    log_source: tomcat-start
+  # 多行处理
+  # 不以"yyyy-MM-dd"这种日期开始的行与前一行合并 
+  multiline.pattern: ^\d{1,2}-\w{1,5}-\d{4}
+  multiline.negate: true
+  multiline.match: after
+- type: log
+  enabled: true
+  # 要抓取的文件路径 
+  paths:
+    - /usr/local/tomcat/logs/localhost_access*    
+    #- /usr/local/tomcat/logs/localhost_access_log.2020-01-23.txt
+    #- /usr/local/tomcat/logs/localhost_access_log.$(date +"%Y-%m-%d").txt
+  # 添加额外的字段
+  fields:
+    log_source: tomcat-access
+  # 多行处理
+  # 不以"yyyy-MM-dd"这种日期开始的行与前一行合并 
+  #multiline.pattern: ^\d{1,2}-\w{1,5}-\d{4}
+  #multiline.negate: true
+  #multiline.match: after
+output.logstash:
+  hosts: ["localhost:5044"]

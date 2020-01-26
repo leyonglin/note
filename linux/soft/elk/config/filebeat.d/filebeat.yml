@@ -9,12 +9,16 @@ filebeat.inputs:
   # 添加额外的字段
   fields:
     log_source: nginx 
+  #是否把fields字段置顶
   fields_under_root: true
+  #document_type：设定Elasticsearch输出时的document的type字段，也可以用来给日志进行分类。
   # 多行处理
   # 不以"yyyy-MM-dd"这种日期开始的行与前一行合并 
   #multiline.pattern: ^\d{4}-\d{1,2}-\d{1,2}
   #multiline.negate: true
   #multiline.match: after
+  #tail_files：如果设置为true，Filebeat从文件尾开始监控文件新增内容，把新增的每一行文件作为一个事件依次发送，而不是从文件开始处重新发送所有内容 
+  #backoff：Filebeat检测到某个文件到了EOF之后，每次等待多久再去检测文件是否有更新，默认为1s。
 
   # 5秒钟扫描一次以检查文件更新
   #scan_frequency: 5s
@@ -41,10 +45,10 @@ filebeat.inputs:
 #================================ Outputs =====================================
 
 #-------------------------- Elasticsearch output ------------------------------
-#output.elasticsearch:
-output.logstash:
+output.elasticsearch:
+#output.logstash:
   # Array of hosts to connect to.
-  hosts: ["127.0.0.1:5044"]
+  hosts: ["127.0.0.1:9200"]
   #hosts: ["127.0.0.1:9200"]
   #设置es上的索引名称，这个能更好的辨别是否上传成功，默认是filebeat-%{[beat.version]}-%{+yyyy.MM}",不要认为这是没有上传成功。启用filebeat模板的话只能输出到es上,如果是输出到logstash可以在logstash定义索引
   #index: "nginx-%{+yyyy.MM}"
@@ -75,13 +79,13 @@ setup.kibana:
   # Client Certificate Key
   #ssl.key: "/etc/pki/client/cert.key"
 #-------------------------------------module---------------------------------
-#filebeat.config.modules:
+filebeat.config.modules:
   # Glob pattern for configuration loading
-  #path: /usr/local/efk/alone/filebeat/modules.d/*.yml
+  path: /usr/local/efk/alone/filebeat/modules.d/*.yml
 
   # Set to true to enable config reloading
-  #reload.enabled: true
+  reload.enabled: true
 
   # Period on which files under path should be checked for changes
-  #reload.period: 10s
+  reload.period: 10s
 

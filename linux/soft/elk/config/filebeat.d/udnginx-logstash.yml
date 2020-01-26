@@ -11,5 +11,6 @@ filebeat.inputs:
   - /var/log/nginx/error.log
   fields:
     log_source: nginx-error
+#索引的命名在logstash上操作
 output.logstash:
   hosts: ["localhost:5044"]
