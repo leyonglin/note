@@ -1,0 +1,62 @@
+# 定义app、zabbix、nginx等应用的input类型、以及存放的具体路径
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/*.log
+  fields: 
+    source: app
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/*.log
+  fields:
+    source: nginx
+- type: log
+  enabled: true
+  paths:
+    - /var/log/zabbix/*.log
+  fields:
+    source: zabbix
+    
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: true
+  
+setup.template.settings:
+  index.number_of_shards: 1
+  
+# 定义kibana的IP:PORT
+setup.kibana:
+  host: "10.0.0.11:5601"
+
+# 定义模板的相关信息  
+setup.template.name: "lile_log"
+setup.template.pattern: "lile-*"
+setup.template.overwrite: true
+setup.template.enabled: true
+# 在7.4这个版本中，自定义ES的索引需要把ilm设置为false
+setup.ilm.enabled: false
+
+# 定义app、zabbix、nginx的output
+output.elasticsearch:
+  # 定义ES的IP:PORT
+  hosts: ["10.0.0.24:9200"]
+  # 这里的index前缀lile与模板的pattern匹配，中间这一串设置为field.source变量，方面后面具体的匹配
+  index: "lile-%{[fields.source]}-*"
+  indices:
+    # 这里的前缀lile同为与模板的pattern匹配，中间为field.source具体的值，当前面的input的field.source值与这里的匹配时，则index设置为定义的
+    - index: "lile-app-%{+yyyy.MM.dd}"
+      when.equals:
+        fields:
+            source: "app"
+    - index: "lile-zabbix-%{+yyyy.MM.dd}"
+      when.equals: 
+        fields.source: "zabbix"
+    - index: "lile-nginx-%{+yyyy.MM.dd}"
+      when.equals: 
+        fields.source: "nginx"
+  
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~

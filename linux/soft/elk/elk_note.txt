@@ -156,9 +156,6 @@ Logstash是一个开源的服务器端数据处理管道，可以同时从多个
 1.输入：采集各种"样式、大小和来源"的数据    2.过滤器：实时解析和转换数据     3.输出：选择你的存储，导出你的数据
 
 
-es权限设置
-多租户/多用户：
-	1.space：资源隔离（Manage spaces）      2.roles-users：权限的设置（Management.Security.Users/Roles）
 
 
 es --  Watcher 监控（Management.Watcher.Create advanced watch/Create threshold alert）需要开启x-pack(Management.License Management)
@@ -168,6 +165,12 @@ es --  Watcher 监控（Management.Watcher.Create advanced watch/Create threshol
 	#transform: action前预处理
 	actions：报警路径（变量引用{{}} ）
 	
+##################################################################################################
+
+kibana:
+es权限设置
+多租户/多用户：
+	1.space：资源隔离（Management.Spaces）      2.roles-users：权限的设置（Management.Security.Users/Roles）
 
 
 
@@ -197,27 +200,129 @@ Heartbeat：用于时间监控的轻量级工具
 查看模块：./filebeat modules list
 启动模块：./filebeat modules enable redis
 
-定义数据采集	 -->  prospector配置    #filebeat.inputs: 或者filebeat.prospectors:
-建立数据模型 	 -->  index Template
-	./filebeat export template
-	配置文件：fields.yml
-	setup.template.enabled: "true"
-	setup.template.fields: "fields.yml"
-	setup.template.name: "filebeat"
-	setup.template.pattern: "filebeat-*"
-	setup.template.overwrite: false
-	#setup.template.settings._source
-	setup.template.settings:
-	index.number_of_shards: 1
-建立数据处理流程 -->  ingest pipeline
-	beats本身没有数据处理能力：解决方法 1.logstash   2.elasticsearch ingest node
-存储并分析数据   -->  kibana dashboards
+流程：
+	定义数据采集	 -->  prospector配置    
+		#filebeat.inputs: 或者filebeat.prospectors:
+	建立数据模型 	 -->  index Template
+		配置文件：fields.yml	
+		查看命令：./filebeat export template			
+		setup.template.enabled: "true"
+		setup.template.fields: "fields.yml"
+		setup.template.name: "nginx"
+		setup.template.pattern: "nginx-log-*"
+		setup.template.overwrite: false
+		#setup.template.settings._source
+		setup.template.settings:
+		  index.number_of_shards: 1
+	建立数据处理流程 -->  ingest pipeline
+		beats本身没有数据处理能力：解决方法 1.logstash   2.elasticsearch ingest node
+		将信息从message中提取出来
+	存储并分析数据   -->  kibana dashboards   
+		#output.elasticsearch(.hosts/.index)
+
+
+filebeat module：一般是用来快速体验filebeat，生产环境下一般根据自己的业务定制
+	路径：module/nginx
+	index Template配置：fields.yml
+	prospector配置：module/nginx/access/config/nginx-access.yml
+	ingest pipeline配置: module/nginx/access/ingest/default.json
+
+
+导入dashboard：
+  配置文件
+	kibana/
+	├── 5
+	│   ├── dashboard
+	│   ├── index-pattern
+	│   ├── search
+	│   └── visualization
+	└── 6
+		├── dashboard
+		└── index-pattern
+导入命令：./filebeat setup --dashboards
+
+
+Processors：插件+字段增删查改
+
+
+修改索引名称：
+	#output.elasticsearch.index:"nginx-log-%{+yyyy.MM.dd}"
+	setup.template.name: "nginx"
+	setup.template.pattern: "nginx-log-*"	
+  重新导入template
+    ./filebeat setup --template
+  修改dashboard：
+    将dashboard中所有的filebeat-* 修改为 nginx-log-*
+
+只导入nginx相关的dashboard
+  备份并改名nginx_kibana，删除用不到的dashboard文件 
+  重新导入dashboard
+	./filebeat setup --dashboard -E setup.dashboards.directory=nginx_kibana
+
+
+###############################################################################################
+
+
+esrally 压测：为了选出合适的版本
+	定义压测目标			tournament
+	准备压测数据与方案 		track
+	执行压测方案			car/race
+	总结并产出压测报告		awards
 
 
 
 
+###############################################################################################
+
+ILM: index lifecycle management   #索引生命周期管理(Management.index Lifecycle Policies)
+
+policy：不同阶段可以通过节点属性迁移到不同节点
+	hot: 
+		create
+		rolloverAPI: 根据大小/时间，自动创建索引(别名：nginx_logs_write/read)
+	warm: min_age  #定义索引属性，扩缩索引
+	cold  
+	delete
 
 
+###############################################################################################
+
+hot-warm冷热架构
+不同节点配置可以不同，给不同节点添加不同属性，存放不同周期的数据
+	node.attr.type: hot/warm/cold/delete
+
+put 索引名/_settings
+{
+	"index.routing.allocation.require.节点属性": "属性值"
+}
+
+
+###############################################################################################
+
+Multi-Fields 多字段
+	es以text类型分析任何字符串，用于全文搜索(full-text)的字符串需要分词器分析
+	在创建一个keyword多字段定义，用于排序或聚合的字符串通常不需要分词器分析
+
+
+###############################################################################################
+
+ccr：cross cluster replication   #以集群为单位的主从复制，但是是单向的
+	高可用，就近访问，数据集中化分析
+	#Management.Remote Clusters + Management.Cross Cluster Replication(Follower indices / Auto-follow patterns(匹配模式))
+	#收费Management.License Management
+
+
+DSL指的是针对特定应用领域而设计使用的计算机语言，而GPL指的是针对跨应用领域而设计使用的计算机语言。
+
+sql:类sql
+	POST _xpack/sql?format=txt
+	{
+	"query":"show tables"     #show tables就是sql语句
+	}
+
+open index:可读可写
+frozon indices：只读，动态查询，性能较低但是不占内存heap
+closed index：不可读写，只占存储空间
 
 
 
