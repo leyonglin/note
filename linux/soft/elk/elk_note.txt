@@ -4,9 +4,11 @@ elasticsearch下载（旧版本）:https://www.elastic.co/cn/downloads/past-rele
 静态配置：https://www.elastic.co/guide/en/elasticsearch/reference/版本/path-settings.html			
 非官方文档:https://blog.csdn.net/alex_xfboy/article/details/85015994
 		   https://www.cnblogs.com/cjsblog/p/9517060.html
+grok调试器：http://grokdebug.herokuapp.com/
 
 apm搭建的时候，可以从kibana可视化中的apm中得到一些部署文档
 其它的也有些可以在可视化kibana中的到一些文档
+
 
 Logstash（管道收集+分析）：是开源的服务器端数据处理管道，能够同时从多个来源采集数据，转换数据，然后将数据发送到您最喜欢的 “存储库” 中
 Elasticsearch（搜索+存储）：是一个分布式、RESTful 风格的搜索和数据分析引擎
@@ -144,7 +146,7 @@ curl -XPUT 'http://localhost:9200/logstash-2016.01.01/_mapping'
 
 ##################################################################################################
 
-副本是针对索引而言的，同时需要注意索引和节点数量没有关系，我们说2个副本指的是索引被复制了2次，而1个索引可能由5个分片组成，那么在这种情况下，集群中的分片数应该是 5 × (1 + 2) = 15 ）
+es副本是针对索引而言的，同时需要注意索引和节点数量没有关系，我们说2个副本指的是索引被复制了2次，而1个索引可能由5个分片组成，那么在这种情况下，集群中的分片数应该是 5 × (1 + 2) = 15 ）
 
 Elasticsearch还可以使用_bulk API批量执行上述任何操作。
 查询语言:Elasticsearch提供了一种JSON风格的语言，您可以使用这种语言执行查询。这被成为查询DSL。
@@ -155,7 +157,7 @@ Elasticsearch还可以使用_bulk API批量执行上述任何操作。
 Logstash是一个开源的服务器端数据处理管道，可以同时从多个数据源获取数据，并对其进行转换，并将数据标准化到你所选择的目的地
 1.输入：采集各种"样式、大小和来源"的数据    2.过滤器：实时解析和转换数据     3.输出：选择你的存储，导出你的数据
 
-
+##################################################################################################
 
 
 es --  Watcher 监控（Management.Watcher.Create advanced watch/Create threshold alert）需要开启x-pack(Management.License Management)
@@ -165,14 +167,114 @@ es --  Watcher 监控（Management.Watcher.Create advanced watch/Create threshol
 	#transform: action前预处理
 	actions：报警路径（变量引用{{}} ）
 	
+
+
+###############################################################################################
+
+es
+esrally 压测：为了选出合适的版本
+	定义压测目标			tournament
+	准备压测数据与方案 		track
+	执行压测方案			car/race
+	总结并产出压测报告		awards
+
 ##################################################################################################
+
+
+es
+分词analysis：将文本转换成一系列单词的过程，也叫文本分析
+分词器analyzer：不同的分词器切分规则不同，三部分可以自定义组合为一个整体
+	character filters：针对原始文本进行处理，比如去掉html标签特殊标记符
+	tokenizer：将原始文本按一定规则切分为单词
+	token filters：针对tokenizer处理的单词再次加工比如转换，删除，新增等
+
+IK分词器：中文分词器
+keyword：不分词
+
+
+Multi-Fields 多字段
+	es以text类型分析任何字符串，用于全文搜索(full-text)的字符串需要分词器分析
+	在创建一个keyword多字段定义，用于排序或聚合的字符串通常不需要分词器分析
+	
+	
+###############################################################################################
+
+es
+ILM: index lifecycle management   #索引生命周期管理(Management.index Lifecycle Policies)
+
+policy：不同阶段可以通过节点属性迁移到不同节点
+	hot: 
+		create
+		rolloverAPI: 根据大小/时间，自动创建索引(别名：nginx_logs_write/read)
+	warm: min_age  #定义索引属性，扩缩索引
+	cold  
+	delete
+
+
+###############################################################################################
+
+
+es的hot-warm冷热架构
+不同节点配置可以不同，给不同节点添加不同属性，存放不同周期的数据
+	node.attr.type: hot/warm/cold/delete
+
+put 索引名/_settings
+{
+	"index.routing.allocation.require.节点属性": "属性值"
+}
+
+
+###############################################################################################
+
+es新功能
+ccr：cross cluster replication   #以集群为单位的主从复制，但是是单向的
+	高可用，就近访问，数据集中化分析
+	#Management.Remote Clusters + Management.Cross Cluster Replication(Follower indices / Auto-follow patterns(匹配模式))
+	#收费Management.License Management
+
+
+DSL指的是针对特定应用领域而设计使用的计算机语言，而GPL指的是针对跨应用领域而设计使用的计算机语言。
+sql:类sql
+	POST _xpack/sql?format=txt
+	{
+	"query":"show tables"     #show tables就是sql语句
+	}
+
+open index:可读可写
+frozon indices：只读，动态查询，性能较低但是不占内存heap(默认不会查询，要添加参数)
+closed index：不可读写，只占存储空间
+
+
+###############################################################################################
+
+kibana的可视化编辑可以导入sample data，然后模仿创建出来
+kibana新功能：
+汉化版：修改配置文件
+	i18n.locale: "zh-CN"
+canvas - 高度灵活的实时信息图表(需要会查询语句)
+Infrastructure：可视化有教程
+Logs：可视化有教程
+uptime：应用层服务的运行情况
+ecs-elastic common schema：数据模型命名与类型定义的最佳实践(不同数据源相同数据统一命名)，提升不同源头的数据关联度，复用内置可视化，仪表盘等分析能力
+
+
+###############################################################################################
 
 kibana:
 es权限设置
 多租户/多用户：
 	1.space：资源隔离（Management.Spaces）      2.roles-users：权限的设置（Management.Security.Users/Roles）
 
+###############################################################################################
 
+kibana APM:
+	在可视化界面有步骤提示：
+	java -javaagent:./elastic-apm-agent-1.12.0.jar \           			 #下载下来的apm-agent的jar包路径
+		-Delastic.apm.service_name=my-application \						 #在kibanaAPM查看的时候的项目名称
+		-Delastic.apm.server_url=http://localhost:8200 \				 #apm-server的地址
+		-Delastic.apm.secret_token= \									 #无
+		-Delastic.apm.application_packages=org.example \				 #不知道啥意思，省略也不会报错	
+		-jar jenkins.war												 #程序的jar包
 
 
 ####################################################################################################
@@ -258,80 +360,5 @@ Processors：插件+字段增删查改
   备份并改名nginx_kibana，删除用不到的dashboard文件 
   重新导入dashboard
 	./filebeat setup --dashboard -E setup.dashboards.directory=nginx_kibana
-
-
-###############################################################################################
-
-
-esrally 压测：为了选出合适的版本
-	定义压测目标			tournament
-	准备压测数据与方案 		track
-	执行压测方案			car/race
-	总结并产出压测报告		awards
-
-
-
-
-###############################################################################################
-
-ILM: index lifecycle management   #索引生命周期管理(Management.index Lifecycle Policies)
-
-policy：不同阶段可以通过节点属性迁移到不同节点
-	hot: 
-		create
-		rolloverAPI: 根据大小/时间，自动创建索引(别名：nginx_logs_write/read)
-	warm: min_age  #定义索引属性，扩缩索引
-	cold  
-	delete
-
-
-###############################################################################################
-
-hot-warm冷热架构
-不同节点配置可以不同，给不同节点添加不同属性，存放不同周期的数据
-	node.attr.type: hot/warm/cold/delete
-
-put 索引名/_settings
-{
-	"index.routing.allocation.require.节点属性": "属性值"
-}
-
-
-###############################################################################################
-
-Multi-Fields 多字段
-	es以text类型分析任何字符串，用于全文搜索(full-text)的字符串需要分词器分析
-	在创建一个keyword多字段定义，用于排序或聚合的字符串通常不需要分词器分析
-
-
-###############################################################################################
-
-ccr：cross cluster replication   #以集群为单位的主从复制，但是是单向的
-	高可用，就近访问，数据集中化分析
-	#Management.Remote Clusters + Management.Cross Cluster Replication(Follower indices / Auto-follow patterns(匹配模式))
-	#收费Management.License Management
-
-
-DSL指的是针对特定应用领域而设计使用的计算机语言，而GPL指的是针对跨应用领域而设计使用的计算机语言。
-
-sql:类sql
-	POST _xpack/sql?format=txt
-	{
-	"query":"show tables"     #show tables就是sql语句
-	}
-
-open index:可读可写
-frozon indices：只读，动态查询，性能较低但是不占内存heap
-closed index：不可读写，只占存储空间
-
-
-
-
-
-
-
-
-
-
 
 

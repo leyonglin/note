@@ -1,0 +1,127 @@
+#ES 的 ingest node 可以对即将进行索引的文档做预处理工作。在 ingest node 内部定义一个pipeline，pipeline中定义多个processor，这些processor就是预处理文档的配置
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/access.log
+  fields:
+    type: "access-log"
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/error.log
+  fields:
+    type: "error-log"
+setup.template.name: "ignore-this"
+setup.template.pattern: "ignore-this"
+setup.template.settings:
+  index.number_of_shards: 1
+  index.number_of_replicas: 1
+# 在7.4这个版本中，自定义ES的索引需要把ilm设置为false
+#setup.ilm.enabled: false
+output.elasticsearch:
+  # Array of hosts to connect to.
+  hosts: ["localhost:9200"]
+  indices:
+    - index: "filebeat-nginx-access-%{+yyy.MM.dd}"
+      when.equals:
+        fields.type: "access-log"
+    - index: "filebeat-nginx-error-%{+yyy.MM.dd}"
+      when.equals:
+        fields.type: "error-log"
+  pipelines:
+    - pipeline: "pipeline-nginx-access"
+      when.equals:
+        fields.type: "access-log"
+    - pipeline: "pipeline-nginx-error"
+      when.equals:
+        fields.type: "error-log"
+  username: "elastic"
+  password: "elastic"
+  
+  
+#增加两个pipeline，分别用于处理nginx的access.log、error.log  
+#grok里面如果有[ ]特殊符号，在ES里需要两层转义 比如 \\[%{HTTPDATE:timestamp}\\] 
+#PUT  _ingest/pipeline/pipeline-nginx-access
+#{
+#  "description" : "nginx access log",
+#  "processors": [
+#    {
+#      "grok": {
+#        "field": "message",
+#        "patterns": ["%{IP:clientip} - %{DATA:userid} %{DATA:username} - %{DATA:location} %{DATA:sex} at %{DATA:timestamp} \"%{DATA:useragent}\" end"]
+#      }
+#    },{
+#      "geoip":{
+#        "field": "clientip",
+#        "target_field": "geoip"
+#      }
+#    },{
+#      "user_agent": {
+#        "field": "useragent",
+#        "target_field": "useragent"
+#      }
+#    },{
+#      "date": {
+#        "field": "timestamp",
+#        "formats": ["yyyy-MM-dd HH:mm:ss"],
+#        "target_field": "timestamp"
+#      }
+#    },{
+#      "remove": {
+#        "field": "offset"
+#      }
+#    },{
+#      "remove": {
+#        "field": "prospector"
+#      }
+#    },{
+#      "remove": {
+#        "field": "message"
+#      }
+#    }
+#  ]
+#}  
+  
+#PUT  _ingest/pipeline/pipeline-nginx-error
+#{
+#  "description" : "nginx error log",
+#  "processors": [
+#    {
+#      "grok": {
+#        "field": "message",
+#        "patterns": ["%{IP:clientip} - error %{DATA:userid} %{DATA:username} - %{DATA:location} %{DATA:sex} at %{DATA:timestamp} \"%{DATA:useragent}\" end"]
+#      }
+#    },{
+#      "geoip":{
+#        "field": "clientip",
+#        "target_field": "geoip"
+#      }
+#    },{
+#      "user_agent": {
+#        "field": "useragent",
+#        "target_field": "useragent"
+#      }
+#    },{
+#      "date": {
+#        "field": "timestamp",
+#        "formats": ["yyyy-MM-dd HH:mm:ss"],
+#        "target_field": "timestamp"
+#      }
+#    },{
+#      "remove": {
+#        "field": "offset"
+#      }
+#    },{
+#      "remove": {
+#        "field": "prospector"
+#      }
+#    },{
+#      "remove": {
+#        "field": "message"
+#      }
+#    }
+#  ]
+#}  
+  
+  
+  
