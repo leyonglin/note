@@ -247,14 +247,14 @@ closed index：不可读写，只占存储空间
 
 ###############################################################################################
 
-kibana的可视化编辑可以导入sample data，然后模仿创建出来
+kibana的可视化编辑可以导入sample data，然后模仿创建出来。注意字段类型要相同
 kibana新功能：
 汉化版：修改配置文件
 	i18n.locale: "zh-CN"
 canvas - 高度灵活的实时信息图表(需要会查询语句)
-Infrastructure：可视化有教程
-Logs：可视化有教程
-uptime：应用层服务的运行情况
+Infrastructure：监控主机，可视化有教程
+Logs：直观的查看日志，可视化有教程，好像是用filebeat模块实现的
+uptime：应用层服务的运行情况(基于部署heartbeat实现的)
 ecs-elastic common schema：数据模型命名与类型定义的最佳实践(不同数据源相同数据统一命名)，提升不同源头的数据关联度，复用内置可视化，仪表盘等分析能力
 
 
@@ -271,9 +271,9 @@ kibana APM:
 	在可视化界面有步骤提示：
 	java -javaagent:./elastic-apm-agent-1.12.0.jar \           			 #下载下来的apm-agent的jar包路径
 		-Delastic.apm.service_name=my-application \						 #在kibanaAPM查看的时候的项目名称
-		-Delastic.apm.server_url=http://localhost:8200 \				 #apm-server的地址
+		-Delastic.apm.server_url=http://localhost:8200 \				 #apm-server的地址,在apm-server.yml中配置
 		-Delastic.apm.secret_token= \									 #无
-		-Delastic.apm.application_packages=org.example \				 #不知道啥意思，省略也不会报错	
+		#-Delastic.apm.application_packages=org.example \				 #不知道啥意思，省略也不会报错	
 		-jar jenkins.war												 #程序的jar包
 
 
