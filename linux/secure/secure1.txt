@@ -69,16 +69,17 @@ linux下设置密码复杂度限制:
 	/etc/security/limits.conf  ---> ulimit -a
 		@pro1   hard   maxlogins   1     #限制只能开一个终端
 
-登陆：	
-	取得 bash 时需要完整的登陆流程的，就称为 login shell(输入用户名密码shell才启动)，non-login shell，不需要登录就可以获取bash页面
+登陆：
+  区分登录Shell和非登录Shell呢，可以通过查看$0的值，登录(密码登录和su - master)Shell返回-bash，而非登录(su master)Shell返回的是bash	
+  取得 bash 时需要完整的登陆流程的，就称为 login shell(输入用户名密码shell才启动)，non-login shell，不需要登录就可以获取bash页面
+  non-login shell 不同于login shell，登陆退出不读取以下配置文件(~/.bash_history 除外)。
 	1./etc/profile (#login shell登陆)   #全局配置
 		调用/etc/profile.d/*.sh
 		    /etc/inputrc  用来处理键盘映射表（自定义热键~/.inputrc）  
 	  ~/.bash_profile   ~/.bash_login    ~/.profile	#个人配置，按顺序只会读取上面三个文件的其中一个
 		调用：~.bashrc(#non-login shell) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
-	2.~/.bash_logout     #退出 
+	2.~/.bash_logout     #退出，non-login shell 不会读取 
 	3.~/.bash_history    #历史记录
-用户进入操作系统以后，常常会再手动开启一个shell/su。这个shell就叫做 non-login shell,意思是它不同于登录时出现的那个shell，不读取/etc/profile和.profile等配置文件。
 
 同一账号同时多次登陆的 history 写入问题（一般在内存中，最后一个才会被记录）
   不会配置也可以删了，泄露信息

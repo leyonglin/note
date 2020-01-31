@@ -1,0 +1,89 @@
+#自定义脚本参数补全甲苯，使用方式source 参数补全脚本，也可放在~/.bashrc登陆自动加载
+#定义函数，foo b c ，foo为脚本名 b为第一个参数 c为第二个参数
+tongdaoji()
+{   
+    local cur prev opts
+    COMPREPLY=()  
+	#被赋值为第一个参数，如果为空则全部选项输出
+    cur="${COMP_WORDS[COMP_CWORD]}"  
+	#被赋值为脚本名
+    #prev="${COMP_WORDS[COMP_CWORD-1]}"  
+	#定义补全参数
+    opts="elastic elastic_head kibana logstash filebeat"
+    if [[ ${cur} == * ]] ; then  
+	#从opts中选出开头cur的参数tabtab：compgen -W "${opts}" -- ${cur}) 
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+	#已经确定的会在tab一次的时候就出现
+	#echo -n "${prev}"	
+        return 0
+    fi
+}
+
+#多参数补全
+tong1()    
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur1="${COMP_WORDS[1]}"
+    cur2="${COMP_WORDS[2]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts1="start stop status"
+    opts2="elastic elastic_head kibana logstash filebeat"
+    #判断第一个参数是什么，假如是stop，则是确定的，那么再tab一次就会重新输出
+    if [ "${cur1}" != "start" ];then
+        COMPREPLY=( $(compgen -W "${opts1}" -- ${cur1}) )
+    fi
+    if [ "${cur1}" == "start" ];then
+        COMPREPLY=( $(compgen -W "${opts2}" -- ${cur2}) )
+    fi
+}
+
+_helloworld_complete_func()
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="help usage version"                                                                                                           
+
+    if [[ ${cur} == * ]] ; then
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    fi
+}
+#格式为 complete -F 函数名 自定义脚本，即自定义脚本能自动补全函数名中的参数
+complete -F tongdaoji efk
+complete -F _helloworld hello
+complete -F tong1 hello
+
+
+#补全相关的内置变量
+#COMP_WORDS: 类型为数组，存放当前命令行中输入的所有单词；
+#COMP_CWORD: 类型为整数，当前光标下输入的单词位于COMP_WORDS数组中的索引；
+#COMPREPLY: 类型为数组，候选的补全结果；
+#COMP_WORDBREAKS: 类型为字符串，表示单词之间的分隔符；
+#COMP_LINE: 类型为字符串，表示当前的命令行输入
+
+#例子：
+#cat>>complete<<EOF
+#function _foo()
+#{
+#     echo -e "\n"
+#
+#     declare -p COMP_WORDS
+#     declare -p COMP_CWORD
+#     declare -p COMP_LINE
+#     declare -p COMP_WORDBREAKS
+#}
+#complete -F _foo foo
+#EOF
+#结果：
+#foo b c
+#declare -a COMP_WORDS='([0]="foo" [1]="b" [2]="c")'	#命令行数组	
+#declare -- COMP_CWORD="2"    							#光标所在索引，可以简单认为补全第几个参数
+#declare -- COMP_LINE="foo b c" 						#命令行的输出
+#declare -- COMP_WORDBREAKS="					
+
+
+
+
