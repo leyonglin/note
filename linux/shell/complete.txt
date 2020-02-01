@@ -22,7 +22,7 @@ tongdaoji()
 #多参数补全
 tong1()    
 {
-    local cur prev opts
+    local cur1 cur2 prev opts1 opts2
     COMPREPLY=()
     cur1="${COMP_WORDS[1]}"
     cur2="${COMP_WORDS[2]}"

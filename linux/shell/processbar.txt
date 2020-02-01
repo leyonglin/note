@@ -1,0 +1,84 @@
+
+
+pv [option] file        #初步观察有cat的功能，然后通过管道进行文件操作
+-p 来显示百分比，-t 来显示时间，-r 表示传输速率，-e 代表ETA剩余时间 #默认启用
+pv test.dd > test.dd1
+pv -L 2m test.dd > test.dd1 #限制速度
+echo "Tecmint[dot]com is a community of Linux Nerds and Geeks" | pv -qL 10   #匀速打印
+
+
+#适合匀速操作，调用简单
+#set -x
+#!/bin/bash
+ProgressBar()
+{
+local udsource=$1 udspeed=$2 udtrue=0 current=0 before=0 b=''
+udspeed=`echo "scale=2;$udspeed*100/$udsource"|bc`
+#local uddest=$2
+#local current=0
+#local before=0
+#local b=''
+while [ $current -le 100 ]   
+do
+	current=`echo "scale=2;$udtrue+$udspeed"|bc`
+	udtrue=${current}
+	current=${current%.*}
+    if [ $current -le 1000 ];then
+        (( $current >= "100" )) && current=100
+        incre=$[current-before]
+        sleep 1 
+        for i in `seq ${incre}`
+        do
+        b+='#'
+        printf "[%-100s] %d%% \r" "$b" "$current"
+        done
+        (( $current >= "100" )) && echo && return || before=$current
+    fi
+done
+}
+
+echo $udsource $udspeed $udtrue $current $before $b
+ProgressBar $1 $2
+echo $udsource  $udspeed $udtrue $current $before $b
+
+
+#大致可以显示进度条，因为对文件的大小无法自动测值，赋值又无法后台& 赋值
+#!/bin/bash
+#set -x
+#set -v
+ProgressBar()
+{
+udsource=$1 uddst=$2
+udtrue=${udtrue-"0"}
+current=${current-"1"}
+before=${before-"0"}
+b=${b-""}
+current=`echo "scale=2;$uddst/$udsource*100+1"|bc`
+udtrue=${current}
+current=${current%.*}
+(( $current >= "100" )) && current=100
+incre=$[current-before]
+for i in `seq ${incre}`
+do
+b+='#'
+printf "[%-100s] %d%% \r" "$b" "$current"
+done
+(( $current == "100" )) && echo && break || before=$current
+}
+#initial_size=`echo "$3*1000*1000"|bc`
+initial_size=$3
+filename1=$1
+filename2=$2
+cp -r $1 $2 &
+echo "$$"
+while [ -n $udsourcesize ]
+do
+  uddestsize=`du -s $2 | awk '{print $1}'`
+  ProgressBar ${udsourcesize-"$initial_size"} $uddestsize
+sleep 1
+done
+echo 结束 
+
+
+
+
