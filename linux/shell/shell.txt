@@ -1,6 +1,15 @@
+ 
+  案例：http://tldp.org/LDP/abs/html/
+  调试器：https://www.runoob.com/try/runcode.php?filename=helloworld&type=bash
   
- [表达式] {变量/变量处理}  (子组/整体)
-
+  shell是指一种应用程序，这个应用程序提供了一个界面，用户通过这个界面访问操作系统内核的服务
+  shell脚本（shell script），是一种为shell编写的脚本程序
+  shell环境：sh bash csh ksh
+  解释型的，一边解释一边执行，连PHP那种预编译都不是，如果你的脚本包含错误(例如调用了不存在的函数)，只要没执行到这一行，就不会报错
+  在CentOS里，/bin/sh是一个指向/bin/bash的符号链接，sh和bash是脚本解释器
+ 
+  全局变量的作用范围是当前的Shell会话，每个Shell会话都是独立的进程，拥有不同的进程ID
+  在调试脚本的时候，使用source会更好点，因为有些如进程完成状态才会显示
  echo  -e  1."aaa$1bb\\"    2. "\033[ 41; 31 mtest\033[ 0 m"
 	1.\b  \c  \n  \f  \v  \t  \r  \\
 	2. 40-47背景 30-37字体   0/1/4/5/7/8  #在第一第二部分则表示作用于内容，在第三部分则表示作用于终端
@@ -474,10 +483,18 @@ command < file1 > file2    #命令参数从file1读入，输入到file2中
 shell script : fork出一个子进程，再执行命令   -- bash /root/sh.sh ---   bash(88820)───bash(88932)───sleep(88933)
 source : 在当前bash环境下执行命令			  --   source  sh.sh  ---   bash(88485)───sleep(88594)
 exec：将当前bash替换成命令执行，执行完成退出  --    exec ./sh.sh  ---   sh.sh(88701)───sleep(88733)    #exec在对文件描述符进行操作的时候，也只有在这时，exec不会覆盖你当前的 shell 环境
-exec命令：
-    n>&-               #关闭输出文件描述符n.
-    n<&-               #关闭输入文件描述符n.
-      exec 1&-           # 关闭 FD1  默认对文件描述符1进行操作
+exec命令：&n代表文件描述符  重定向左边数字/&也代表文件描述符  重定向右边&-代表关闭文件描述符(据说是读写)  重定向代表的是数据的流向
+    exec <test               #会从test逐行读出并执行           
+	exec 1>test				 #只接受命令执行后的标准输出到test  &/2会把输入也输出到test
+	
+	n>&-/&n>&-               #关闭输出文件描述符n(读写都关闭？).
+    n<&-/&n<&-               #关闭输入文件描述符n(读写都关闭？).
+	exec 3</tmp/1.txt     	 #以“只读方式”打开/tmp/1.txt，文件描述符对应为3
+	exec 3>/tmp/1.txt    	 #以“只写方式”打开/tmp/1.txt，文件描述符对应为3
+	exec 3<>/tmp/1.txt   	 #以“读写方式”打开/tmp/1.txt，文件描述符对应为3
+	command < filename >filename2        #把command命令以filename文件作为标准输入，以filename2文件作为标准输出
+      
+	  exec 1&-           # 关闭 FD1  默认对文件描述符1进行操作
       exec 5>&-          # 关闭 FD5
   exec 4<&1          # 备份当前stdout至FD4
   exec 1>1.txt       # stdout重定向至1.txt
@@ -525,9 +542,9 @@ ${ }	 用途1：引用变量  用途2：字符串处理及默认值
 
 
 
-
-
-
+队列的特点是先进先出
+管道文件   1:无名管道（ps aux | grep nginx）   2:有名管道（mkfifo /tmp/fd1）#如果管道内容为空，则阻塞
+创建文件描述符3关联管道文件exec 3<>/tmp/fd1，这时候3这个文件描述符就拥有了管道的所有特性，还具有一个管道不具有的特性：无限存不阻塞，无限取不阻塞
 
 
 

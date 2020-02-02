@@ -1,0 +1,65 @@
+
+缓存：
+并行：
+	超标量体系结构：个时钟周期发射多条指令的流水线机器架构
+	乱序执行：相邻的指令相互没有依赖关系
+	
+Tracepoint 是散落在内核源代码中的一些 hook，一旦使用，它们便可以在特定的代码被运行到时被触发
+Perf 将 tracepoint 产生的事件记录下来，生成报告
+
+yum -y install perf
+perf list: 命令可以列出所有能够触发 perf 采样点的事件
+	Hardware Event 是由 PMU 硬件产生的事件，比如 cache 命中，当您需要了解程序对硬件特性的使用情况时，便需要对这些事件进行采样
+	Software Event 是内核软件产生的事件，比如进程切换，tick 数等
+	Tracepoint event 是内核中的静态 tracepoint 所触发的事件，这些 tracepoint 用来判断程序运行期间内核的行为细节，比如 slab 分配器的分配次数
+
+
+根据 tick 中断进行采样，即在 tick 中断内触发采样点，在采样点里判断程序当时的上下文。假如一个程序 90% 的时间都花费在函数 foo() 上，那么 90% 的采样点都应该落在函数 foo() 的上下文中
+
+1.perf top -e event  #可以使用移动键多次到指定程序查看
+2.perf stat ./t1     #是虚拟机 而且cpu没有虚拟化，所有有些时间不支持，<not supported>
+	Task-clock-msecs：CPU 利用率，该值高，说明程序的多数时间花费在 CPU 计算上而非 IO。
+	Context-switches：进程切换次数，记录了程序运行过程中发生了多少次进程切换，频繁的进程切换是应该避免的
+	Cache-misses：程序运行过程中总体的 cache 利用情况，如果该值过高，说明程序的 cache 利用不好
+	CPU-migrations：表示进程 t1 运行过程中发生了多少次 CPU 迁移，即被调度器从一个 CPU 转移到另外一个 CPU 上运行
+	Cycles：处理器时钟，一条机器指令可能需要多个 cycles，
+	Instructions: 机器指令数目。
+	IPC：是 Instructions/Cycles 的比值，该值越大越好，说明程序充分利用了处理器的特性。
+	Cache-references: cache 命中的次数
+3.perf record -a  -g ./t1   //   perf record -e cpu-clock -g -p 2548
+  perf report [--stdio]
+
+
+火焰图：
+	#用perf script工具对perf.data进行解析
+	perf script -i perf.data &> perf.unfold
+	#将perf.unfold中的符号进行折叠：
+	./stackcollapse-perf.pl perf.unfold &> perf.folded
+	./flamegraph.pl perf.folded > perf.svg
+	#将图片用浏览器打开，鼠标放上去会有显示闲情
+	
+红蓝火焰图：
+		#抓取数据
+		perf record -F 99 -a -g -- sleep 30
+		#解析数据生成堆栈信息
+		perf script > out.stacks1
+		#折叠堆栈
+		./stackcollapse-perf.pl ../out.stacks1 > out.folded1
+	一段时间后 (或者程序代码修改后), 抓取 profile 2` 文件
+		#抓取数据
+		perf record -F 99 -a -g -- sleep 30
+		#解析数据生成堆栈信息
+		perf script > out.stacks2
+		#折叠堆栈
+		./stackcollapse-perf.pl ../out.stacks2 > out.folded2
+	
+	生成红蓝差分火焰图
+	./difffolded.pl out.folded1 out.folded2 | ./flamegraph.pl > diff2.svg
+
+	
+	
+	
+	
+	
+	
+	

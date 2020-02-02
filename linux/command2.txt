@@ -180,8 +180,31 @@ patch -RE < test.patch //还原旧版本，反向修复，删除空文件
 	patch -R -p1 < ../diff12.patch		#仅进入目录下一级，即-p1就好
 #如果以上都不行，打补丁的时候换换目录看下	
 	
-	
-	
+
+
+find   被攻击的时候可以看创建了什么文件
+find / -max[min]depth 5 -user nobody -name test.txt -size +100k -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;   
+	 -empty           #空文件/目录  
+	 ! -name "*.log"  #排除文件  
+	 -mmin -30        #三十分钟内
+	 -nouser          #查无有效属主的文件，即文件的属主在/etc/passwd中不存在
+     -newer   f1 !f2  #查更改时间比f1新但比f2旧的文件
+	 -follow          #如果遇到符号链接文件，就跟踪链接所指的文件
+	 #-prune           #忽略某个目录
+    find ./ ! \( −path ′/proc*′ −o −path ′/sys*′ \) -a -name '*.txt' -print  #在除dir0、dir1及子目录以外的目录下查找txt后缀文件
+    find ./   \( −path ′./dir0*′ −o −path ′./dir1*′ \) -a -name '*.txt' -print  #在dir0、dir1及子目录下查找txt后缀文件
+#注意，1.任何使用时间的选项，都有 /-/+   2.使用()要转义，并且前后要有空格  3.使用-path，一定要在路径后面加* ，这才表示在这个路径之后都不匹配  
+find正则表达式由于-name参数只支持“*”、“?”、“[]”这三个通配符（.代表的就是普通的.而已）
+	find . -name '*a1*txt'（*代表可有可无）   //   find ./  -name '[a-z]*'（匹配小写开头）  //  find ./  -name '??' （匹配两个字符） // find . -name "*[1|2]"  //  find . -name "*[0-3]"
+
+xargs: -t在执行前回显cmd  -p交互  -d(把...当作分割符)  -n3三行一组  -0
+cat /etc/passwd | xargs -d ':'  echo
+ls | xargs ls -l			#默认带一个参数
+ls | xargs -i mv {} {}.txt  #-i与{}搭配，即需要两个参数的时候
+cat arg.txt | xargs -I {} echo -p {} -l   		#管道左边输出等于-I右边的{}，然后传递给第二个{}
+find . -type f | xargs -I {}.t  cp {}.t {}.txt	#管道左边的输出等于{}.t传递给后面的两个{}.t
+find . -name "*.txt" -print0 | xargs -0 rm      #find -print0表示在find的每一个结果之后加一个NULL字符，而不是默认加一个换行符。find的默认在每一个结果后加一个'\n'，所以输出结果是一行一行的。当使用了-print0之后，就变成一行了，然后xargs -0表示xargs用NULL来作为分隔符。这样前后搭配就不会出现空格和换行符的错误了。选择NULL做分隔符，是因为一般编程语言把NULL作为字符串结束的标志，所以文件名不可能以NULL结尾，这样确保万无一失。
+ls | awk -F'.' '{print $1}'|xargs -i mv {}.bak {} #删除文件后缀	
 	
 	
 	

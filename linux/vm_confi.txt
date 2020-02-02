@@ -22,7 +22,7 @@ systemctl restart chronyd
 chronyc sources -v
 
 yum clean all && yum repolist && yum makecache			
-yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine perf
 yum-config-manager    --add-repo     https://download.docker.com/linux/centos/docker-ce.repo
 yum install -y  device-mapper-persistent-data   lvm2  
 yum install docker-ce docker-ce-cli containerd.io
