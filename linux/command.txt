@@ -1,6 +1,54 @@
 
-dmesg   #命令显示linux内核的环形缓冲区信息，我们可以从中获得大量系统细心和硬件信息
-dmesg   #命令显示linux内核的环形缓冲区信息，我们可以从中获得大量系统细心和硬件信息
+sar -n { DEV | EDEV | NFS | NFSD | SOCK | ALL }
+sar 提供六种不同的语法选项来显示网络信息。-n选项使用6个不同的开关：DEV | EDEV | NFS | NFSD | SOCK | ALL 。DEV显示网络接口信息，EDEV显示关于网络错误的统计数据，NFS统计活动的NFS客户端的信息，NFSD统计NFS服务器的信息，SOCK显示套接字信息，ALL显示所有5个开关
+
+sar -n DEV 1 10 ##每1秒钟取一次值，取10次,可加管道命令，比如“|grep eth1”读取eth1的流量情况
+
+sar -u / iostat -x
+sar -q: 查看平均负载  unq-sz：运行队列的长度（等待运行的进程数）
+怀疑CPU存在瓶颈，可用 sar -u 和 sar -q 等来查看
+怀疑内存存在瓶颈，可用sar -B、sar -r 和 sar -W 等来查看
+怀疑I/O存在瓶颈，可用 sar -b、sar -u 和 sar -d 等来查看
+
+
+iostat -x 1 10
+iotop -o
+
+top
+
+vmstat 1 5
+free
+
+strace  perf
+
+tcpdump
+
+find
+
+netstat -anplt    #监听地址及端口，进程ip及进程名称，连接状态
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+
+ps -ef | head -1  #所有进程情况及ppid
+UID         PID   PPID  C STIME TTY          TIME CMD
+
+ps -aux | head -1   #用户及优先级
+USER        PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+
+lsof			 #文件
+COMMAND      PID  TID    USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
+	
+lsof -U | grep /opt   #socket 
+
+systemctl stop rpcbind.socket
+
+
+SPID一一system process id：表示該server process在OS層面的Porcess ID ，即操作系统进程ID
+PID一一Oracle process id：可以理解為Oracle自己用的，Oracle进程ID
+SID一一SESSION标识，常用于连接其它列
+
+
+dmesg | tail   #命令显示linux内核的环形缓冲区信息，我们可以从中获得大量系统细心和硬件信息
+
 
 sort | column -t -s ":"      #--table   --separator
  -t ":"						 #--field-separator=""  
