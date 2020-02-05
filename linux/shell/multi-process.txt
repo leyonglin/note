@@ -25,7 +25,7 @@ echo "TIME:`expr $stop_time - $start_time`"
 exec 3<&-                         #关闭文件描述符的读
 exec 3>&-                         #关闭文件描述符的写
 
-案例2
+案例2 : bash启动一个主进程运行脚本，该主进程会fork出需要数量的进程并发执行脚本，再由每个脚本进程fork出对应一个进程执行每一个脚本块(当前bash-fork-一个bash scripct-fork-多个bash script-fork-对应sleep 20)
 #!/bin/bash
 start=`date +%s` #定义脚本运行的开始时间
 for ((i=1;i<=1000;i++))

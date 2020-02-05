@@ -23,3 +23,18 @@ win+r      +   control  控制面板   notepad：打开记事本   calc：启动
 Ctrl+U  查看网页源代码(用鼠标也行)
 Ctrl+w退出/删除当前资源
 
+
+linux 如何挂在 windows 下的共享目录
+	1.window创建一个目录，右键点击属性---高级共享--共享此文件夹/权限决定挂载者权限
+	2.cmd - net share 能查看到则说明成功
+	3.linux挂载
+		mount -t cifs //192.169.69.113/mount /mnt/server -o username=bangde,password=xx
+	
+删除共享文件：
+	2.cmd(管理员模式) -- net share -- net share NAME /del
+
+	
+远程连接：
+被连接端：此电脑--属性--远程设置--允许远程协助
+
+连接端：cmd--mstsc- ip+显示选项(用户名)

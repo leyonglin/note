@@ -606,8 +606,21 @@ template:使用的是jinja2模板引擎 （1.宏：{% macro testfunc(tv1=111) %}
 4.run_once: true（仅执行一次）
 
 
-
-
+异步和并发：
+ansible的模块可以把task放进后台,然后轮询它.这使得在一定进程数下能让大量需要的机器同时运作起来.
+---
+- hosts: all
+   serial: 6
+ 
+   tasks:
+      - name: Install mlocate
+        yum: name=mlocate state=installed
+ 
+      - name: Run updatedb
+        command: /usr/bin/updatedb
+        async: 300
+        poll: 10
+并发进程数为6，采用异步方式，每10秒轮询监测一次，超时时间是300秒
 
 
 
