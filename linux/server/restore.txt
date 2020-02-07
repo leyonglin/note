@@ -7,7 +7,13 @@
 日常巡检
 
 http://www.rpmfind.net/linux/dag/redhat/el6/en/x86_64/dag/RPMS/ext3grep-0.10.2-1.el6.rf.x86_64.rpm
-硬盘不用重新挂载
-ext3grep /dev/sdb --dump -names                   #在当前目录下会生成一个文件名文件sdb.ext3grep.stage1
+https://zhang.ge/3661.html
+ext3grep /dev/sdb --dump-names                   #在当前目录下会生成一个文件名文件sdb.ext3grep.stage1
 ext3grep /dev/sdb --restore-all                   #在当前目录下恢复所有文件在一个RESTORED_FILES目录下，需要确保当前磁盘足够大
 ext3grep /dev/sdb --restore-file  filename        #恢复一个文件(我觉得都恢复就可以了)
+mysqlbinlog /usr/mysql-bin.000010 | mysql -uroot -p
+
+
+
+https://zhang.ge/3528.html
+有趣的命令

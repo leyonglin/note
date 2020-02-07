@@ -1,6 +1,6 @@
 
 ½á¹¹»¯Êý¾Ý£ºÓÐÔ¼ÊøÌõ¼þ/Âú×ãÒ»¶¨Ìõ¼þ(¹ØÏµÐÍÊý¾Ý¿â£¬±íÏÖÎª¶þÎ¬ÐÎÊ½µÄÊý¾Ý)
-°ë½á¹¹»¯Êý¾Ý£ºÌí¼ÓÊý¾ÝÐèÒªÂú×ãÔ¼ÊøÌõ¼þ£¬µ«¿ÉÒÔ²»È«Âú×ã(xmlºÍjson)
+°ë½á¹¹»¯Êý¾Ý£ºÌí¼ÓÊý¾ÝÐèÒªÂú×ãÔ¼ÊøÌõ¼þ£¬µ«¿ÉÒÔ²»È«Âú×ã(html£¬xmlºÍjson)
 ·Ç½á¹¹»¯Êý¾Ý£ºÊý¾Ý½á¹¹²»¹æÔò»ò²»ÍêÕû£¬Ã»ÓÐÔ¤¶¨ÒåµÄÊý¾ÝÄ£ÐÍ/¹Ì¶¨½á¹¹µÄÊý¾Ý£¬²»·½±ãÓÃÊý¾Ý¿â¶þÎ¬Âß¼­±íÀ´±íÏÖµÄÊý¾Ý(Ò»°ã´æ´¢Îª¶þ½øÖÆµÄÊý¾Ý¸ñÊ½)
 
 Âß¼­·Ö×éµÄ¸ÅÄî,¿ÉÒÔ¿ç¶à¸ö Node
@@ -9,6 +9,11 @@ api½Ó¿Ú£ºÊÇÒ»¸öº¯Êý»òÕßÀà±©Â¶³öÀ´¸ø¿ª·¢ÕßÊ¹ÓÃµÄ£¬·½±ã¿ª·¢Õßµ÷ÓÃµ«²»ÓÃÉîÈëÁË½â±³º
 PortalÊÇÒ»¸ö»ùÓÚwebµÄÓ¦ÓÃ³ÌÐò£¬ËüÖ÷ÒªÌá¹©¸öÐÔ»¯¡¢µ¥µãµÇÂ¼¡¢²»Í¬À´Ô´µÄÄÚÈÝÕûºÏÒÔ¼°´æ·ÅÐÅÏ¢ÏµÍ³µÄ±íÊ¾²ã
 
 À©Õ¹ÐÔ  ¿ÉÓÃÐÔ  ÐÔÄÜ(iops)  ¹ÜÀí(¼à¿ØÖ¸±ê)  °²È«(¼ÓÃÜ£¬Éó¼Æ)  ³É±¾
+
+echo >/dev/tcp/8.8.8.8/53   
+	#Ïò8.8.8.8µÄ53¶Ë¿Ú½¨Á¢Ò»¸öÁ¬½Ó£¬»á°ÑÁ¬½Ó·µ»ØµÄ¶«Î÷¶ªÆú£¬²é¿´ÍøÂçÁ¬Í¨ÐÔ
+	#bash ÊµÏÖµÄÓÃÀ´ÊµÏÖÍøÂçÇëÇóµÄÒ»¸ö½Ó¿Ú£¬¾ÍÏñ·¢ÆðÒ»¸ö socketÁ¬½ÓÍêÈ«Ò»Ñù 
+	#/dev/tcpÊ¹ÓÃÇ°²¢²»´æÔÚ£¬exec 3 <> / dev/tcp /www.example.com/80
 
 Íø¿¨Ä£Ê½£º
 	¹ã²¥(Broadcast)Ä£Ê½

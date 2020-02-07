@@ -10,9 +10,14 @@
  
   全局变量的作用范围是当前的Shell会话，每个Shell会话都是独立的进程，拥有不同的进程ID
   在调试脚本的时候，使用source会更好点，因为有些如进程完成状态才会显示
- echo  -e  1."aaa$1bb\\"    2. "\033[ 41; 31 mtest\033[ 0 m"
+ echo  -e  1."aaa$1bb\\"    2. "\033[x;x;..mtest\033[x;x;..m"
 	1.\b  \c  \n  \f  \v  \t  \r  \\
-	2. 40-47背景 30-37字体   0/1/4/5/7/8  #在第一第二部分则表示作用于内容，在第三部分则表示作用于终端
+	2. 三种类型：40-47背景 30-37字体   0/1/4/5/7/8下划线等特殊效果  
+		#在第一部分则表示作用于内容，在第二部分则表示作用于PS1
+		#每一部分依赖于该部分最后一个值，即靠近m的那个值
+		#第二部分使用个位数和40-47，3系类类型没有效果
+		#当出现类型冲突，以最后一个为主
+ 
  
  seq [-s +] [-w] 1 [2 10]  		 #for i in `seq 1 2 10`; do echo $i; done
  seq -f "dir%g" ["%03g"]  5
@@ -136,9 +141,18 @@ EOF
  #aabbcc=alibaba a=aa b=bb c=cc  alibaba="hello world"
  #eval echo \$\$$a$b$c   &&   echo \\$\$$a$b$c   &&   eval echo \\$\$$a$b$c   &&   eval eval echo \\$\$$a$b$c
  
- 计算：1.$[算式]或$((算式)) --- 值引用变量可省略$，$[i+=1]/$[i++]自增    2. let i++;echo $i 自增   3.expr 算式(\*) 运算符两边需要空格，支持变量    
-      小数：echo "scale=4;$a*56.56;5/3" |bc  --运算符也可换成比较符
- 	 
+ 计算：1.$[算式]或$((算式)) --- 值引用变量可省略$，$[i+=1]/$[i++]自增    
+	   2. let i++;echo $i 自增   
+	   3.expr 算式(\*) 运算符两边需要空格，支持变量    
+       4.小数：echo "scale=4;$a*56.56;5/3" |bc  --运算符也可换成比较符 
+	let C=A+B
+	let A++ #let 时 变量前不需要再加$
+	echo $(($A+$B))
+	echo $[$A+$B]
+	expr $A + $B
+	echo $A+$B | bc
+	 
+	 
 	 
  test 选项 参数 == [ 选项 参数 ]      查看帮助：help test
  
@@ -183,7 +197,7 @@ EOF
 	!	反相状态，如 test ! -x file ，当 file 不具有 x 时，回传 true
 	&&  ||
 
- 
+ if true/false;then
  if [ ]; then CMD; fi                 #关键字换行就不用; 不换行需要在关键词前加；   
  if [ ]; then CMD; else CMD; fi
  if [ 条件判断式一 ]; then
@@ -421,6 +435,7 @@ AWK:
 			'$3 ~ /[0-9]{3,}/'  
 			'$1=="ftp" || $1=="mail"{print $0}'
 		3.行范围匹配	
+	df -Ph | awk ' NR != 1 && $5 >= 90 '
 	awk '{ip[$1]++}END{for(i in ip){print i,ip[i]}}' access.log-20190801 | column -t								 #统计ip	
 	awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #自定义变量：i=0;j=0,这是有逻辑的(将其中一个500改成100)
 	awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}' data  #求最大值  最值：awk '{if($1>max){max=$1}else if($1<3){min=$1}}END{print "MAX =",max"\n""MIN =",min}' data

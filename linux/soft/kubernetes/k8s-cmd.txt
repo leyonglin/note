@@ -46,10 +46,18 @@ ForwardToSyslog=no
 EOF
 
 升级内核
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
 yum --enablerepo=elrepo-kernel install -y kernel-lt
-grub2-set-default 'CentOS Linux (4.4.189-1.el7.elrepo.x86_64) 7 (Core)'
+grub2-set-default 'CentOS Linux (4.4.189-1.el7.elrepo.x86_64) 7 (Core)'    #设置开机启动默认加载内核版本
+	#ls /boot/*4.4.213-1.el7.elrepo.x86_64  &&  ls /lib/modules/
+	#/boot/grub2/grubenv:saved_entry=CentOS Linux (4.4.213-1.el7.elrepo.x86_64) 7 (Core)     #通过该变量进行设置开机默认加载内核版本
 reboot
+	#Prepatch/rc：预发布版本pre-releases
+	#主分支ml(mainline)：Linus亲自维护的主分支版本，周期大概是2-3个月
+	#稳定版(stable)：从ml发展而来
+	#长期维护版lt(longterm)：周期长，会长期更新
+
 
 开启ipvs(kube-proxy开启ipvs的前置条件)
 cat>/etc/sysconfig/modules/ipvs.modules<<EOF

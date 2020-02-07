@@ -89,6 +89,30 @@ netstat -a 停了很长时间没有响应：DNS
 runlevel | awk '{print $2}'
 init N / telinit 5	
 	
+
+以太网接口缺省的MTU（最大传输单元）为1500字节，交换机要保证接口MTU的一致性
+MTU减去20字节IP包头减去20字节TCP包头 ，即是MSS，1460字节
+主动关闭连接的一方进入TIME_WAIT
+CLOSE_WAIT 出现在被动断开连接，常见在Server端
+从客户端到本地DNS的查询是递归的；而其余的查询是迭代的
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	
 	

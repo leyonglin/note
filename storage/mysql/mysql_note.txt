@@ -76,7 +76,8 @@
  mysqldump -u 用户名 -p -S /opt/data/data_16303/mysql.sock 数据库名 表名 > 导出的文件名	
  mysqldump -uxxx -pxxx -hxx.xx.xx.xx -P 16303 -B luckydb --tables t1 t2 >./1.log
  mysql -uroot -D数据库名 -S /opt/data/data_16303/mysql.sock 表名
- 
+ 部分数据导出：mysqldump -h IP -u用户名 -p密码 数据库名 表名 --where="筛选条件">导出文件路径;
+ 恢复：进到相应库source
  
  查看授权：
  select user,host from mysql.user;
@@ -168,25 +169,65 @@
  EOF
  done
  
- 
- 查库：show databases;   (库名区分大小写)
- 位置：select database;
- 建库：create database [if not exists] 库名 character set utf8;
- 查看：show create database 库名;
- 删库：drop database 库名; 
- 进入指定库：use 库名;
- 查表：show tables;
- 查表:show create table 表名;
- 建表：create table 表名(字段列表(字段名 数据类型, ...))character set utf8;
- 删表：drop table 表名;
- 表结构：desc 表名;
- 插入：insert into 表名 values(值1),(值2)...;   或 insert into 表名(字段1,字段2,...) values(值1),(值2)...;
- 查看: select *(字段,...) from 表名 where 条件(字段=(运算符)值,...);
- 清空表中记录：delete from 表名;
- 
- 配置文件：
+配置文件：
 	[mysqld]
-	charactr_set_server = utf8      #默认字符集
+	charactr_set_server = utf8      #默认字符集 
+库操作： 
+    查库：show databases;   (库名区分大小写)
+    位置：select database;
+    建库：create database [if not exists] 库名 character set utf8;
+    查看：show create database 库名;
+    删库：drop database 库名; 
+    进入指定库：use 库名;
+表操作：
+    查表：show tables;
+    查表:show create table 表名;
+    建表：create table 表名(字段名 数据类型, ...)character set utf8;
+    删表：drop table 表名;
+	清空表中记录：delete from 表名;  //  truncate table "表名";
+
+    表结构：desc 表名;
+  对行的操作：
+  	INSERT INTO 表名称 (列1, 列2,...) [VALUES (值1, 值2,....)]
+      insert into mytable values('summer','m','1983-08-24');   
+    删除一条记录：delete from mytable where name='summer';  
+    UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值	
+      update mytable set sex='vm' where name='summer';   
+    插入多条记录：insert into mytable  select * from yourtable;  
+    根据条件插入：insert into mytable  select * from yourtable where `key`='value';
+  对列的操作：
+    alter table 表名 add 列名 列数据类型 [after 插入位置];
+      alter table yourtable add  name varchar(20)not null; 
+    alter table 表名 change 列名称 列新名称 新数据类型;	  
+	alter table 表名 drop 列名称;
+	alter table 表名 rename 新表名;
+  索引：
+    普通index：
+	ALTER TABLE 表名 ADD INDEX 索引名字 ( 字段名字 )  #修改表结构方式添加
+	  CREATE INDEX index_user ON user(title)		  #直接添加/创建表的时候添加
+	DROP INDEX index_name ON table					  #删除索引
+	主键PRIMARY key：
+	ALTER TABLE 表名字 ADD PRIMARY KEY ( 字段名字 )
+	唯一索引(UNIQUE)
+	ALTER TABLE 表名字 ADD UNIQUE (字段名字)
+	全文索引(FULLTEXT)
+	ALTER TABLE 表名字 ADD FULLTEXT (字段名字)
+	多列索引：多个字段做一个索引
+	ALTER TABLE table_name ADD INDEX index_name ( column1, column2, column3)
+	  
+  查看: 
+    SELECT 列名称 FROM 表名称 WHERE 列 运算符 值   
+		列名称：列, 列..[as '姓名'] // 集合函数 count(*) avg(列) max(列) min(列) sum(列)
+		表名称：表名 // 子查询
+		where： and/or // =,<>,<,<=,>,>= // not //[not] in // between and // like '[^AC]%'
+		ORDER BY - 语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序
+		UNION - 操作符用于合并两个或多个 SELECT 语句的结果集。
+		as: select column_1 as 列1,column_2 as 列2 from table as 表
+		join: JOIN // INNER JOIN // LEFT JOIN //RIGHT JOIN: 即使左表中没有匹配，也从右表返回所有的行
+ 触发器：脚本
+创建用户：CREATE USER 'gameplat_sc_data_dev'@'127.0.0.1' identified by 'OeJr)4uRGAuf(BHee7cab4ec59e23c1';
+创建用户并授权：grant select,insert,update,delete on dbname.* to newuser@localhost Identified by "abc.123";
+ 
  
  数据类型：1.节省空间(varchar)    2.效率高(char)
 	数值类型宽度(显示宽度，不够用0补充)和存储没有关系[有/无符号signed/unsigned],decimal(m,n)整数部分和小数部分分开存储

@@ -16,7 +16,7 @@ chrony psmisc net-tools findutils coreutils bash-completion wget vim-enhanced ls
 tree epel-release telnet tcpdump bind-utils dos2unix lrzsz iproute iotop strace procps-ng \
 bridge-utils traceroute nmap sysstat socat nethogs screen patch mtr rsync git unzip expect 
 				
-#rm -f epel-testing.repo && yum -y install httping htop rpm-build  postfix mailx yum-utils make gcc
+#rm -f epel-testing.repo && yum -y install httping htop rpm-build  postfix mailx yum-utils make gcc arp-scan
 sed -i "s/0.centos.pool.ntp.org/ntp6.aliyun.com/" /etc/chrony.conf  && sed [-i]  "4,6s/server/#server/" /etc/chrony.conf			
 systemctl restart chronyd	
 chronyc sources -v
@@ -24,8 +24,7 @@ chronyc sources -v
 yum clean all && yum repolist && yum makecache			
 yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine perf
 yum-config-manager    --add-repo     https://download.docker.com/linux/centos/docker-ce.repo
-yum install -y  device-mapper-persistent-data   lvm2  
-yum install docker-ce docker-ce-cli containerd.io
+yum install -y  device-mapper-persistent-data lvm2  docker-ce docker-ce-cli containerd.io
 systemctl restart chronyd
 
 wget http://www.rpmfind.net/linux/fedora/linux/development/rawhide/Everything/x86_64/os/Packages/t/tcping-1.3.5-21.fc30.x86_64.rpm

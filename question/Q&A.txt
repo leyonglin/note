@@ -1,0 +1,73 @@
+
+Q&A：问题与回答
+F&Q：频繁提问的问题
+
+linux
+######################################################################################
+
+命令：
+问题：如果直接执行 rm  -f  *，会出现“参数列表过长”的错误提示
+原因：当Linux某个目录下文件过多，因为linux下一般的命令的参数的总长度不能超过4096个字节
+解决：使用xargs
+
+
+问题：chmod -R 777 /*
+解决：
+	1.在正常一样的服务器上：getfacl -R / > systemp.bak  && scp到异常服务器上
+	2.异常操作的服务器上：cd /   &&   setfacl --restore=/path/systemp.bak
+
+问题：有权限的用户无法创建目录
+解决：1.是否uid对不上    2.有隐藏权限
+
+
+问题：ip冲突查询
+解决：yum -y install arp-scan
+      arp-scan --help
+      arp-scan -I ens34 -l
+
+
+########################################################################################
+ELK：
+
+logstash:
+	No configuration found in the configured sources  #程序家目录权限不对	
+	
+filebeat:	
+	Error creating runner from config: Can only start an input when all related states are finished
+		意思是读取到配置中心的新配置，但当前还有采集任务未完成。这个不会让 filbeat 进程挂掉，只是状态会变成 Error，还是会继续使用之前的配置文件运行。一般会自行恢复（下次再拉取配置文件的时候）。
+		如果持续出现，且未恢复到 running 状态，就需要考虑，前文所述的 clean_* 配置簇是否正确，及时清理文件注册状态，同时增大拉取配置的间隔（management.period，默认 1m），没必要频繁拉取	
+	
+kibana:创建index pattern时报错403
+	curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_settings -d '{
+		"index": {
+			"blocks": {
+				"read_only_allow_delete": "false"
+			}
+		}
+	}'
+	
+	
+########################################################################################
+
+问题：windows和linux格式转换
+解决：1. dos2unix/unix2dos   2.cat oldfile | tr -d "\r" > newfile
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

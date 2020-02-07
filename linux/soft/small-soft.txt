@@ -96,3 +96,63 @@ InfluxDB时序数据库8088(RPC calls)/8086(InfluxDB HTTP service) + Chronograf�
 influx --help
 
 
+
+优势：LVM最大的特点就是可以对磁盘进行动态管理,而且不会丢失现有的数据
+概念：
+	(1)PE(Physical Extend) 物理拓展
+	(2)PV(Physical Volume) 物理卷
+	(3)VG(Volume Group) 卷组
+	(4)LV(Logical Volume) 逻辑卷
+原理：
+	(1)物理磁盘被格式化为PV，空间被划分为一个个的PE
+	(2)不同的PV加入到同一个VG中，不同PV的PE全部进入到了VG的PE池内
+	(3)LV基于PE创建，大小为PE的整数倍，组成LV的PE可能来自不同的物理磁盘
+	(4)LV直接可以格式化后挂载使用了
+	(5)LV的扩充缩减实际上就是增加或减少组成该LV的PE数量，其过程不会丢失原始数据
+
+#自动创建2G和剩下容量的两个分区,删除为d
+echo -e "m\n n\np\n1\n\n+2048M\n n\np\n2\n\n\n\n w\n"|fdisk /dev/sdb
+partprobe
+#echo -e "t\n1\n8e\n t\n2\n8e\n w\n" |fdisk /dev/sdb       #lvm为8e，手动改会显示"fdisk -l /dev/sda"
+
+#创建
+pvcreate /dev/sdb1 /dev/sdb2
+vgcreate [-s 8M] vg1 /dev/sdb1 /dev/sdb2	
+lvcreate -L 100M -n lv1 vg1         #从vg1中创建一个大小100M名为lv1的逻辑卷
+mkfs.ext4 /dev/vg1/lv1
+ls -l /dev/vg1/lv1 /dev/mapper/vg1-lv1
+  dm是Device Mapper的缩写，个人觉得是逻辑卷LVM
+  dmsetup ls[info] ---> (253:X)X就是dmX
+  
+#扩容不用卸载，缩容需要卸载就反过来(xfs好像不支持)，命令完全一样  
+lvresize -L 200M /dev/vg1/lv1     #扩容成200M（lvs和lsblk），缩容扩容均可用该命令	
+	#lvextend -L +8m /dev/vg1/lv1  #在原来的基础上增加8M
+#e2fsck -f /dev/vg1/lv1    		#检查磁盘是否有错误
+resize2fs /dev/vg1/lv1	[200M]    #更新逻辑卷文件系统信息,df -Th  ，xfs使用xfs_growfs命令
+#扩容
+pvcreate /dev/sdb3
+vgextend vg1 /dev/sdb3
+lvextend -L +8m /dev/vg1/lv1
+#vgs 查看剩余多少容量
+
+#删除用lvremove
+umount /mnt
+lvremove vg1   #这里要注意
+vgremove vg1
+pvremove /dev/sdb1 /dev/sdb2
+echo -e "d\n\n d\n w\n" |fdisk /dev/sdb 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

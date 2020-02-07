@@ -395,24 +395,7 @@ curl -X DELETE "localhost:9200/_xpack/security/user/jacknich"
 	
 ###############################################################################################
 
-Q&A
 
-logstash:
-	No configuration found in the configured sources  #程序家目录权限不对	
-	
-filebeat:	
-	Error creating runner from config: Can only start an input when all related states are finished
-		意思是读取到配置中心的新配置，但当前还有采集任务未完成。这个不会让 filbeat 进程挂掉，只是状态会变成 Error，还是会继续使用之前的配置文件运行。一般会自行恢复（下次再拉取配置文件的时候）。
-		如果持续出现，且未恢复到 running 状态，就需要考虑，前文所述的 clean_* 配置簇是否正确，及时清理文件注册状态，同时增大拉取配置的间隔（management.period，默认 1m），没必要频繁拉取	
-	
-kibana:创建index pattern时报错403
-	curl -XPUT -H 'Content-Type: application/json' http://localhost:9200/_settings -d '{
-		"index": {
-			"blocks": {
-				"read_only_allow_delete": "false"
-			}
-		}
-	}'
 		
 	
 	
