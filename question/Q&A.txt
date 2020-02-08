@@ -25,6 +25,20 @@ linux
       arp-scan --help
       arp-scan -I ens34 -l
 
+########################################################################################
+
+编译：
+问题：install: cannot create regular file `/usr/local/man/man1': No such file ordirectory
+解决：mkdir -p /usr/local/man
+
+问题：/bin/sh: ctags: command not found 
+解决：yum install ctags 
+
+问题：make: Nothing to be done for `all'  -->  已经编译过了
+解决：make clean && ldconfig  && make（执行makefile文件）
+
+
+
 
 ########################################################################################
 ELK：

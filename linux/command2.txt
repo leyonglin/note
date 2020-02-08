@@ -121,16 +121,16 @@ wget是个专职的下载利器，简单，专一，极致。
 curl可以下载，但是长项不在于下载，而在于模拟提交web数据，POST/GET请求，调试网页，等等）可以把 curl 看做是一个精简的命令行网页浏览器	
 	断点下载  后台下载   用户名和密码  cookie(获取与使用)  proxy(代理服务器)  user_agent(浏览器)  reference(反盗链选项)
 	分块下载  批量下载 -X指定请求方式   证书和协议  超时重试   response头部(-I/-D)   限制/限速   (-L)重定向页面
-		curl -O http://www.linux.com/dodo[1-5].JPG  #-O可以多页下载
-		curl -# -O http://www.linux.com/dodo1.JPG   #以“#”号输出进度条,显示下载进度条
-		curl -C -O http://www.linux.com/dodo1.JPG   #断点续传  -C 抵消
+		curl -O http://www.linux.com/dodo[1-5].JPG  				#-O可以多页下载
+		curl -# -o test.png http://www.linux.com/dodo1.JPG   				#以“#”号输出进度条,显示下载进度条
+		curl -C -O http://www.linux.com/dodo1.JPG   		#断点续传  -C 抵消
 		curl -vL www.baidu.com    //   curl --trace-ascii [-trace dump.txt] www.baidu.com   #v调试模式 L重定向 
-		curl -o /dev/null -s -w %{http_code} www.linux.com   #-w/--write-out [format]仅输出http_code
+		curl -o /dev/null -s -w %{http_code} www.linux.com   #-o /dev/null -s 不输出 -w/--write-out [format]仅输出http_code  --retry 3 --retry-max-time 8
 		curl -c cookiec.txt  http://www.linux.com   #保存cookie
 		curl -b cookiec.txt http://www.linux.com    #使用cookie 【--cookie "CookieName=CookieValue"】 
 		[-I] [-d key1=value1&key2=value2 // -d @filename // -F key1=value1 -F @filename]	
 		-H 用来指定一个具体的Header的选项[-e/--referer选项来指定我们是从哪里跳转过来的  --user-agent "[User Agent]"]  -k参数指定跳过SSL检测   -u账号密码 -x指定代理 [-X POST(post方法)感觉没啥用]
-		method(X)		option
+		method(X)	option
 		GET         -G或-get(默认)
 		POST		-d或-F
 		HEAD		-I

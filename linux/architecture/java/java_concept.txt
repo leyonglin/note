@@ -89,7 +89,7 @@ CSS 预处理器：让css能编程
 tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路径会自动去webapps(资源根目录)下找）
 	1.启动服务状态查看：manager
 		修改conf/tomcat-users.xml
-		修改manager/META-INF/context.xml    #allow允许访问地址
+		修改webapps/manager/META-INF/context.xml    #allow允许访问地址
 	2.内核优化
 	  cat >> /etc/sysctl.conf<<eof
 	  net.ipv4.ip_forward = 1
@@ -196,9 +196,9 @@ Pingdom:第三方网站进行监控
 PagerDuty是一款能够在服务器出问题时发送提醒的软件。在发生问题时，提醒的方式包括屏幕显示、电话呼叫、短信通知、电邮通知等，而且在无人应答时还会自动将提醒级别提高。该软件通过一个控制面板对问题进行监控
 
 
-
-
-
+监控：https://github.com/psi-probe/psi-probe/releases
+	1.将probe.war包解压到tomcat的webapp目录下
+	2.<user username="probe" password="000000" roles="tomcat,manager,probeuser,poweruserplus,poweruser"/>
 
 
 
