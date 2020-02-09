@@ -15,6 +15,7 @@ linux
 解决：
 	1.在正常一样的服务器上：getfacl -R / > systemp.bak  && scp到异常服务器上
 	2.异常操作的服务器上：cd /   &&   setfacl --restore=/path/systemp.bak
+	#可以修改并恢复一部分：setfacl -M systemp.bak tomcat_users.xml
 
 问题：有权限的用户无法创建目录
 解决：1.是否uid对不上    2.有隐藏权限

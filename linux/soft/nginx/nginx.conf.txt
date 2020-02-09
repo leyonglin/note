@@ -27,6 +27,11 @@ http {
     underscores_in_headers on;
     server_tokens off; ## 隐藏nginx版本
     charset       utf-8;
+    scgi_temp_path  /opt/apps/nginx/tmp/scgi_temp;
+    uwsgi_temp_path  /opt/apps/nginx/tmp/uwsgi_temp;
+    fastcgi_temp_path  /opt/apps/nginx/tmp/fastcgi_temp;
+    proxy_temp_path  /opt/apps/nginx/tmp/proxy_temp;
+    client_body_temp_path  /opt/apps/nginx/tmp/client_body_temp;
     ###############配置ngx_lua-waf
     #lua_package_path "/opt/apps/nginx/conf/waf/?.lua";
     #lua_shared_dict limit 10m;
@@ -89,7 +94,13 @@ http {
     gzip_buffers     4 16k;
     gzip_comp_level  9; 
     gzip_types       text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript image/jpeg image/gif image/png application/font-sfnt application/font-woff application/font-woff2 application/vnd.ms-fontobject;
-    ####IP黑名单##
+    #############通过使用 nginx 的内置变量，去匹配某些特定规则,这里是为了忽略某些日志输出
+    map $request_uri $loggable {
+        /favicon.ico 0;
+        default 1;
+    }
+	access_log    /opt/logs/nginx/web_access.log  main if=$loggable;
+	####IP黑名单##
     include  blacklist.conf;
     #############引入外部文件
     include  vhosts/*.conf;
