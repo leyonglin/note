@@ -220,8 +220,24 @@
  写法与Path变量类似，每个路径用分号进行分开，如果是一个jar文件，则直接写明该文件的绝对路径
  
  
- 
- 
+ JConsole是基于JMX的可视化监视、管理工具
+ cat bin/catalina.sh
+	#无需认证的远程监控配置
+	-Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.1.50    
+	#设置需要密码的远程登陆配置
+	-Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=true -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.pwd.file={jmxremote.password}Path -Djava.rmi.server.hostname=192.168.3.70
+        #jdk下面的该目录，路径不一定，权限600
+		cat management/jmxremote.access
+			monitorRole   readonly     #角色1和角色2
+			controlRole   readwrite \
+						create javax.management.monitor.*,javax.management.timer.* \
+						unregiste
+		cat management/jmxremote.password
+			monitorRole  123456789
+			controlRole  123456789
+ 无法正常关闭：创建一个文件添加参数
+ cat bin/setenv.sh 
+	CATALINA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.3.70"
  
  
  

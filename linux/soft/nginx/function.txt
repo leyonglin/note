@@ -1,0 +1,104 @@
+#status
+server {
+    listen 10061;
+    location /nginx_status {
+        stub_status on;
+        access_log off;
+        allow 127.0.0.1;
+        deny all;
+    }
+}
+
+#blacklist
+#需要geoip模块的支持
+server {
+    listen 84;
+    server_name localhost;
+    #设置缓存黑名单，不缓存指定页面，比如wp后台或其他需要登录态的页面，用分隔符隔开
+    #location ~ ^/(wp-admin|system)(.*)$ {
+    #  if ($ip_whitelist ~ "1|3") {
+    #    rewrite ^/m$ / break;
+    #    rewrite ^/m/(.*)$ /$1 break;
+    #    proxy_pass http://127.0.0.1:8001;
+    #    break;
+    #  }
+    #GEO国家地区访问限制##
+    #  if ($geoip_country_code ~ "US|DE|CA|DNK|RO|FR|JP|KR|RU|SE|ES|CH|GB|AT|CZ|FI|HU|NL|TH|BY|BE|BO|BN|DK|FJ|GE|GF|GH|GR|IE|IL|IR|IQ|IS|IT|LY|LT|MG|NO|NZ|PA|PL|PT|SI|SG|SK") {
+    #    return 406;
+    #  }
+    #  rewrite ^/m$ / break;
+    #  rewrite ^/m/(.*)$ /$1 break;
+    #  proxy_pass http://127.0.0.1:8001;
+    #}
+}
+
+#deny
+#禁止Scrapy等工具的抓取 
+if ($http_user_agent ~* (Scrapy|Curl|HttpClient)) {
+     return 403 /error/403.html;
+}
+#禁止指定UA及UA为空的访问 
+if ($http_user_agent ~* "FeedDemon|Indy Library|Alexa Toolbar|AskTbFXTV|AhrefsBot|CrawlDaddy|CoolpadWebkit|Java|Feedly|UniversalFeedParser|ApacheBench|Microsoft URL Control|Swiftbot|ZmEu|oBot|jaunty|Python-urllib|lightDeckReports Bot|YYSpider|DigExt|HttpClient|MJ12bot|heritrix|EasouSpider|Ezooms|^$" ) {
+     return 403 /error/403.html;
+}
+#禁止非GET|HEAD|POST方式的抓取 
+if ($request_method !~ ^(GET|HEAD|POST)$) {
+     return 403 /error/403.html;
+}
+
+#echo
+server {
+    listen       81;
+    server_name  localhost;
+    root   html;
+    index  index.html index.htm;
+
+    #charset koi8-r;
+
+    #access_log  logs/host.access.log  main;
+    location /echo {
+      set $hello "udhello";
+      echo $hello;
+      echo "request_uri" $request_uri;
+      echo "request" $request;
+      echo "remote_addr" $remote_addr;
+      echo "document_root" $document_root;
+      echo "document_uri" $document_uri;
+      echo "uri" $uri;
+      echo "host" $host;
+      echo "request_filename" $request_filename;
+      echo "request_body" $request_body;
+      echo "scheme" $scheme;
+      echo "remote_addr" $remote_addr;
+      echo "$host$uri$is_args$args" $host$uri$is_args$args;
+    }
+}
+
+#localip
+server {
+    server_name  test.liguangming.com;
+    listen  87;
+    location / {
+        add_header Content-Type "text/plain;charset=utf-8";
+        return 200 "Your IP Address:$remote_addr\n";
+    }
+}
+
+#替换remote_ip
+server {
+    listen       82;
+    server_name  192.168.3.70;
+    root html;
+    index index.html;
+    location / {
+        #proxy_pass http://localhost;
+        #proxy_redirect off;
+        proxy_set_header   Host    $host;
+        proxy_set_header   X-Real-IP   $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        set_real_ip_from 0.0.0.0/0;
+        real_ip_header X-Forwarded-For;
+        real_ip_recursive off;
+    }
+}
+
