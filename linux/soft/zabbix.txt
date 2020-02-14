@@ -72,7 +72,7 @@ UserParameter=key[*],<command>    key里的所有参数，都会传递给后面�
 
 
 
-zabbix使用的是lamp架构 被动和主动模式可以同时存在  官方文档：https://www.zabbix.com/documentation/3.4/zh/manual(以官方为主,以下为额外参考)   
+zabbix被动和主动模式可以同时存在  官方文档：https://www.zabbix.com/documentation/3.4/zh/manual(以官方为主,以下为额外参考)   
 	##如果要用最新的，但是没有中文版本，可以在安装的时候使用最新版本，使用的时候参考中文版本
 搭建：http://www.zsythink.net/archives/447    /    https://www.zabbix.com/cn/download?zabbix=3.0&os_distribution=centos&os_version=7&db=mysql （源码：https://www.zabbix.com/documentation/3.0/manual/installation/install#installing_frontend）
 	在启动和之后配置有问题时候，可以查看日志

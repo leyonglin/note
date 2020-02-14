@@ -44,3 +44,47 @@ mysql分片、分区、分表、分库
 分布式
 
 
+
+DDL（Data Definition Language）数据库定义语言
+	CREATE
+	ALTER
+	DROP
+	TRUNCATE
+	COMMENT
+	RENAME
+
+DML（Data Manipulation Language）数据操纵语言
+	SELECT
+	INSERT
+	UPDATE
+	DELETE
+	MERGE
+	CALL
+	EXPLAIN PLAN
+	LOCK TABLE
+DCL（Data Control Language）数据库控制语言
+	GRANT 授权
+	REVOKE 取消授权
+TCL（Transaction Control Language）事务控制语言
+	SAVEPOINT 设置保存点
+	ROLLBACK  回滚
+	SET TRANSACTION
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,7 +3,7 @@
 隐藏服务器版本：
     mv /etc/issue /etc/system.bak
     mv /etc/issue.net /etc/system.netbak
-远程登陆优化
+远程登陆优化：
         sed -i '38a PermitRootLogin no ' /etc/ssh/sshd_config
         sed -i '38a UseDNS no ' /etc/ssh/sshd_config
         sed -i '38a MaxAuthTries 3' /etc/ssh/sshd_config
@@ -13,20 +13,21 @@
 服务降权，自定义服务配置路径，防火墙黑白名单，密码复杂度，版本隐藏，禁root登陆
 优化环境：
 	export TMOUT=600 终端退出时间  
-
+关闭系统不需要的服务
+敏感文件/命令MD5值校验：ls ps curl wget last w  /  conf  cron fstab
 
 安全
 firewalld
 /etc/hosts.deny
 /etc/sudoers  
 /etc/ssh/sshd_config
-/etc/issue、/etc/issue.net 来控制本地及远程登录前的信息显示
-/etc/motd    登陆后的信息显示
+/etc/issue、/etc/issue.net 来控制本地及远程登录前的信息显示(sshd_config 添加Banner /etc/issue.net)
+/etc/motd    			登陆后的信息显示
+/etc/redhat-release		系统发行版本
 
 linux下设置密码复杂度限制:
 /etc/login.defs        /etc/pam.d/system-auth
 
-敏感文件/命令MD5值校验：ls ps curl wget last w  /  conf  cron fstab
 
 创建账户：
 	Linux 主机并不会直接认识你的『账号名称』的，他仅认识 ID 啊 (ID 就是一组号码啦)
@@ -94,6 +95,40 @@ linux下设置密码复杂度限制:
 		\t 显示本地端时间的时间；
 		\s 操作系统的名称；
 		\v 操作系统的版本。
+	
+	
+异常用户
+  /etc/passwd
+  /etc/group
+
+异常登陆/ip
+ w（/var/run/utmp）
+ who /var/log/wtmp
+    /var/log/message
+    /var/log/secure
+ history
+ last：记录的登录系统的用户名单及是否在线(/var/log/wtmp) 
+ lastb：记录的登入系统失败的用户名单(/var/log/btmp)
+ lastlog
+ w输出详解：
+	USER：显示登陆用户帐号名。用户重复登陆，该帐号也会重复出现。
+	TTY：用户登陆所用的终端。
+	FROM：显示用户在何处登陆系统。
+	LOGIN@：是LOGIN AT的意思，表示登陆进入系统的时间。
+	IDLE：用户空闲时间，从用户上一次任务结束后，开始记时。
+	JCPU：一终端代号来区分，表示在某段时间内，所有与该终端相关的进程任务所耗费的CPU时间。
+	PCPU：指WHAT域的任务执行后耗费的CPU时间。
+	WHAT：表示当前执行的任务
+pkill -kill -t pts/3
+
+异常进程：top  --  ps -ef
+   将相关依赖去除/别名 /exec/curl/wget/tty模块
+异常连接：netstat -lnpa		
+
+删除无需使用的账户和账户组(可以查看初始系统使用了哪些用户或组)
+可删除的用户，如adm，lp，sync，shutdown，halt，news，uucp，operator，games，gopher等。
+可删除的组，如adm，lp，news，uucp，games，dip，pppusers，popusers，slipusers等。		
+
 
 chmod chown
 umask
@@ -134,5 +169,27 @@ history -c       #临时清理history（包括家目录下的history）
 history -d num #删除指定history
 
 
+find   被攻击的时候可以看创建了什么文件
+find / -u nobody -name test.txt -size +100k -depth 5 -mtime +4/4 -type s -perm +7000 -exec ls -l {} \;   
+	 -empty           #空文件/目录  
+	 ! -name "*.log"  #排除文件  
+	 -mmin -30        #三十分钟内
+	 -nouser          #查无有效属主的文件，即文件的属主在/etc/passwd中不存
+     -newer   f1 !f2  #查更改时间比f1新但比f2旧的文件
+	 -follow          #如果遇到符号链接文件，就跟踪链接所指的文件
+	 -prune           #忽略某个目录
+    find ./ ! \( −path ′/proc*′ −o −path ′/sys*′ \) -a -name '*.txt' -print  #在除dir0、dir1及子目录以外的目录下查找txt后缀文件
+    find ./   \( −path ′./dir0*′ −o −path ′/etc*′ \) -a -name '*.txt' -print  #在dir0、dir1及子目录下查找txt后缀文件
+	#注意，1.使用()要转义，并且前后要有空格  2.使用-path，一定要在路径后面加* ，这才表示在这个路径之后都不匹配
 
+0代表任意
+-perm -2   #所有用户都有写的权限
+-perm -20  #最少主组能写
+-perm -200 #最少主能写
+-perm -4000#有s位权限
+
+查找文件：find / -type f -perm -2|xargs ls -al    #权限中含有w的文件
+无属主/组：find / -nouser -o -nogroup | xargs ls -la
+
+查看进程完整路径：ls -al /proc/PID/exe
 

@@ -118,8 +118,8 @@
  停止mysqld服务，清空data_16303/目录
  解压全备：innobackupex --decompress --parallel=16 /backup/data_back/full/2018-05-20_12-33-46/
  应用日志等待回滚：innobackupex --apply-log --use-memory=4G --redo-only /backup/data_back/full/2018-05-20_12-33-46/
- 解压差异备份：innobackupex --decompress --parallel=16 /backup/data_back/incre/2018-05-20_12-33-46/2018-05-20_13-00-09/
- 合并日志回滚：innobackupex --apply-log --use-memory=4G /backup/data_back/full/2018-05-20_12-33-46/  --incremental-dir=/backup/data_back/incre/2018-05-20_12-33-46/2018-05-20_13-00-09/
+ #解压差异备份：innobackupex --decompress --parallel=16 /backup/data_back/incre/2018-05-20_12-33-46/2018-05-20_13-00-09/
+ #合并日志回滚：innobackupex --apply-log --use-memory=4G /backup/data_back/full/2018-05-20_12-33-46/  --incremental-dir=/backup/data_back/incre/2018-05-20_12-33-46/2018-05-20_13-00-09/
  可查看这个文件：less /backup/data_back/full/2018-05-20_12-33-46/xtrabackup_checkpoints---lsn是否最新(有变化)
  恢复数据：innobackupex --defaults-file=/opt/conf/my_16303.cnf --use-memory=4G  --copy(move)-back  /backup/data_back/full/2018-05-20_12-33-46/
  启动服务：mysqld --defaults-file=/opt/conf/my_16303.cnf  --user=swadmin &  （数据目录权限值得看一下）
@@ -157,7 +157,7 @@
  删除索引:
  drop index index_name on table_name ;
  alter table table_name drop index index_name/primary key ;
- 
+ #hash只适合找固定值  二叉树存在平衡问题  红黑AVL树(平衡二叉树的一种,还是容易倾斜) 使用的是B+tree
  
  for i in $ip;do
  expect << EOF
@@ -224,7 +224,7 @@
 		UNION - 操作符用于合并两个或多个 SELECT 语句的结果集。
 		as: select column_1 as 列1,column_2 as 列2 from table as 表
 		join: JOIN // INNER JOIN // LEFT JOIN //RIGHT JOIN: 即使左表中没有匹配，也从右表返回所有的行
- 触发器：脚本
+
 创建用户：CREATE USER 'gameplat_sc_data_dev'@'127.0.0.1' identified by 'OeJr)4uRGAuf(BHee7cab4ec59e23c1';
 创建用户并授权：grant select,insert,update,delete on dbname.* to newuser@localhost Identified by "abc.123";
  
@@ -343,14 +343,16 @@
 	查看所有：show engines;
 	查看已有表：show create table 表名;
 	指定：create table ... engine=myisam charset=utf8;  或 alter table 表名 engine=myisam;
-  InnoDB:
+  InnoDB: 聚集索引方式
 		1.支持事务、外键、行级锁    
 		2.共享表空间
+		3.写性能好
 			表名.frm:表结构和索引信息
 			表名.idb:表记录
-  Myisam：
+  Myisam：非聚集索引方式
 		1.支持表级锁
 		2.独享表空间
+		3.读性能好
 			表名.frm:表结构
 			表名.MYD:表记录
 			表名.MYI:索引信息
@@ -602,7 +604,19 @@
 	truncate table history;   ##删除整张表数据，但不会缩小表结构 
 	optimize table tablename; ##删除数据后的优化 
 	
-	
+触发器：脚本https://www.cnblogs.com/javabg/p/9990078.html
+	创建的触发器是在某个表上的
+DELIMITER $			#设置结束符
+CREATE TRIGGER user_log AFTER INSERT ON logs FOR EACH ROW
+#创建触发器名称为user_log在插入logs表每一行AFTER之后执行
+BEGIN
+DECLARE s1 VARCHAR(40)character set utf8;
+DECLARE s2 VARCHAR(20) character set utf8;
+SET s2 = " is created";
+SET s1 = CONCAT(NEW.log,s2);
+INSERT INTO logs(log) values(s1);
+END $
+DELIMITER ;
 	
 	
 mysqld --verbose --help  #使用命令查看帮助

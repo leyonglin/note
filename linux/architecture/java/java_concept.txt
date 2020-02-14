@@ -82,10 +82,21 @@ CSS 预处理器：让css能编程
 前端--node.js--后端     node.js后端技术，能作为前端中间件,方便前端开发应用
 
 
+
 调优：1.JVM内存优化   2.线程优化   3.IO优化(BIO/NIO/AIO)
 下载：https://tomcat.apache.org/  -- Archives
 文档：http://localhost:8080/docs/config
 帮助文档：https://zhuanlan.zhihu.com/p/34426768
+
+ #######JDK环境变量###########
+ export JAVA_HOME=/opt/apps/jdk
+ export JRE_HOME=$JAVA_HOME/jre
+ export CLASSPATH=$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+ export PATH=$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
+ 
+ CLASSPATH环境变量保存的是一些目录和jar文件的地址，这些路径是为Java程序在编译和运行的时候搜索类而用的。
+ 写法与Path变量类似，每个路径用分号进行分开，如果是一个jar文件，则直接写明该文件的绝对路径
+ 
 tomcat多实例，就是改变每个tomcat的server.xml中的三个端口（路径会自动去webapps(资源根目录)下找）
 	1.启动服务状态查看：manager
 		修改conf/tomcat-users.xml
@@ -196,14 +207,64 @@ Pingdom:第三方网站进行监控
 PagerDuty是一款能够在服务器出问题时发送提醒的软件。在发生问题时，提醒的方式包括屏幕显示、电话呼叫、短信通知、电邮通知等，而且在无人应答时还会自动将提醒级别提高。该软件通过一个控制面板对问题进行监控
 
 
+
 监控：https://github.com/psi-probe/psi-probe/releases
 	1.将probe.war包解压到tomcat的webapp目录下
 	2.<user username="probe" password="000000" roles="tomcat,manager,probeuser,poweruserplus,poweruser"/>
 
 
 
+ javap是jdk自带的反解析工具。它的作用就是根据class字节码文件，反解析出当前类对应的code区（汇编指令）、本地变量表、异常表和代码行偏移量映射表、常量池等等信息。
+ 6.调优命令
+ jps  -v/-m      #JVM Process Status Tool,显示指定系统内所有的HotSpot虚拟机进程。
+ jstat                     #JVM statistics Monitoring是用于监视虚拟机运行时状态信息的命令，它可以显示出虚拟机进程中的类装载、内存、垃圾收集、JIT编译等运行数据。
+       MC(1.8)/PC(1.7)   方法区空间大小 #metaspace 元数据空间//系统内存
+ 	  MU(1.8)/PU(1.7)   方法区使用空间大小
+   jstat -options  选项：-gc时间及次数  -gccause垃圾回收原因	  
+ jinfo                     #JVM Configuration info 这个命令作用是实时查看和调整虚拟机运行参数
+ jhat                      #JVM Heap Analysis Tool命令是与jmap搭配使用，用来分析jmap生成的dump，jhat内置了一个微型的HTTP/HTML服务器，生成dump的分析结果后，可以在浏览器中查看。
+ jmap                      #JVM Memory Map命令用于生成heap dump文件。
+ jstack                    #用于生成java虚拟机当前时刻的线程快照。
+ jmc                       #监视和管理 Java 应用程序，不会导致相关工具类的大幅度性能开销，
+ jconsole                  #Java Monitoring and Management Console是从java5开始，在JDK中自带的java监控和管理控制台，用于对JVM中内存，线程和类等的监控。
+ jvisualvm                 #jdk自带全能工具，可以分析内存快照、线程快照；监控内存变化、GC变化等。
+
+ JVM调优原则：降低Full Gc频次
+              确保大对数对象“朝生夕死”
+ 			 提高大对象进入老年代的门槛(-XX:MaxTenuringThreshold)
+                                                                        
+ Allocation Failure：表明本次引起GC的原因是因为在年轻代中没有足够的空间能够存储新的数据了。
+ 
+ -server -Xms1200m -Xmx1200m -Xmn500m -XX:+UseConcMarkSweepGC -XX:SurvivorRatio=8 -XX:CMSInitiatingOccupancyFraction=70 -XX+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=5 -XX:+HeapDumpOnOutOfMemoryError 
+ 
+
+ 组件：server.xml --> <> </>
 
 
+ JConsole是基于JMX的可视化监视、管理工具
+ cat bin/catalina.sh
+	#无需认证的远程监控配置
+	-Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.1.50    
+	#设置需要密码的远程登陆配置
+	-Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=true -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.pwd.file={jmxremote.password}Path -Djava.rmi.server.hostname=192.168.3.70
+        #jdk下面的该目录，路径不一定，权限600
+		cat management/jmxremote.access
+			monitorRole   readonly     #角色1和角色2
+			controlRole   readwrite \
+						create javax.management.monitor.*,javax.management.timer.* \
+						unregiste
+		cat management/jmxremote.password
+			monitorRole  123456789
+			controlRole  123456789
+ 无法正常关闭：创建一个文件添加参数
+ cat bin/setenv.sh 
+	CATALINA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.3.70"
+ 
+
+ jvisualvm插件：
+	1.visualvm
+	
+ jprofilers
 
 
 

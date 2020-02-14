@@ -19,7 +19,7 @@
  要点对比：指令队列，先进先出（FIFO—first in first out）。堆栈，先进后出 (FILO—First-In/Last-Out)。
  输出堆栈：Java虚拟机提供了线程转储（thread dump）的后门，通过这个后门可以把线程堆栈打印出来
  堆是大家共有的空间，分全局堆和局部堆。全局堆就是所有没有分配的空间，局部堆就是用户分配的空间。堆在操作系统对进程 初始化的时候分配，运行过程中也可以向系统要额外的堆，但是记得用完了要还给操作系统，要不然就是内存泄漏。
- 栈是线程独有的，保存其运行状态和局部自动变量的。栈在线程开始的时候初始化，每个线程的栈互相独立。每个函数都有自己的栈，栈被用来在函数之间传递参数。操作系统在切换线程的时候会自动的切换栈，就是切换SS/ESP寄存器。栈空间不需要在高级语言里面显式的分配和释放。
+ 栈是线程独有的，先进后出/后进显出，保存其运行状态和局部自动变量的。栈在线程开始的时候初始化，每个线程的栈互相独立。每个函数都有自己的栈，栈被用来在函数之间传递参数。操作系统在切换线程的时候会自动的切换栈，就是切换SS/ESP寄存器。栈空间不需要在高级语言里面显式的分配和释放。
  
  栈区主要存放编译器在需要的时候自动分配，在不需要的时候自动销毁的变量。主要是局部变量和函数的参数等，在函数调用和传参的时候，编译器为局部变量或形参开辟空间
  堆区是一个动态的存储区域，使用库函数malloc()和free()，和操作符new和delete以及一些相关变量来进行分配和回收，
@@ -175,21 +175,6 @@
  invokespecial	（调用实列构造器<init>私有方法(无法继承)，父类方法）指令用于调用一些需要特殊处理的实例方法，包括实例初始化方法、私有方法和父类方法。（Invoke instance method; special handling for superclass, private, and instance initialization method invocations ）
  invokedynamic	JDK1.7新加入的一个虚拟机指令，相比于之前的四条指令，他们的分派逻辑都是固化在JVM内部，而invokedynamic则用于处理新的方法分派：它允许应用级别的代码来确定执行哪一个方法调用，只有在调用要执行的时候，才会进行这种判断,从而达到动态语言的支持。(Invoke dynamic method)
  
- javap是jdk自带的反解析工具。它的作用就是根据class字节码文件，反解析出当前类对应的code区（汇编指令）、本地变量表、异常表和代码行偏移量映射表、常量池等等信息。
- 6.调优命令
- jps  -v/-m      #JVM Process Status Tool,显示指定系统内所有的HotSpot虚拟机进程。
- jstat                     #JVM statistics Monitoring是用于监视虚拟机运行时状态信息的命令，它可以显示出虚拟机进程中的类装载、内存、垃圾收集、JIT编译等运行数据。
-       MC(1.8)/PC(1.7)   方法区空间大小 #metaspace 元数据空间//系统内存
- 	  MU(1.8)/PU(1.7)   方法区使用空间大小
-   jstat -options  选项：-gc时间及次数  -gccause垃圾回收原因	  
- jinfo                     #JVM Configuration info 这个命令作用是实时查看和调整虚拟机运行参数
- jhat                      #JVM Heap Analysis Tool命令是与jmap搭配使用，用来分析jmap生成的dump，jhat内置了一个微型的HTTP/HTML服务器，生成dump的分析结果后，可以在浏览器中查看。
- jmap                      #JVM Memory Map命令用于生成heap dump文件。
- jstack                    #用于生成java虚拟机当前时刻的线程快照。
- jmc                       #监视和管理 Java 应用程序，不会导致相关工具类的大幅度性能开销，
- jconsole                  #Java Monitoring and Management Console是从java5开始，在JDK中自带的java监控和管理控制台，用于对JVM中内存，线程和类等的监控。
- jvisualvm                 #jdk自带全能工具，可以分析内存快照、线程快照；监控内存变化、GC变化等。
- 
  
  通常64位JVM消耗的内存会比32位的大1.5倍，起到节约内存占用的新参数
  64bitJVM从1.6开始支持压缩指针:-XX:+UseCompressdOops    oop=ordinary object pointer 普通对象指针
@@ -200,44 +185,17 @@
  非堆内存：jvm无法处理
  堆外内存  文件句柄 socket句柄  数据库连接
  
- JVM调优原则：降低Full Gc频次
-              确保大对数对象“朝生夕死”
- 			 提高大对象进入老年代的门槛(-XX:MaxTenuringThreshold)
-                                                                        
- Allocation Failure：表明本次引起GC的原因是因为在年轻代中没有足够的空间能够存储新的数据了。
+#################################################################################################
+
+ app.class 通过java虚拟机的 类加载子系统 加载到内存，有特定的内存/数据结构。
+		   通过java虚拟机的执行引擎读取程序计数器进行代码有序执行
  
- -server -Xms1200m -Xmx1200m -Xmn500m -XX:+UseConcMarkSweepGC -XX:SurvivorRatio=8 -XX:CMSInitiatingOccupancyFraction=70 -XX+UseCMSCompactAtFullCollection -XX:CMSFullGCsBeforeCompaction=5 -XX:+HeapDumpOnOutOfMemoryError 
+ 调优的原因是因为硬件资源是有限的，但是程序越运行越多。
  
- 
- 
- #######JDK环境变量###########
- export JAVA_HOME=/opt/apps/jdk
- export JRE_HOME=$JAVA_HOME/jre
- export CLASSPATH=$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
- export PATH=$PATH:$JAVA_HOME/bin:$JAVA_HOME/jre/bin
- 
- CLASSPATH环境变量保存的是一些目录和jar文件的地址，这些路径是为Java程序在编译和运行的时候搜索类而用的。
- 写法与Path变量类似，每个路径用分号进行分开，如果是一个jar文件，则直接写明该文件的绝对路径
- 
- 
- JConsole是基于JMX的可视化监视、管理工具
- cat bin/catalina.sh
-	#无需认证的远程监控配置
-	-Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.1.50    
-	#设置需要密码的远程登陆配置
-	-Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=true -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.pwd.file={jmxremote.password}Path -Djava.rmi.server.hostname=192.168.3.70
-        #jdk下面的该目录，路径不一定，权限600
-		cat management/jmxremote.access
-			monitorRole   readonly     #角色1和角色2
-			controlRole   readwrite \
-						create javax.management.monitor.*,javax.management.timer.* \
-						unregiste
-		cat management/jmxremote.password
-			monitorRole  123456789
-			controlRole  123456789
- 无法正常关闭：创建一个文件添加参数
- cat bin/setenv.sh 
-	CATALINA_OPTS="$JAVA_OPTS -Dcom.sun.management.jmxremote.port=60001 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=192.168.3.70"
- 
+ 垃圾回收是对堆进行回收，对象是创建在堆上的
+ 分代垃圾回收是为了减少对象进入老年代，即stw
+ 堆：
+	年轻代：Eden --> Survivor(From To)区域/s0 --> s1
+	老年代：内存大，且stw(stop the world)
  
  
