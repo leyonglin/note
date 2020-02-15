@@ -8,23 +8,6 @@
 
 
 
-
-elasticsearch-head 无法连接elasticsearch的原因和解决
-	1、5.x之后不支持直接集成到es中去(plugin目录下) 需要通过(nodejs)额外安装服务
-	2、通常会查看请求是否出错，关键是请求没有出错，就是没有返回值：
-		1.F12 --> network(出错查看原因) --> console(错误输出)
-			请求为option有可能是跨域问题，查看console
-			
-			
-系统默认配置修改：
-	公钥：默认sshd_config配置：AuthorizedKeysFile  .ssh/authorized_keys
-		（这个也能修改，即以后认证的时候，使用修改后的路径，但是如果有服务需要用到免密，那在对应服务上的密钥路径也要修改，如gitlab）	
-		
-
-
-
-
-
 	
 查看 http 的并发请求数与其 TCP 连接状态	
 	netstat -n | awk '/^tcp/ {++b[$NF]} END {for(a in b) print a, b[a]}'
