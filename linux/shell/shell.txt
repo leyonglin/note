@@ -197,6 +197,7 @@ EOF
 	!	反相状态，如 test ! -x file ，当 file 不具有 x 时，回传 true
 	&&  ||
 
+ #条件判断式返回值$?为0(有值,判断正确)则为真，非0则为假
  if true/false;then
  if [ ]; then CMD; fi                 #关键字换行就不用; 不换行需要在关键词前加；   
  if [ ]; then CMD; else CMD; fi
