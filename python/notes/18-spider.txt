@@ -320,17 +320,27 @@ lxml库及xptath使用
 			
 			
 
-抓包工具fiddler
-	1.配置：Tools -- HTTPS -- 1.Decrypt HTTPS traffic(抓取https包)/Actions(信任root证书) -- 2.from browsers only(只抓取浏览器的包) -- 3.connections(代理端口)
-		右半边---Inspectors --1. Headers(请求头数据)  -- 2.webforms(post) -- 3.raw(将请求头转换成纯文本)
-	2.浏览器配置：switchyomega(浏览器插件) -- 选项 --新建情景模式 -- 代理服务器和代理端口 -- 应用选项  然后，在插件出选择新建的情景模式
+抓包工具：如果设置后其它软件不能使用，一般是因为有证书导入本地电脑，但是仅用于当前用户，导致其它软件的启动用户使用各自证书出现问题
+fiddler
+	1.配置：Tools -- Options -- HTTPS -- 1.Decrypt HTTPS traffic(抓取https包)/Actions(信任root证书和搜索根证书到桌面) -- 2.from browsers only(只抓取浏览器的包) -- 3.connections(代理端口)
+		选项详解：Inspectors --1. Headers(请求头数据)  -- 2.webforms(post) -- 3.raw(将请求头转换成纯文本)
+	2.浏览器配置：switchyomega(浏览器插件) -- 选项 --新建情景模式 -- 代理服务器和代理端口(选择高级打开全部) -- 应用选项  然后，在插件出选择新建的情景模式
+		然后在浏览器设置--管理证书中添加fiddler的根证书
 		如果关闭fiddler的时候，需要将switchyomega切换成系统代理
 
-
-
-ubuntu防火墙：ufw
-
-
+charles：手机端抓包
+	charles软件: 
+		proxy -- proxy setting -- 设置代理端口
+		#proxy -- recording settings -- 设置抓包域名
+		help -- ssl proxying -- 下载软件根证书 -- 安装证书 --存放在"受信任的根证书颁发机构"
+		help -- ssl proxying --  在移动设备或远端浏览器上安装证书  -- 根据提示操作后面步骤(设置代理和下载证书)
+	#电脑浏览器：1.在浏览器设置代理   2.下载证书并浏览器导入			
+	手机上mos：设置 -- wifi -- 配置代理 -- 手动输入
+			   浏览器输入网址，下载压缩文件
+			   设置 -- 通用 -- 描述文件 -- 安装
+			   设置 -- 通用 -- 关于本机 -- 证书设置信任
+	
+				
 
 
 04： Cookie Session的使用 Cookiejar的管理 表单提交 

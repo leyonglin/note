@@ -38,3 +38,6 @@ linux 如何挂在 windows 下的共享目录
 被连接端：此电脑--属性--远程设置--允许远程协助
 
 连接端：cmd--mstsc- ip+显示选项(用户名)
+
+wimdows添加命令行命令：
+ 将应用程序及应用程序拓展(.dll)复制到wimdows的命令路径 C:\Windows\System32 下，同时需要相应的库文件(vcredist_x64(应用程序)：c++库文件)
