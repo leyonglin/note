@@ -53,6 +53,11 @@ TCPDUMP:  or/and/not
   tcpdump  -c 100 -t -v -n -i any '(((dst host 104.193.88.77) or (dst host 104.193.88.123)) and (tcp[tcpflags] & (tcp-ack|tcp-fin|tcp-syn) !=0))'
 
 
+tracert -d  -w 2 192.168.71.8
+traceroute -n -i -w 2 ens34 192.168.71.8
+
+mtr -rn -i 0.5 www.google.com
+
 
 ldd CMD:命令调用的库函数
 ldconfig：加载动态库

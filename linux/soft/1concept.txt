@@ -1,5 +1,11 @@
 
-PC端/Web版，wap端/H5，APP端，分别对应的就是电脑，手机浏览器和移动应用
+ssh客户端
+sshd服务端
+ssh-agent是一种控制用来保存公钥身份验证所使用的私钥的程序,启动该服务可以输入一次密钥文件和一次密码，就无需重复输入
+	eval `ssh-agent`	#启动服务和设置变量
+	ssh-add   			#把专用密钥添加到ssh-agent的高速缓存中
+
+PC端/Web版:电脑，wap端/H5:手机浏览器，APP端:移动应用
 WAP（Wireless Application Protocol) 为无线应用协议，是一项全球性的网络通信协议。WAP使移动Internet 有了一个通行的标准，其目标是将Internet的丰富信息及先进的业务引入到移动电话等无线终端之中
 
 ubuntu防火墙：ufw
