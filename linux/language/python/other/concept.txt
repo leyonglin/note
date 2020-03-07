@@ -1,0 +1,82 @@
+
+时间管理：重要和紧急  
+	四象限是会随着时间会改变，平时准备，让自己重要且紧急的事情往不重要且不紧急的象限转移
+读万卷书不如行万里路，行万里路不如阅人无数；阅人无数不如名师指路，名师指路不如自己去悟
+
+
+选A 100% 100万美金
+选B 50% 0 50% 1000万美元		期望是500万
+有钱人还钱买选择权，选择是概率性问题，B就是一种选择(包含不同可能)再卖出(低于市场价)
+
+######################################################################################
+
+代码分享
+https://tianchi.aliyun.com/
+https://www.kaggle.com/
+
+解决问题思路：1.查看console 2.查看日志 3.查看Stack Overflow(论坛)  4.查看官网
+
+######################################################################################
+
+excel
+spss
+sas
+matlab
+R数据
+python + numpy + pandas + sklearn + tensorflow + matplotlib
+
+######################################################################################
+
+人工智能：解方程，参数比较多
+
+int8：代表int类型用8位表示(-128~127)
+int8: 无符号的int8(0~255)
+
+######################################################################################
+
+！！#信息是以数字形式在计算机中存储的，例如图片，转换成数组表示后，对数据可以进行操作，进而改变图片(表现形式)
+pip install jupyter numpy pandas Pillow matplotlib opencv-python(图片+人脸识别+视频)  pyaudio scipy basemap
+#数据分析三剑客：numpy pandas matplotlib
+1.Anaconda：集成开发环境
+2.jupyter ：浏览器开发工具
+	#插入新行: a/b   运行快捷键:shift+enter   提示：shift+tab(有例子)
+	#继承自ipython有相同后缀ipynb--ipython notebook
+	#可用tab提示，shift+tab函数参数提示
+	#魔发命令: 例如time和计时有关(linux系统命令)
+	#支持makedown编辑
+
+https://www.numpy.org.cn/reference/
+numpy: 操作数组，可以用作通用数据的高效多维容器,封装了多种方法 --- udnp = np.array(L)
+	ndim: 维度 3   shape：宽度 (183, 275, 4)  size：长度/个数   dtype：元素类型   scale：上下范围
+	axis: 坐标轴(按[]区分,[[[代表三轴(三维0行,1列,2))
+
+
+opencv: https://github.com/opencv/opencv/tree/master/data
+
+pandas: 基于numpy的一种解决数据分析任务的工具
+	#能实现sql等实现的功能，能够更方便的批量的进行增删改查。
+	#https://pandas.pydata.org/docs/getting_started/index.html
+	Series：一维
+	DataFrame：二维
+	多重索引，切片，数据清洗(批量操作) 行列对换 空值处理(数据删除/填充本质是假数据，但要尽量合理)
+	数据加载，分组聚合,去重，映射，异常值(3σ)
+
+
+scipy：高等数学 矩阵
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

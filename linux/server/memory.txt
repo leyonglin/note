@@ -1,4 +1,6 @@
 
+
+
  free -th/lh
  
  清除cache写进硬盘：

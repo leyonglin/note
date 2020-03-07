@@ -16,3 +16,4 @@
 	cat /etc/redhat-release  //  cat /etc/issue // cat /proc/version // cat /etc/os-release // cat /etc/lsb-release #查看服务器内核版本
 	ping -c www.baidu.com   #检查网络
 	dd if=/dev/zero of=test.db bs=8k count=5000 oflag=direct
+	dmesg -T

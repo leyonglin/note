@@ -1,4 +1,14 @@
 
+
+
+
+
+
+
+
+
+
+
 diff <(ls /tmp/1) <(ls -l /tmp/1)   #比较两条命令输出结果的不同
 bind -P 							#列出所有 bash 的快捷键
 bind -x '"\C-l":ls -l'              #设置 CTRL+l 为执行 ls -l 命令
@@ -23,6 +33,7 @@ cat notexistfile 2>1，会将1看作是一个文件，
 cat notexistfile 2>&1,将标准错误输出输出到1这个文件里而不是标准输出,而&的作用就是为了区分文件和文件描述符,亦称“取地址符号”
 
 
+
 netstat -lanp[t/u]  #查看网络连接
 iostat -x :util%：表示io等待占比，正常情况下该值和磁盘读写（r/w）成正比，如果该值很大，读写数值很小则说明磁盘存在问题，系统性能会受影响	
 
@@ -31,11 +42,9 @@ iostat -x :util%：表示io等待占比，正常情况下该值和磁盘读写�
               nc -l 1567 < file.txt              nc -n 172.31.100.7 1567 > file.txt
 	tar -cvf – dir_name| bzip2 -z | nc -l 1567   nc -n 172.31.100.7 1567 | bzip2 -d |tar -xvf -
 	nc localhost 1567 | mcrypt –flush –bare -F -q -d -m ecb > file.txt    mcrypt –flush –bare -F -q -m ecb < file.txt | nc -l 1567	
+	  
 	
-	
-cpu:top/lscpu	  top -H -p PID 查看进程下的线程 
-	
-
+top -H -p PID 查看进程下的线程 
 top(1/2/3)free/df/vmstat/iostat/iotop/nethogs
 ps命令：1.ps -uroot  2.ps -ef  3.ps -C 命令或进程名   4.ps -l(后台非进程) 5.ps aux 内存/cpu中的程序   ps -Tfp pid  查看线程
         6.ps L （例如：ps -o pid,ppid）  7.O或-O  增加pid、state、tname、time和command字段  使用w或-w选项，就会将完整的进程命令信息显示，多出的部分换行显示

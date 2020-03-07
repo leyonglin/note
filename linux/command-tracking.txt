@@ -10,6 +10,7 @@
 [truss和]strace用来跟踪一个进程的系统调用(内核态)或信号产生的情况（静态库？）
 top --> 1  查看cpu是内核态还是用户态负载高和负载高的进程pid
 -o  -f  -p  -c  -e  -r(打印出相对时间戳) [-t(输出绝对时间戳) -T输出每个系统调用花费的时间 -tt毫秒] -v 对于某些相关调用，把完整的环境变量，文件stat结构等打出来,-s 当系统调用的某个参数是字符串时，最多输出指定长度的内容，默认是32个字节
+#目前作用是用来发现程序路径，例如nginx访问404
 strace -cp 24303
 starce -rf [-s 1024] -e clone -p 24303
 -c      count
@@ -34,8 +35,10 @@ starce -rf [-s 1024] -e clone -p 24303
 		网络通信 socket/connect/sendto/sendmsg 等
 
 
-LSOF：	匹配内容^表示取反 (/path/filename) (-a 两条件同时满足) (+d/+D dir) (-d fd) (-c cmd -c ...) (-u 用户名 -g gid) (-p PID,PID...) 
-		(-i(select IPv[46] files) :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) -U(socket) -n(不dns) +/-r(持续) #协议指tcp和udp
+#列出打开文件list open files
+LSOF： -R /path/filename(匹配内容^表示取反) (-a 两条件同时满足) (+d/+D dir) (-d fd) (-c cmd -c ...) (-u 用户名 -g gid) (-p PID,PID...) (-R 显示ppid)
+		-i [46][protocol][@hostname|hostaddr][:port]
+		#(-i(select IPv[46] files) :port / 协议 / 协议:port/ 协议@url:服务名 / 协议@url:port ) -U(socket) -n(不dns) +/-r(持续) #协议指tcp和udp
 	lsof | head
 		COMMAND     PID   TID    USER   FD      TYPE             DEVICE  SIZE/OFF       NODE NAME
 		删除恢复：
@@ -43,6 +46,7 @@ LSOF：	匹配内容^表示取反 (/path/filename) (-a 两条件同时满足) (+
 				USER使用COMMAND命令启动服务，进程ip是PID，线程id是TID，在DEVICE对类型TYPE，总大小SIZE，在磁盘上的索引节点NODE的文件NAME使用FD(文件描述符+操作方式)操作
 			2.cat /proc/PID/fd/FD  >  <filename>
 
+#抓取网卡通信包
 TCPDUMP:  or/and/not
 	tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
 	tcpdump or/and/not 
@@ -50,9 +54,10 @@ TCPDUMP:  or/and/not
 	        [-p] 协议
 			src/dst port/portrange PORT		src/dst host ip/域名/网络位	  
 			-w 文件		-r 指定文件读出	#可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
+  tcpdump -i any -n '((icmp) and (net 192.168.71)) and (net 192.168.71.8)'   #使用net，条件都加括号
   tcpdump  -c 100 -t -v -n -i any '(((dst host 104.193.88.77) or (dst host 104.193.88.123)) and (tcp[tcpflags] & (tcp-ack|tcp-fin|tcp-syn) !=0))'
 
-
+#路由追踪
 tracert -d  -w 2 192.168.71.8
 traceroute -n -i -w 2 ens34 192.168.71.8
 
@@ -61,5 +66,4 @@ mtr -rn -i 0.5 www.google.com
 
 ldd CMD:命令调用的库函数
 ldconfig：加载动态库
-
 

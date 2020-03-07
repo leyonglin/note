@@ -1,0 +1,93 @@
+
+Linux 内存的分类
+	匿名内存anon：用来存储用户进程计算过程中间的数据，与物理磁盘的文件没有关系；
+	File-backed内存：用作磁盘高速缓存，其物理内存与物理磁盘上的文件是对应的；
+	Active : 刚被使用过的数据的内存空间；
+	Inactive : 包含有长时间未被使用过的数据的内存空间；
+
+
+
+
+硬件本身：
+lscpu
+
+
+SystemTap
+strace
+lstrace
+
+
+
+cpu：
+	uptime
+	mpstat -P ALL 1   /  top
+	perf：http://blog.itpub.net/24585765/viewspace-2564885/ & http://blog.itpub.net/24585765/viewspace-2564885/
+		#cat /boot/config-`uname -r` |grep CONFIG_KALLSYMS   #内核支持
+		gdb cmd   #查看依赖并安装
+		perf record -g -p 3874 --call-graph dwarf
+		perf report
+内存：
+vmstat -a
+pmap
+
+io：
+iostat
+iotop
+strace+lsof/pt-ioprofile
+	strace -rf -e write -s 1024 -p PID   #得出文件描述符
+	lsof -p PID | grep fd+w				 #查看对应的文件
+
+带宽：
+sar -n DEV 1 		  #设备
+#nethogs    			  #根据端口判断进程
+iftop -n -i ens34     #连接  p  D 可查看指定端口实时流量
+
+
+vmstat:系统总概况     sar -W：查看交换内存
+uptime
+dmesg | tail    	#可以查看到引起性能问题的错误
+vmstat 1        	#si, so: swap入／出。如果这个值非0，证明内存溢出了   wa  I/O等待时间
+mpstat -P ALL 1 	#打印每个CPU的消耗
+pidstat 1       	#按时间显示，％CPU是对所有CPU的消耗
+iostat -xz 1		#系统级io   await: I/O平均时间     avgqu­sz: 向设备发出的平均请求数，值大于1可视为饱和  %util: 设备利用率，值大于60%属于典型的性能不足（可以从await处查看），尽管它取决于设备。值接近100% 通常指示饱和
+sar -n DEV 1    	#网卡
+sar -n TCP,ETCP 1	#关键词是TCP时：active/s作为客户端连接别人   passive/s作为服务端   iseg/s 接受的段      关键词是ETCP时：TCPv4错误的统计数据
+
+
+
+
+
+
+
+1. 降低swap的使用率：
+	# sysctl -a | grep swappiness
+	vm.swappiness = 60
+2. 限制其他用户的内存使用
+	# vim /etc/security/limits.conf
+	user1 hard as 1000 （用户user1所有累加起来，内存不超过1000kiB）
+	user1 soft as 800 （用户user1一次运行，内存不超过800kiB）
+3. 大量连续内存数据：
+	# vim /etc/sysctl.conf
+	vm.nr_hugepage=20
+4. 调节page cache（大量一样的请求 调大page cache）
+	vm.lowmem_reserve_ratio = 256 256 32 （保留多少内存作为pagecache 当前 最大 最小）
+	vm.vfs_cache_pressure=100 （大于100，回收pagecache）
+	vm.page.cluster=3（一次性从swap写入内存的量为2的3次方页）
+	vm.zone_reclaim_mode=0/1（当内存危机时，是否尽量回收内存 0:尽量回收 1:尽量不回收）
+	min_free_kbytes：该文件表示强制Linux VM最低保留多少空闲内存（Kbytes）。
+5.  脏页
+	vm.dirty_background_radio=10 （当脏页占内存10%，pdflush工作）
+	vm.dirty_radio=40 （当进程自身脏页占内存40%，进程自己处理脏页，将其写入磁盘）
+	vm.dirty_expire_centisecs=3000 （脏页老化时间为30秒 3000/100=30秒）
+	vm.dirty_writeback_centisecs=500 （每隔5秒，pdflush监控一次内存数量 500/100=5秒）
+
+
+
+
+
+
+
+
+
+
+

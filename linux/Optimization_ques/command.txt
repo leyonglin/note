@@ -16,7 +16,7 @@ perf list: 命令可以列出所有能够触发 perf 采样点的事件
 
 根据 tick 中断进行采样，即在 tick 中断内触发采样点，在采样点里判断程序当时的上下文。假如一个程序 90% 的时间都花费在函数 foo() 上，那么 90% 的采样点都应该落在函数 foo() 的上下文中
 
-1.perf top -e event  #可以使用移动键多次到指定程序查看
+1.perf top -e event  #可以使用移动键多次到指定程序查看  perf top -g -p PID  #-g开启调用关系分析
 2.perf stat ./t1     #是虚拟机 而且cpu没有虚拟化，所有有些时间不支持，<not supported>
 	Task-clock-msecs：CPU 利用率，该值高，说明程序的多数时间花费在 CPU 计算上而非 IO。
 	Context-switches：进程切换次数，记录了程序运行过程中发生了多少次进程切换，频繁的进程切换是应该避免的
@@ -26,7 +26,7 @@ perf list: 命令可以列出所有能够触发 perf 采样点的事件
 	Instructions: 机器指令数目。
 	IPC：是 Instructions/Cycles 的比值，该值越大越好，说明程序充分利用了处理器的特性。
 	Cache-references: cache 命中的次数
-3.perf record -a  -g ./t1   //   perf record -e cpu-clock -g -p 2548
+3.perf record -g -a ./t1   //   perf record -e cpu-clock -g -p 2548   #-g开启调用关系分析
   perf report [--stdio]
 
 

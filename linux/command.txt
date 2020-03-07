@@ -19,7 +19,7 @@ top
 vmstat 1 5
 free
 
-strace  perf
+strace  perf pmap
 
 tcpdump
 

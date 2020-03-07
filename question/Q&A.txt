@@ -81,10 +81,12 @@ elasticsearch-head 无法连接elasticsearch的原因和解决
 	公钥：默认sshd_config配置：AuthorizedKeysFile  .ssh/authorized_keys
 		（这个也能修改，即以后认证的时候，使用修改后的路径，但是如果有服务需要用到免密，那在对应服务上的密钥路径也要修改，如gitlab）
 
+########################################################################################
 
-
-
-
+端口和服务/进程的对应关系：netstat -npl
+查看进程完整参数：ps -ef | grep PID
+查看完整命令路径：ll /proc/PID/exe
+查看进程启动时用户所在目录：ll /proc/PID/cwd
 
 
 
