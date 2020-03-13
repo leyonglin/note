@@ -1,4 +1,7 @@
 
+#捕获结束信号丢弃，开启后，将无法ctl +c退出
+trap "" HUP INT QUIT TSTP
+
 sar -n { DEV | EDEV | NFS | NFSD | SOCK | ALL }
 sar 提供六种不同的语法选项来显示网络信息。-n选项使用6个不同的开关：DEV | EDEV | NFS | NFSD | SOCK | ALL 。DEV显示网络接口信息，EDEV显示关于网络错误的统计数据，NFS统计活动的NFS客户端的信息，NFSD统计NFS服务器的信息，SOCK显示套接字信息，ALL显示所有5个开关
 
@@ -222,7 +225,12 @@ rmdir  删除空目录
 basename显示文件名或目录名。basename [pathname] [suffix]如果指定后缀名，将会被去掉
 dirname显示文件或目录路径。
 tac 按行反向输出  rev 按字符方向输出    
-cut -d";"(分隔符)  -f2,3(第几列)  --complement(显示除去-f) -c1-3(字符串的第1到3字符，-b字节，-c字符，-f字段)
+cut 范围控制： n-m  /  n,m   
+	-b：仅显示行中指定直接范围的内容；-n：与“-b”选项连用，不分割多字节字符,[-nb1-1 字母有一个字节汉字有三个字节，可一起输出]；
+	-c：仅显示行中指定范围的字符，适用于中文；(和nb类似)
+	-f：显示指定字段的内容；-d：指定字段的分隔符，与-f一起用；
+	--complement：屏蔽被选择的字节、字符或字段；
+	--out-delimiter=<字段分隔符>：指定输出内容是的字段分割符；
 split -6 README       #将README文件每六行分割成一个文件 
 cmd | paste -d" " - - #-几列，可将文件行合并(-s合并成一行)  paste file_num 将多个文件合并输出
 sort -u(去重) -n(10>2) -r(反向) -o(存回本文件)  -k(第几行排序) 2  -t'-'(分隔符)

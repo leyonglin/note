@@ -187,6 +187,18 @@ apr: http://apr.apache.org/download.cgi (apr-1.5.2  apr-iconv-1.2.1   apr-util-1
 			redirectPort="8443" />
 
 
+java编译生成的class文件是平台无关的，这就意味着jar包是跨平台的
+编译：
+javac com/imooc/jardemo2/Welcome.java -d target/
+打包：通常一个jar包就是一个java程序或者一个java库
+jar -cvfm welcome.jar META-INF/MANIFEST.MF *
+运行：
+java -jar welcome.jar
+
+做好一个web应用后，通常是网站，打成包部署到容器中，压缩和解压和jar包一样
+war包可以放在tomcat的webapps下运行
+
+
 lsof -i:8080
 ps -ef | grep tomcat
 jmap -heap tomcat_PID
