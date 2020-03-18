@@ -41,7 +41,9 @@ strace+lsof/pt-ioprofile
 sar -n DEV 1 		  #设备
 #nethogs    			  #根据端口判断进程
 iftop -n -i ens34     #连接  p  D 可查看指定端口实时流量
+#/proc/net/dev  到目前为止总流量(字节)
 
+连接：netstat
 
 vmstat:系统总概况     sar -W：查看交换内存
 uptime
@@ -83,7 +85,45 @@ sar -n TCP,ETCP 1	#关键词是TCP时：active/s作为客户端连接别人   pa
 
 
 
+缓存   压缩
 
+1. 客户端发起连接请求给服务端
+	影响因素：网络传输状况    
+			  服务端连接性能
+				连接——配置优化
+					最大连接数   连接超时   连接的复用(池=核数*2+1)  连接合并
+
+2. 服务端判断资源类型
+	影响因素：静态资源瓶颈是io
+			  动态资源 -- 连接并发送给应用服务器
+
+3. 应用服务器获取数据进行解析
+	影响因素：应用服务器直接解析
+			  连接并发送给数据库服务器获取响应数据
+
+4.浏览器接收到数据并进行渲染
+	
+	
+SELECT DISTINCT  < select_list >
+FROM  		< left_table > < join_type >
+JOIN 		< right_table > 
+ON 			< join_condition >
+WHERE  		< where_condition >
+GROUP BY  	< group_by_list >
+HAVING  	< having_condition >
+ORDER BY    < order_by_condition >
+LIMIT 	    < limit_number >	
+
+1:FROM <left_table>
+2:ON <join_condition>
+3；<join_type> JOIN <right_table>
+4：WHERE <where_condition>
+5：GROUP BY <group_by_list>
+6：HAVING <having_condition>
+7：SELECT
+8；DISTINCT <select_list>
+9：ORDER BY <order_by_condition>
+10：LIMIT <limit_number>
 
 
 

@@ -80,12 +80,15 @@
  恢复：进到相应库source
  
  查看授权：
- select user,host from mysql.user;
- show grants for user@host;
  show grants;
+ show grants for user@host;
+ select user,host from mysql.user;   			       #针对全局的权限/连接权限   #select *from mysql.db\G;
+ select * from information_schema.schema_privileges;   #查看对数据库的详细授权
+ select * from mysql.tables_priv;					   #针对单张表的详细授权
+ 
  
  授权：grant  all(select ,update) on  库名(*).表名(*)  to  'user'@'%' identified by "passwd" [with grant option];         
- 撤销：revoke all on *.* from dba@localhost; 
+ 撤销：revoke all on *.* from dba@localhost;   #revoke select on lin.lin from haochengtest@'localhost';
  删除：drop user xxx@ip
  
  删除授权
@@ -98,8 +101,8 @@
  从库取消主从：stop slave；reset slave all;
  
  主从授权：grant replication slave on *.* to myrync@'$i' identified by 'MyryncCloud';
-           flush privileges；
- 
+           flush privileges;
+		   
  查看信息：show master status;
  
  MySQL中source命令   mysql> source *.sql;     //导入数据 
@@ -681,7 +684,7 @@ select @@[global|session].system_var_name    #@@后面带的是准确的变量�
 show status\G;  #运行时的转台变量
 show variables like '%c%'  #查找特定变量
 create table test1(id int primary key auto_increment, name varchar(55) not null default lin,index ind_name(name))engine=InnoDB auto_increment=2 default charset=utf8; #创建表
-status;
+status;             #查看当前连接状态
 create database if not exists textdb default character set utf8;
 show table status [like "user"]\G;						  	#查看表简要信息
 desc user;

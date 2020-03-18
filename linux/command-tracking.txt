@@ -48,7 +48,7 @@ LSOF： -R /path/filename(匹配内容^表示取反) (-a 两条件同时满足) 
 
 #抓取网卡通信包
 TCPDUMP:  or/and/not
-	tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
+	tcpdump -D | less [类型：net，host，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
 	tcpdump or/and/not 
 			-i 接口/any		-c 抓包总数		-t/ttt(不显示时间戳)	-vv(详细输出)	-nn(不dns)
 	        [-p] 协议

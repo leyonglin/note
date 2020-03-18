@@ -206,7 +206,8 @@ find / -max[min]depth 5 -user nobody -name test.txt -size +100k -mtime +4/4 -typ
 find正则表达式由于-name参数只支持“*”、“?”、“[]”这三个通配符（.代表的就是普通的.而已）
 	find . -name '*a1*txt'（*代表可有可无）   //   find ./  -name '[a-z]*'（匹配小写开头）  //  find ./  -name '??' （匹配两个字符） // find . -name "*[1|2]"  //  find . -name "*[0-3]"
 
-xargs: -t在执行前回显cmd  -p交互  -d(把...当作分割符)  -n3三行一组  -0
+xargs: -t在执行前回显cmd  -p交互  -d(分隔符)  -n3三行一组  -0
+cat example.txt | xargs -n 3    #以空格为分隔符，三个一行
 cat /etc/passwd | xargs -d ':'  echo
 ls | xargs ls -l			#默认带一个参数
 ls | xargs -i mv {} {}.txt  #-i与{}搭配，即需要两个参数的时候

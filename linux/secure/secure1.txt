@@ -181,7 +181,7 @@ find / -u nobody -name test.txt -size +100k -depth 5 -mtime +4/4 -type s -perm +
     find ./ ! \( −path ′/proc*′ −o −path ′/sys*′ \) -a -name '*.txt' -print  #在除dir0、dir1及子目录以外的目录下查找txt后缀文件
     find ./   \( −path ′./dir0*′ −o −path ′/etc*′ \) -a -name '*.txt' -print  #在dir0、dir1及子目录下查找txt后缀文件
 	#注意，1.使用()要转义，并且前后要有空格  2.使用-path，一定要在路径后面加* ，这才表示在这个路径之后都不匹配
-
+	find . -regex ".*\(\.py\|\.sh\)$"
 0代表任意
 -perm -2   #所有用户都有写的权限
 -perm -20  #最少主组能写
