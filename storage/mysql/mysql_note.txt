@@ -56,8 +56,21 @@
  
  show processlist；/ select * from information_schema.processlist  显示用户正在运行的线程,除了 root 用户能看到所有正在运行的线程外，其他用户都只能看到自己正在运行的线程，看不到其它用户正在运行的线程。除非单独个这个用户赋予了PROCESS 权限。
  按客户端 IP 分组，看哪个客户端的链接数最多
- select client_ip,count(client_ip) as client_num from (select substring_index(host,':' ,1) as client_ip from processlist ) as connect_info group by client_ip order by client_num desc;
+ select client_ip,count(client_ip) as client_num from (select substring_index(host,':' ,1) as client_ip from information_schema.processlist ) as connect_info group by client_ip order by client_num desc;
+ +-------------+------------+
+ | client_ip   | client_num |
+ +-------------+------------+
+ | 154.92.6.15 |        377 |
+ | 154.92.5.13 |        101 |
+ | localhost   |          1 |
+ +-------------+------------+
  查看正在执行的线程，并按 Time 倒排序，看看有没有执行时间特别长的线程
+ #select client_ip,count(client_ip) as client_num from (select substring_index(host,':' ,1) as client_ip from information_schema.processlist ) as connect_info;
+ #+-------------+------------+
+ #| client_ip   | client_num |
+ #+-------------+------------+
+ #| 154.92.6.15 |        479 |
+ #+-------------+------------+
  select * from information_schema.processlist where Command != 'Sleep' order by Time desc;
  找出所有执行时间超过 5 分钟的线程，拼凑出 kill 语句，方便后面查杀select concat('kill ', id, ';') from information_schema.processlist where Command != 'Sleep' and Time > 300 order by Time desc;
  
@@ -82,9 +95,9 @@
  查看授权：
  show grants;
  show grants for user@host;
- select user,host from mysql.user;   			       #针对全局的权限/连接权限   #select *from mysql.db\G;
- select * from information_schema.schema_privileges;   #查看对数据库的详细授权
- select * from mysql.tables_priv;					   #针对单张表的详细授权
+ select user,host from mysql.user;   	 #针对全局的权限/连接权限   
+ select *from mysql.db\G;				 #查看对数据库的详细授权 select * from information_schema.schema_privileges;
+ select * from mysql.tables_priv;		 #针对单张表的详细授权
  
  
  授权：grant  all(select ,update) on  库名(*).表名(*)  to  'user'@'%' identified by "passwd" [with grant option];         
@@ -185,7 +198,7 @@
 表操作：
     查表：show tables;
     查表:show create table 表名;
-    建表：create table 表名(字段名 数据类型, ...)character set utf8;
+    建表：create table 表名(字段名 数据类型, ...)character set utf8 engine=MyISAM;
     删表：drop table 表名;
 	清空表中记录：delete from 表名;  //  truncate table "表名";
 
@@ -217,20 +230,43 @@
 	ALTER TABLE 表名字 ADD FULLTEXT (字段名字)
 	多列索引：多个字段做一个索引
 	ALTER TABLE table_name ADD INDEX index_name ( column1, column2, column3)
-	  
+	
+！！
+  建表：create table 表名(字段名 数据类型, ...)character set utf8 engine=MyISAM;	  
   查看: 
     SELECT 列名称 FROM 表名称 WHERE 列 运算符 值   
 		列名称：列, 列..[as '姓名'] // 集合函数 count(*) avg(列) max(列) min(列) sum(列)
 		表名称：表名 // 子查询
 		where： and/or // =,<>,<,<=,>,>= // not //[not] in // between and // like '[^AC]%'
+			like：模糊查询 #_:匹配单个字符   %:匹配0到多个字符
+			in：select * from A where id in (select id from B) #当B表的数据集必须小于A表的数据集时
+			#exists: 当A数据集小于B，语法也比较复杂
+		distinct:不显示字段的重复值。语法：select distinct 字段1, 字段2 from 表名；distinct和from之间的所有字段值都相同才会去重
+		group by：显示效果列
 		ORDER BY - 语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序
-		UNION - 操作符用于合并两个或多个 SELECT 语句的结果集。
-		as: select column_1 as 列1,column_2 as 列2 from table as 表
-		join: JOIN // INNER JOIN // LEFT JOIN //RIGHT JOIN: 即使左表中没有匹配，也从右表返回所有的行
-
-创建用户：CREATE USER 'gameplat_sc_data_dev'@'127.0.0.1' identified by 'OeJr)4uRGAuf(BHee7cab4ec59e23c1';
-创建用户并授权：grant select,insert,update,delete on dbname.* to newuser@localhost Identified by "abc.123";
- 
+		as: 別名  #select column_1 as 列1,column_2 as 列2 from table as 表		
+		having：WHERE 关键字无法与合计函数一起使用   HAVING SUM(OrderPrice)<2000
+	  两个表：
+		UNION - 用于合并两个或多个 SELECT 语句的结果集。
+		join: INNER JOIN(相同的) // LEFT JOIN(左边全显示,右边不存在显示null，右边多余存在忽略) // RIGHT JOIN(右边全显示,左边不存在显示null，左边多余存在忽略)  #多用于join，join与on配合(on和where一样)
+  对行的操作：
+  	插入表记录：  INSERT INTO 表名称 (列1, 列2,...) [VALUES (值1, 值2,....)]  #insert into mytable values('summer','m','1983-08-24');   
+    删除一条记录：delete from mytable where name='summer';  
+    更新表记录：  UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值	  #update mytable set sex='vm' where name='summer';   
+    插入多条记录：insert into mytable  select * from yourtable;  
+    根据条件插入：insert into mytable  select * from yourtable where `key`='value';
+  对列的操作：
+	修改表名：alter table 表名 rename 新表名;
+    修改列名：alter table 表名 change 列名称 列新名称 新数据类型;	  	
+	删除列：  alter table 表名 drop 列名称;	
+	添加列：  alter table 表名 add 列名 列数据类型 [after 插入位置];  #alter table yourtable add  name varchar(20)not null; 
+  索引：
+	多列索引：alter table 表名 add index 索引名(列名1,列名2,...);   #只有一列叫普通索引，多列叫多列索引
+	唯一索引：alter table 表名 add unique(列名1,列名2,...);			#唯一但允许空值
+	主键索引：alter table 表名 add primary key(列名1,列名2,...);	#唯一且不允许空值，不允许建立多个(其它均可以)
+	全文索引：alter table 表名 add fulltext(列名1,列名2,...); 		#支持myisam，不支持innodb
+  
+  
  
  数据类型：1.节省空间(varchar)    2.效率高(char)
 	数值类型宽度(显示宽度，不够用0补充)和存储没有关系[有/无符号signed/unsigned],decimal(m,n)整数部分和小数部分分开存储
@@ -378,8 +414,12 @@
 			恢复库时，要先创建，如果已有库恢复，同名表数据会被覆盖，新增表不会被删除
 		增量备份：
 
-	查看执行过的sql语句：1. show binlog events in 'mysql-bin.000021'\G;
-						 2.mysqlbinlog 'mysql-bin.000021'
+ 查看执行过的sql语句：1. show binlog events in 'mysql-bin.000021'\G;
+ 					  2. mysqlbinlog mysql-bin.000001 | grep -E "^SET T" -C 1
+					  #show  master logs;  查看binlog日志文件名
+					  #show  master status; 查看当前写入的binlog文件
+ @x 是 用户自定义的变量
+ @@x 是 global或session变量
 
 
 	调优：1.创建索引：(select where order by常涉及到的字段)
@@ -477,7 +517,7 @@
 		5.show full processlist\G;
 	
 	
-	永远小表驱动大表：查询总次数一定情况下：使连接次数最少，一次连接查询次数最多
+	永远小表驱动大表(先执行少的)：查询总次数一定情况下：使连接次数最少，一次连接查询次数最多
 		select * from A where id in (select id from B)             			 #返回真正的数据
 			等价于 1.for select id from B  2.for select * from A where A.id = B.id
 			当B表的数据集必须小于A表的数据集时，用in优于exists
@@ -522,7 +562,7 @@
 		6.重要指标
 			1.converting HEAP to MyISAM     #查询结果太大，内存不够用了，往磁盘上搬了
 			2.creating tmp table            #创建临时表 1.拷贝数据到临时表 2.用完再删除(order by)
-			3.copying to tmp table on disk  #把内存中临时表复制到磁盘，危险！！！
+			3.copying to tmp table on disk  #把内存中临时表复制到磁盘，危险！
 			4.locked
 	
 	全局查询日志：太耗费资源，只能在测试环境使用（模拟一段时间内的sql执行，出错的过程）
@@ -594,6 +634,20 @@
 	
 	
 	
+触发器：脚本https://www.cnblogs.com/javabg/p/9990078.html
+	创建的触发器是在某个表上的
+DELIMITER $			#设置结束符
+CREATE TRIGGER user_log AFTER INSERT ON logs FOR EACH ROW
+#创建触发器名称为user_log在插入logs表每一行AFTER之后执行
+BEGIN
+DECLARE s1 VARCHAR(40)character set utf8;
+DECLARE s2 VARCHAR(20) character set utf8;
+SET s2 = " is created";
+SET s1 = CONCAT(NEW.log,s2);
+INSERT INTO logs(log) values(s1);
+END $
+DELIMITER ;
+	
 	DELIMITER $$
 	CREATE PROCEDURE `partition_maintenance_all`(SCHEMA_NAME VARCHAR(32))
 	BEGIN
@@ -611,20 +665,6 @@
 		
 	truncate table history;   ##删除整张表数据，但不会缩小表结构 
 	optimize table tablename; ##删除数据后的优化 
-	
-触发器：脚本https://www.cnblogs.com/javabg/p/9990078.html
-	创建的触发器是在某个表上的
-DELIMITER $			#设置结束符
-CREATE TRIGGER user_log AFTER INSERT ON logs FOR EACH ROW
-#创建触发器名称为user_log在插入logs表每一行AFTER之后执行
-BEGIN
-DECLARE s1 VARCHAR(40)character set utf8;
-DECLARE s2 VARCHAR(20) character set utf8;
-SET s2 = " is created";
-SET s1 = CONCAT(NEW.log,s2);
-INSERT INTO logs(log) values(s1);
-END $
-DELIMITER ;
 	
 	
 mysqld --verbose --help  #使用命令查看帮助
@@ -699,7 +739,7 @@ alter table table_name rename as/add/drop/[change/modify]    #表名重命名/�
 create view test2 as select * from test1;                  #创建视图
 
 select count(num),gender from students group by gender;   #分组的目的往往时对分组后的数据进行聚合操作，如果想要对分组后的数据再次过滤，可以使用having关键字
-select * fron tb1 limit 3;                              #显示前三行
+select * from tb1 limit 3;                              #显示前三行
 	where name like 't_';                               #条件，in /not in  like rlike  between  not between  !=
 	order by (desc asc)                                 #降序/升序
 多表查询：cross join(可以忽略) inner join(同时符合) left join   right join     联合查询：union  union all   full join
@@ -749,10 +789,31 @@ xtrabackup: LSN是一个全局递增的号码	，每次对page中的记录进行
 	备份结束后，我们会得到两份文件，一份是不可用的备份文件，一份是备份时的事务日志，备份文件之所以不可用，是因为有一部分不确定的数据可能在事务日志中，而且热备过程中数据也可能会发生改变，所以我们要通过这两份文件，制作出一份可用的备份文件，
 	事务日志文件中已经提交的事务需要replayed，未提交的事务需要roolback，整个过程类似于mysql崩溃后恢复的过程，这个过程在xtrabackup中被称为"prepare"，"prepare"操作保证了备份出的数据的一致性，没有经过prepare的备份数据是不可用的，我们可以理解为如果想要得到一个可用的备份，则需要进行这些所谓的"准备"工作或者所谓的"数据恢复"的工作。
 	
-	
+MySql--三种注释写法(对bangde注释)
+		1.#bangde    2. -- bangde    3. /*bangde*/
 	
 
-	
+
+SELECT DISTINCT  < select_list >
+FROM  		< left_table > < join_type >
+JOIN 		< right_table > 
+ON 			< join_condition >
+WHERE  		< where_condition >
+GROUP BY  	< group_by_list >
+HAVING  	< having_condition >
+ORDER BY    < order_by_condition >
+LIMIT 	    < limit_number >	
+
+1:FROM <left_table>
+2:ON <join_condition>
+3；<join_type> JOIN <right_table>
+4：WHERE <where_condition>
+5：GROUP BY <group_by_list>
+6：HAVING <having_condition>
+7：SELECT
+8；DISTINCT <select_list>
+9：ORDER BY <order_by_condition>
+10：LIMIT <limit_number>	
 	
 	
 	

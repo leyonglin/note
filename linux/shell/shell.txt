@@ -156,7 +156,7 @@ EOF
  #aabbcc=alibaba a=aa b=bb c=cc  alibaba="hello world"
  #eval echo \$\$$a$b$c   &&   echo \\$\$$a$b$c   &&   eval echo \\$\$$a$b$c   &&   eval eval echo \\$\$$a$b$c
  
- 计算：1.$[算式]或$((算式)) --- 值引用变量可省略$，$[i+=1]/$[i++]自增    
+ 计算：1.$[算式]或$((算式))   
 	   2. let i++;echo $i 自增   
 	   3.expr 算式(\*) 运算符两边需要空格，支持变量    
        4.小数：echo "scale=4;$a*56.56;5/3" |bc  --运算符也可换成比较符 
@@ -166,7 +166,12 @@ EOF
 	echo $[$A+$B]
 	expr $A + $B
 	echo $A+$B | bc
-	 
+ 自增	
+   1. i=`expr $i + 1`;
+   2. let i+=1;
+   3. ((i++)) 或者 ((i=i+1));
+   4. i=$[$i+1];
+   5. i=$((i+1))
 	 
 	 
  test 选项 参数 == [ 选项 参数 ]      查看帮助：help test
@@ -180,7 +185,7 @@ EOF
 	-c	该『档名』是否存在且为一个 character device 装置？
 	-S	该『档名』是否存在且为一个 Socket 文件？
 	-p	该『档名』是否存在且为一个 FIFO (pipe) 文件？
-	-L	该『档名』是否存在且为一个连结档？
+	-L	该『档名』是否存在且为一个链接
 2. 关於文件的权限侦测，如 test -r filename 表示可读否 (但 root 权限常有例外)	
 	-r	侦测该档名是否存在且具有『可读』的权限？
 	-w	侦测该档名是否存在且具有『可写』的权限？
@@ -212,7 +217,7 @@ EOF
 	!	反相状态，如 test ! -x file ，当 file 不具有 x 时，回传 true
 	&&  ||
 
- #条件判断式返回值$?为0(有值,判断正确)则为真，非0则为假
+ #Shell中的 test 命令用于检查某个条件是否成立，它可以进行数值、字符和文件三个方面的测试
  if true/false;then
  if [ ]; then CMD; fi                 #关键字换行就不用; 不换行需要在关键词前加；   
  if [ ]; then CMD; else CMD; fi
