@@ -96,7 +96,7 @@
  show grants;
  show grants for user@host;
  select user,host from mysql.user;   	 #针对全局的权限/连接权限   
- select *from mysql.db\G;				 #查看对数据库的详细授权 select * from information_schema.schema_privileges;
+ select * from mysql.db\G;				 #查看对数据库的详细授权 select * from information_schema.schema_privileges;
  select * from mysql.tables_priv;		 #针对单张表的详细授权
  
  
@@ -243,30 +243,40 @@
 			#exists: 当A数据集小于B，语法也比较复杂
 		distinct:不显示字段的重复值。语法：select distinct 字段1, 字段2 from 表名；distinct和from之间的所有字段值都相同才会去重
 		group by：显示效果列
-		ORDER BY - 语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序
+		order by - 语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序
 		as: 別名  #select column_1 as 列1,column_2 as 列2 from table as 表		
 		having：WHERE 关键字无法与合计函数一起使用   HAVING SUM(OrderPrice)<2000
 	  两个表：
-		UNION - 用于合并两个或多个 SELECT 语句的结果集。
-		join: INNER JOIN(相同的) // LEFT JOIN(左边全显示,右边不存在显示null，右边多余存在忽略) // RIGHT JOIN(右边全显示,左边不存在显示null，左边多余存在忽略)  #多用于join，join与on配合(on和where一样)
+	    in：
+		union - 用于合并两个或多个 SELECT 语句的结果集。
+		join: inner join(相同的) // left join(左边全显示,右边不存在显示null，右边多余存在忽略) // right join(右边全显示,左边不存在显示null，左边多余存在忽略)  #多用于join，join与on配合(on和where一样)
   对行的操作：
-  	插入表记录：  INSERT INTO 表名称 (列1, 列2,...) [VALUES (值1, 值2,....)]  #insert into mytable values('summer','m','1983-08-24');   
-    删除一条记录：delete from mytable where name='summer';  
-    更新表记录：  UPDATE 表名称 SET 列名称 = 新值 WHERE 列名称 = 某值	  #update mytable set sex='vm' where name='summer';   
-    插入多条记录：insert into mytable  select * from yourtable;  
-    根据条件插入：insert into mytable  select * from yourtable where `key`='value';
+  	插入表记录：  insert into 表名(列1, 列2,...) [VALUES (值1, 值2,....)]  #insert into mytable values('summer','m','1983-08-24');   #插入多条记录：insert into 表名  select * from yourtable;
+    删除一条记录：delete from 表名 where name='summer';  
+    更新表记录：  update 表名 set 列名 = 新值 where 列名 = 某值	 		   #update mytable set sex='vm' where name='summer';     
   对列的操作：
 	修改表名：alter table 表名 rename 新表名;
     修改列名：alter table 表名 change 列名称 列新名称 新数据类型;	  	
 	删除列：  alter table 表名 drop 列名称;	
 	添加列：  alter table 表名 add 列名 列数据类型 [after 插入位置];  #alter table yourtable add  name varchar(20)not null; 
   索引：
-	多列索引：alter table 表名 add index 索引名(列名1,列名2,...);   #只有一列叫普通索引，多列叫多列索引
-	唯一索引：alter table 表名 add unique(列名1,列名2,...);			#唯一但允许空值
-	主键索引：alter table 表名 add primary key(列名1,列名2,...);	#唯一且不允许空值，不允许建立多个(其它均可以)
-	全文索引：alter table 表名 add fulltext(列名1,列名2,...); 		#支持myisam，不支持innodb
-  
-  
+   查看：show index from 表名;   （普通和主键和全文索引有容易看出来的名称，没有的就是唯一索引）
+   创建：
+	多列索引：  alter table 表名  add index 索引名(列名1,列名2,...);      #只有一列叫普通索引，多列叫多列索引
+	唯一索引：  alter table 表名  add unique      (列名1,列名2,...);	  #唯一但允许空值，外键要唯一或主键索引
+	主键索引：  alter table 表名  add primary key (列名1,列名2,...);	  #唯一且不允许空值，不允许建立多个(可与其他索引共存)
+	全文索引：  alter table 表名  add fulltext    (列名1,列名2,...); 	  #支持myisam，不支持innodb
+    外键：      alter table 表名1 add foreign key (列名) references 表名2(列名); #一张表可以有多个外键字段（与主键不同）
+   删除索引：
+	  主键：    alter table 表名 drop primary key;
+	  主键之外：alter table 表名 drop index 索引名;
+   授权：grant 权限列表 on 库名.表名 to "用户名"@"%(ip)" identified by "密码"  with grant option;
+			create user '用户'@'ip' identified by '密码';
+			grant 权限 on "库名"."表名" to "用户名"@"ip";
+   查看授权：select * from mysql.user\G;    #查看用户，包括管理员
+	         select * from mysql.db\G;       #查看具体数据库授权，不记录所有库的授权	
+   	视图：create view 视图名 as 结果集;
+		  alter  view 视图名 as 结果集;
  
  数据类型：1.节省空间(varchar)    2.效率高(char)
 	数值类型宽度(显示宽度，不够用0补充)和存储没有关系[有/无符号signed/unsigned],decimal(m,n)整数部分和小数部分分开存储
@@ -382,13 +392,13 @@
 	查看所有：show engines;
 	查看已有表：show create table 表名;
 	指定：create table ... engine=myisam charset=utf8;  或 alter table 表名 engine=myisam;
-  InnoDB: 聚集索引方式
+  InnoDB: 聚集索引方式(叶子节点就是对应的数据节点)
 		1.支持事务、外键、行级锁    
 		2.共享表空间
 		3.写性能好
 			表名.frm:表结构和索引信息
 			表名.idb:表记录
-  Myisam：非聚集索引方式
+  Myisam：非聚集索引方式(叶节点仍然是索引节点，只是有一个指针指向对应的数据块)
 		1.支持表级锁
 		2.独享表空间
 		3.读性能好
@@ -396,6 +406,11 @@
 			表名.MYD:表记录
 			表名.MYI:索引信息
   Memory：数据存于内存中，重启表数据消失，表结构还在硬盘
+  
+  聚集索引方式: 逻辑顺序与磁盘上行的物理存储顺序相同，叶子节点就是对应的数据节点
+  非聚集索引方式: 叶节点仍然是索引节点，只是有一个指针指向对应的数据块--B+tree
+  #聚集索引直接获取到对应的全部列的数据，而非聚集索引在索引没有覆盖到对应的列的时候需要进行二次查询
+  #主键是创建聚集索引的表在数据插入上比主键上创建非聚集索引表速度要慢
   
 	执行查询操作多的表使用Myisam     执行写操作多的表使用innodb
  
@@ -817,11 +832,15 @@ LIMIT 	    < limit_number >
 	
 	
 	
+    c/s            MongoDB  MySQL   Oracle	 Informix	D B 2
+Database Server	   mongod	mysqld	oracle	 IDS	    DB2 Server
+Database Client	   mongo	mysql	sqlplus	 DB-Access	DB2 Client	
+
 	
-	
-	
-	
-	
+mysql的日志文件都是IO顺序插入的,顺序插入的优点是速度快(磁头几乎不用换道或换道时间极短).缺点是会产生磁盘碎片	
+binlog日志：记录所有的逻辑操作--insert/update/delete  用于恢复数据。事务提交的时候记录
+redo log日志：记录物理操作--某页哪个数据修改了。保证持久性,用于数据库突然宕机，脏数据的恢复	。事务开始时记录
+undo log日志：记录与binlog日志想法的逻辑操作，用于回滚。保证原子性：即要么全执行要部全不执行	
 	
 	
 	
