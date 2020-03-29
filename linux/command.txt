@@ -75,7 +75,7 @@ mkdir -pv {a,b,d/e}
 
 生成随机密码:
 	1.head /dev/urandom | tr -dc '0-9/A-Za-z0-9~!@#$%^&*' | head -c 20(生成随机数字)
-	2.head -c 16 /dev/urandom | base64 (random会阻塞)
+	2.head -c 16 /dev/urandom | base64 (多次random会阻塞)
 	3.openssl rand -hex 10
 date [+"%Y-%m-%d %H:%M.%S"] ["+现在的时间是：%Y-%m-%d %H:%M.%S"] [+%s%N]   [-d "Dec 5, 2009 12:00:37 AM" +"%Y-%m-%d %H:%M.%S"] [-d "-1 day" +%Y%m%d] [-s "2012-05-23 01:01:01"]
 

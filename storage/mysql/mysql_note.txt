@@ -241,15 +241,15 @@
 			like：模糊查询 #_:匹配单个字符   %:匹配0到多个字符
 			in：select * from A where id in (select id from B) #当B表的数据集必须小于A表的数据集时
 			#exists: 当A数据集小于B，语法也比较复杂
+		as: 別名  #select column_1 as 列1,column_2 as 列2 from table as 表
 		distinct:不显示字段的重复值。语法：select distinct 字段1, 字段2 from 表名；distinct和from之间的所有字段值都相同才会去重
 		group by：显示效果列
-		order by - 语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序
-		as: 別名  #select column_1 as 列1,column_2 as 列2 from table as 表		
 		having：WHERE 关键字无法与合计函数一起使用   HAVING SUM(OrderPrice)<2000
+		order by：语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序				
 	  两个表：
-	    in：
-		union - 用于合并两个或多个 SELECT 语句的结果集。
-		join: inner join(相同的) // left join(左边全显示,右边不存在显示null，右边多余存在忽略) // right join(右边全显示,左边不存在显示null，左边多余存在忽略)  #多用于join，join与on配合(on和where一样)
+	    in：子查询
+		union - 用于合并两个或多个 SELECT 语句的结果集。  #UNION ALL命令和UNION命令几乎是等效的，不过UNION ALL命令会列出所有的值(包括重复的)。
+		join: inner join(相同的) // left join(左边全显示,右边不存在显示null，右边多余存在忽略) // right join(右边全显示,左边不存在显示null，左边多余存在忽略) // full outer join(并集,全都显示) #join与on配合(on和where一样)，更细致的用法是后面带where条件(key is null)
   对行的操作：
   	插入表记录：  insert into 表名(列1, 列2,...) [VALUES (值1, 值2,....)]  #insert into mytable values('summer','m','1983-08-24');   #插入多条记录：insert into 表名  select * from yourtable;
     删除一条记录：delete from 表名 where name='summer';  
@@ -523,7 +523,7 @@
 		9.字符串不加单引号索引失效：即char/varchar要需要加'',原因是在索引上做了操作(类型转换)  #会导致行锁变成表锁，阻塞直到提交
 		10.少用or，用它连接时会索引失效
 		
-		
+	pt-query-digest: https://www.cnblogs.com/zhoujinyi/p/12374565.html	
 	分析诊断工具：
 		1.慢日志的开启并捕获(调优时开启)
 		2.explain + 慢日志查询 
@@ -836,7 +836,7 @@ LIMIT 	    < limit_number >
 Database Server	   mongod	mysqld	oracle	 IDS	    DB2 Server
 Database Client	   mongo	mysql	sqlplus	 DB-Access	DB2 Client	
 
-	
+顺序IO是指读取和写入操作基于逻辑块逐个连续访问来自相邻地址的数据	
 mysql的日志文件都是IO顺序插入的,顺序插入的优点是速度快(磁头几乎不用换道或换道时间极短).缺点是会产生磁盘碎片	
 binlog日志：记录所有的逻辑操作--insert/update/delete  用于恢复数据。事务提交的时候记录
 redo log日志：记录物理操作--某页哪个数据修改了。保证持久性,用于数据库突然宕机，脏数据的恢复	。事务开始时记录

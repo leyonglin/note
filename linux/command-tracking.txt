@@ -67,3 +67,30 @@ mtr -rn -i 0.5 www.google.com
 ldd CMD:命令调用的库函数
 ldconfig：加载动态库
 
+
+nmap
+主机列表： baidu.com   1.1.1.0/24    1.1.0-20.0-20   1.1.1,2.0-20  -iL+文件  -iR+num(随机)  1.1.1.1<host1[，host2][，host3]，...>
+		   --exclude <host1[，host2][，host3]，...> (排除主机/网络)    --excludefile <excludefile> (排除文件中的列表)
+		   #测试选项 -sP    #ping:  -P
+		   #-P0 (无ping)   -PS [portlist] (TCP SYN Ping)  -PA [portlist] (TCP ACK Ping)    -PU [portlist] (UDP Ping)   -PR (ARP Ping)
+
+端口： -p 22,23,25-27   #测试选项 -sS
+			-sS (TCP SYN扫描)   -sT (TCP connect()扫描)   -sU (UDP扫描)  -sA (TCP ACK扫描)  --scanflags (定制的TCP扫描)
+			-sO (IP协议扫描)IP 协议扫描可以让您确定目标机支持哪些IP协议 (TCP，ICMP，IGMP，等等)
+			-F (快速 (有限的端口) 扫描)
+			-sV (版本探测)  -sV (版本探测)
+时间和性能：
+输出格式：-oX <filespec> (XML输出)   -oG <filespec> (Grep输出)
+脚本--script：https://nmap.org/nsedoc/
+
+
+
+
+
+
+
+
+
+
+
+

@@ -148,3 +148,108 @@ git工作流：1.集中式工作流：即不分支，类似svn
 		   2.GitFlow工作流：(master/develop/feature/hotfix/release)
 		   3.Forking工作流：跨团队协作
 
+
+###########################################################################################################
+
+
+工作区 ---> 暂存区 ---> 本地仓库 ---> 远程库(.代表当前区域的所有修改)
+git add把文件从工作区 ---> 暂存区，git commit把文件从暂存区 ---> 本地仓库
+git checkout [-- file]			撤销工作区修改
+git reset HEAD [file]           撤销暂存区的修改
+
+git diff查看工作区和暂存区差异，
+git diff --cached查看暂存区和仓库差异，
+git diff HEAD [-- file] 查看工作区和仓库的差异，
+
+git fetch <远程主机名> <分支名> (仅下载到本地仓库)
+	git fetch origin master //从远程主机的master分支拉取最新内容，取回更新后，会返回一个FETCH_HEAD
+	git merge FETCH_HEAD    //将拉取下来的最新内容合并到当前所在的分支中
+git pull <远程主机名> <远程分支名>:<本地分支名>    #将远程主机的某个分支的更新取回，并与本地指定的分支合并
+
+
+
+
+分支：
+git branch -v/-a //查看本地和远程的所有分支
+	git branch //查看本地所有分支 
+	git branch -r //查看远程所有分支
+git branch <branchname> //新建分支
+git branch -d <branchname> //删除本地分支
+git checkout dev     切换分支(需要提交到本地库)
+git branch -m <oldbranch> <newbranch> //重命名本地分支
+	#git branch -d -r <branchname> //删除远程分支，删除后还需推送到服务器
+	#git push origin:<branchname>  //删除后推送至服务器
+git push origin dev    #推送分支到远程仓库
+
+合并记录查看： git log --graph --pretty=oneline --abbrev-commit
+
+合并指定分支dev到当前分支master
+git checkout master
+git merge --no-ff -m "noff" dev    #合并时多一个提交记录，在查看提交记录时方便。
+git push -u origin master
+
+bug修复：分支合并
+	master合并bug：正常合并
+	dev分支合并bug：
+		git cherry-pick 3241d61(bug最后提交记录)
+
+
+保存现场：分支未提交需要切换到别的分支
+	git stash      #保存当前现场，以便切换到别的分支
+	git stash list #查看现场
+	git stash pop  #恢复现场
+
+
+多人协作：远程push冲突
+1. git push origin <branch-name> 推送自己的修改；
+2. 如果推送失败，则因为远程分支比你的本地更新，先用git pull拉取；
+3. 本地合并，解决冲突
+4. git push origin <branch-name> 推送自己的修改；
+
+
+rebase操作可以把本地未push的分叉提交历史整理成直线；
+
+
+标签：
+git tag       #查看标签								
+git tag v1.0  #创建标签
+git tag v0.9 f52c633  #创建并绑定标签
+git show v0.9		  #查看标签绑定的内容
+git tag -a v0.1 -m "version 0.1 released" 1094adb  #创建并绑定带说明的标签
+git tag -d v0.1  #删除标签
+git push origin :refs/tags/<tagname>可以删除一个远程标签
+git push origin v1.0  #推送本地一个标签
+git push origin --tags  #推送所有标签
+
+
+
+查看提交修改内容：
+git show 432739d [filename]
+
+
+Git工作区的根目录下创建一个特殊的.gitignore文件
+#https://github.com/github/gitignore
+git add -f App.class     	    #强制添加文件
+git check-ignore -v App.class   #匹配到那条规则
+
+
+设置别名：--global是针对当前用户起作用的，如果不加，那只针对当前的仓库起作用。
+git config --global alias.unstage 'reset HEAD'
+配置文件： .git/config
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
