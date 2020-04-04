@@ -1,4 +1,18 @@
 
+内核编译：
+1.下载内核源码包：https://www.kernel.org/
+2.配置编译选项: make menuconfig    #配置完成会自动生成.config内核选项文件
+	#make localmodconfig 生成仅以正在使用的内核模块为对象的.config(编译的模块少)
+	#make defconfig  默认内核选项
+	#make oldconfig  复用之前内核编译选项
+
+3.编译：make -j 2   #-j cpu个数
+	
+insmod kernel_file.ko #装载模块
+rmmod  kernel_file    #卸载模块
+lsmod  #/lib/modules 中根据编译内核版本号来查看的装载模块
+
+###############################################################################################
 
 FTP简称文件传输协议，全称（File Transfer Protocol),FTP服务在互联网上任意两台计算机之间提供文件传输服务及共享服务
 FTP服务登录模式：
@@ -67,7 +81,7 @@ SFTP，即SSH文件传输协议（ SSH File Transfer Protocol ），或者说是
 与FTP相比TFTP的功能要弱得多: TFTP能够用于那些有UDP而无TCP的环境且不用密码认证；
 	使用类似ftp且可以非交互上传下载
 
-
+###############################################################################################
 
 linux本地邮件：
 postfix（作为发送邮件服务器）+dovecot（作为接收邮件服务器）+mysql（作为数据库）#使用Foxmail等第三方软件来收发邮件了
@@ -90,12 +104,13 @@ mail -s 'mail test' root@lin.com,master@lin.com < /etc/fstab    #内部账号使
 　　set smtp-auth-password=xxx　　		# 发件人密码
 　　set smtp-auth=login 　　 			# 邮件认证方式
 
+###############################################################################################
 
 grafana
 InfluxDB时序数据库8088(RPC calls)/8086(InfluxDB HTTP service) + Chronograf可视化web展示(基本监控)8888 + Telegraf数据收集 #+ Kapacitor警报9092
 influx --help
 
-
+###############################################################################################
 
 优势：LVM最大的特点就是可以对磁盘进行动态管理,而且不会丢失现有的数据
 概念：

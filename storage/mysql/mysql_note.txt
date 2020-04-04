@@ -243,13 +243,13 @@
 			#exists: 当A数据集小于B，语法也比较复杂
 		as: 別名  #select column_1 as 列1,column_2 as 列2 from table as 表
 		distinct:不显示字段的重复值。语法：select distinct 字段1, 字段2 from 表名；distinct和from之间的所有字段值都相同才会去重
-		group by：显示效果列
+		group by：显示(sum)效果列
 		having：WHERE 关键字无法与合计函数一起使用   HAVING SUM(OrderPrice)<2000
 		order by：语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序				
 	  两个表：
 	    in：子查询
 		union - 用于合并两个或多个 SELECT 语句的结果集。  #UNION ALL命令和UNION命令几乎是等效的，不过UNION ALL命令会列出所有的值(包括重复的)。
-		join: inner join(相同的) // left join(左边全显示,右边不存在显示null，右边多余存在忽略) // right join(右边全显示,左边不存在显示null，左边多余存在忽略) // full outer join(并集,全都显示) #join与on配合(on和where一样)，更细致的用法是后面带where条件(key is null)
+		join on: inner join(相同的) // left join(左边全显示,右边不存在显示null，右边多余存在忽略) // right join(右边全显示,左边不存在显示null，左边多余存在忽略) // full outer join(并集,全都显示) #join与on配合(on和where一样)，更细致的用法是后面带where条件(key is null)
   对行的操作：
   	插入表记录：  insert into 表名(列1, 列2,...) [VALUES (值1, 值2,....)]  #insert into mytable values('summer','m','1983-08-24');   #插入多条记录：insert into 表名  select * from yourtable;
     删除一条记录：delete from 表名 where name='summer';  
@@ -496,7 +496,7 @@
 		    Key：实际用到的索引(null为没建立索引或者索引失效)
 			  key_len:不损失精确性(条件的多少)的情况下，长度越短越好 
 			  ref:显示索引的那一列被使用,格式为"库.表.字段"，如果可能的话，是一个常数(const)，哪些列或常量被用于查找索引列上的值
-			rows：表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数(每张表有多少行被优化器查询)
+			rows：越小越好，表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数(每张表有多少行被优化器查询)
 			extra:包含不适合在其它列中显示但十分重要的额外信息
 				Using filesort：MySQL中无法利用索引完成的排序操作称为“文件排序”（很危险）            #order by要么不建索引，要么和索引的顺序和个数一致 Seq_in_index
 				Using temporary：表示MySQL需要使用临时表来存储结果集，常见于排序和分组查询（最危险） #group by要么不建索引，要么和索引的顺序和个数一致 Seq_in_index
