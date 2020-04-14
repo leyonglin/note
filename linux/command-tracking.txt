@@ -9,7 +9,7 @@
 
 [truss和]strace用来跟踪一个进程的系统调用(内核态)或信号产生的情况（静态库？）
 top --> 1  查看cpu是内核态还是用户态负载高和负载高的进程pid
--o  -f  -p  -c  -e  -r(打印出相对时间戳) [-t(输出绝对时间戳) -T输出每个系统调用花费的时间 -tt毫秒] -v 对于某些相关调用，把完整的环境变量，文件stat结构等打出来,-s 当系统调用的某个参数是字符串时，最多输出指定长度的内容，默认是32个字节
+-o  -f  -p  -c  -e  -r(打印出相对时间戳) [-t精确到秒 -tt毫秒 -T输出每个系统调用花费的时间(实际调用可能很快，但其它(http)请求操作返回慢) ] -v 对于某些相关调用，把完整的环境变量，文件stat结构等打出来,-s 当系统调用的某个参数是字符串时，最多输出指定长度的内容，默认是32个字节
 #目前作用是用来发现程序路径，例如nginx访问404
 strace -cp 24303
 starce -rf [-s 1024] -e clone -p 24303
@@ -47,6 +47,7 @@ LSOF： -R /path/filename(匹配内容^表示取反) (-a 两条件同时满足) 
 			2.cat /proc/PID/fd/FD  >  <filename>
 
 #抓取网卡通信包
+man tcpdump
 TCPDUMP:  or/and/not
 	tcpdump -D | less [类型：net，host，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
 	tcpdump or/and/not 

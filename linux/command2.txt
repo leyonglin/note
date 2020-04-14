@@ -3,12 +3,6 @@
 
 
 
-
-
-
-
-
-
 diff <(ls /tmp/1) <(ls -l /tmp/1)   #比较两条命令输出结果的不同
 bind -P 							#列出所有 bash 的快捷键
 bind -x '"\C-l":ls -l'              #设置 CTRL+l 为执行 ls -l 命令
@@ -125,8 +119,9 @@ multitail：
 	
 	
 https://blog.csdn.net/freeking101/article/details/53691481/
-https://catonmat.net/cookbooks/curl   （http://www.ruanyifeng.com/blog/2019/09/curl-reference.html）
-wget是个专职的下载利器，简单，专一，极致。
+https://catonmat.net/cookbooks/curl   
+
+http://www.ruanyifeng.com/blog/2019/09/curl-reference.html
 curl可以下载，但是长项不在于下载，而在于模拟提交web数据，POST/GET请求，调试网页，等等）可以把 curl 看做是一个精简的命令行网页浏览器	
 	断点下载  后台下载   用户名和密码  cookie(获取与使用)  proxy(代理服务器)  user_agent(浏览器)  reference(反盗链选项)
 	分块下载  批量下载 -X指定请求方式   证书和协议  超时重试   response头部(-I/-D)   限制/限速   (-L)重定向页面
@@ -154,7 +149,7 @@ curl可以下载，但是长项不在于下载，而在于模拟提交web数据�
 		重定向后也不希望curl默认使用GET方法，那么我们可以使用--post301,--post302和--post303选项来指定。
 		curl -u aiezu:password http://www.aiezu.com #用户名密码认证
 		curl -E mycert.pem https://www.baidu.com #采用证书认证
-		
+wget是个专职的下载利器，简单，专一，极致。		
 		wget --mirror -p --convert-links -P baidu  http://www.baidu.com    #打包下载网站
 			–miror:开户镜像下载 -p:下载所有为了html页面显示正常的文件 –convert-links:下载后，转换成本地的链接 -P ./LOCAL：保存所有文件和目录到本地指定目录 
 		wget --mirror -p --convert-links --spider http://www.baidu.com    #测试下载链接

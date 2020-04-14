@@ -23,7 +23,7 @@ rewrite ，比nginx 的rewrite 强大
 
 4.关于DNS都做过什么项目
   dnsmasq 作为本地DNS管理控制内网DNS，指定域名解析到特定的IP上，智能DNS加快解析速度，应对ISP的DNS劫持，屏蔽网页广告
-  
+  httpdns模式
 5.CDN加速的原理和实现，DNS集群的原理和详细部署过程；
   CDN加速:1.缓存静态资源(图片/媒体)与文件(html/css/js)  2.dns智能解析
   dns---递归---本地dns服务器---迭代---根服务器

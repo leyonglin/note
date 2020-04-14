@@ -107,7 +107,7 @@ linux下设置密码复杂度限制:
     /var/log/message
     /var/log/secure
  history
- last：记录的登录系统的用户名单及是否在线(/var/log/wtmp) 
+ last | head：记录的登录系统的用户名单及是否在线(/var/log/wtmp) 
  lastb：记录的登入系统失败的用户名单(/var/log/btmp)
  lastlog
  w输出详解：

@@ -117,14 +117,6 @@
  blkid
  
  
- 分区：
- fdisk /dev/sda
-   m -- p -- n -- 选格式p(可以空格) -- 选分区1(可以空格) -- 起始(可以空格) -- 结束+size{K,M,G} -- p [--d]
-   lsblk -f(切记先查看以前使用什么文件系统的)-- 格式化：mkfs.ext4 /dev/sda1 // mkfs -t xfs /dev/sda1 --  lsblk -f /df -T    
-   /etc/fstab：/dev/hda1   /   ext4        defaults   0 0  -- mount -a  --  lsblk
-   ！！！格式化文件系统可以加选项-f强制覆盖，但...请谨慎使用
- partprobe
- 
  
 存储分成了4种类型，基于本机的DAS和网络的NAS存储、SAN存储、对象存储。对象存储是SAN存储和NAS存储结合后的产物，汲取了SAN存储和NAS存储的优点。
 

@@ -11,7 +11,8 @@ Linux 内存的分类
 硬件本身：
 lscpu
 
-
+https://www.ibm.com/developerworks/cn/linux/l-systemtap/index.html
+https://my.oschina.net/sherrywangzh/blog/1518223
 SystemTap
 strace
 lstrace
@@ -57,7 +58,7 @@ sar -n TCP,ETCP 1	#关键词是TCP时：active/s作为客户端连接别人   pa
 
 
 
-
+#########################################################################################################
 
 
 
@@ -84,6 +85,9 @@ sar -n TCP,ETCP 1	#关键词是TCP时：active/s作为客户端连接别人   pa
 	vm.dirty_writeback_centisecs=500 （每隔5秒，pdflush监控一次内存数量 500/100=5秒）
 
 
+#########################################################################################################
+
+
 
 缓存   压缩
 
@@ -104,6 +108,71 @@ sar -n TCP,ETCP 1	#关键词是TCP时：active/s作为客户端连接别人   pa
 4.浏览器接收到数据并进行渲染
 	
 	
+
+
+#########################################################################################################
+
+
+
+
+
+
+cpu：
+    利用率idle/id：
+	  top
+	  sar -P ALL
+    饱和度：程序等待队列
+      vmstat 1
+	  sar -q
+    错误：
+内存：  
+    利用率：
+	  free
+	  sar -r
+	饱和度：交换内存
+	  vmstat 1
+	错误：
+	  dmesg
+磁盘：
+    利用率：
+	  iostat -xz 1
+	  iotop
+	饱和度：进程等待队列
+	  iostat -xz 1
+
+网络：
+	ip -s link
+	netstat -i
+	  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

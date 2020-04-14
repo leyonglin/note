@@ -1,0 +1,269 @@
+
+https://www.bilibili.com/video/BV1L4411K7hW?p=12
+
+原理---业务流程：
+
+框架的选择：1.可拓展性  2.稳定性
+    拓展：1.功能模块拓展   2.节点拓展
+
+机器配置：1.物理机或云主机   2.资源需求(存储量*副本*预留比例)
+    机器规划：1.集群规模  2.软件部署
+
+技术选型
+  数据采集传输：
+  	flume+kafka：采集日志+削峰
+  	sqoop：导出mysql数据
+  	elk：
+  	datax：
+  数据存储：
+  	mysql：查询快，存储少，存储分析完指标用于可视化
+  	hdfs：查询慢，存储量大，存储所有数据
+  	hbase：非关系型分布式的、面向列的开源数据库
+  	redis：
+  	mongodb：爬虫数据
+  数据计算：
+  	hive：速度慢，存储在hdfs，但能得出结果
+  	tez：内存中运算，受限于内存
+  	spark：内存中运算
+  	flink
+  	storm
+  数据查询：
+  	presto：即时查询
+  	druid
+  	impala
+  	kylin
+	
+用户业务数据：一般存储在db数据库中，存储量小
+用户行为数据：一般存储在文件中，存储量大(使用产品过程行为)
+
+即席查询（Ad Hoc）是用户根据自己的需求，灵活的选择查询条件，系统能够根据用户的选择生成相应的统计报表
+普通应用查询的应用查询是定制开发的
+
+埋点数据基本格式：
+	公共字段
+	业务字段
+	拓展字段：备用
+	
+	
+基测和压测	
+	
+参数调优
+	
+	
+	
+腾讯白皮书
+公有云文档	
+	
+linux内核缓存架构
+
+scp rsync p2p（Murder 在生产环境中分发大软件包的应用）	
+	
+redis leveldb ssdb
+
+ceph：http://docs.ceph.org.cn/
+将元数据和block数据分开，如果元数据丢失，数据就无法找回	
+glusterfs(分布式程序，使用感觉是模拟raid)	
+	
+	
+##################################################################################### 
+	
+	
+time_wait调优
+
+socket
+
+监听一个端口
+nc -l -4 -k -p 9999
+nc ip port
+echo haha > /dev/tcp/ip/port
+
+内核调优：/proc/sys/*
+echo "1" > /proc/sys/net/ipv4/tcp_tw_re
+cat /proc/sys/net/ipv4/ip_local_port_range
+
+
+echo "This is Test" | socat - /tmp/hello.html
+与socket交互
+echo "help" | socat stdio /var/lib/haproxy.socket
+
+
+安裝：二进制安装  编译安装
+配置：网络  路径  容量  性能  安全  功能  日志
+启动：systemctl  ./cmd  nohup  screen
+管理
+优化
+
+
+
+缓存：
+cache 读缓存     buffer 写缓存
+
+
+ls -d [a-z]*
+mkdir type{1,2}/exd{1,2}
+
+
+lsof -n -i:4505
+
+
+
+##################################################################################### 
+
+
+
+https://www.bilibili.com/video/BV1AE411a7o2?p=40
+https://docs.saltstack.com/en/latest/
+
+saltstack是自动化工具---状态管理(幂等性)
+yum -y install salt-master    	 #server端
+yum -y install salt-minion       #agent端
+
+rpm -ql salt-master  &&  rpm -ql salt-minion  
+
+master  #server配置文件，修改file_roots指定自定义配置文件
+minion	#agent配置文件，指定master地址
+
+tree .       
+salt-key
+tree .
+#server同意agent加入，查看配置变化
+
+
+
+启动server和agent服务
+netstat -anlptu        #查看server端启动了什么连接，一切皆文件啊！！！
+
+lsof -n -i:4505        #查看该端口的连接
+#通信：server端启动4505端口，agent端与之连接。
+#通过消息队列进行广播方式(发布收集)，让所有agent收到，但是只有符合条件的才会进行回应
+
+salt '*' test.ping
+
+cat << eof>> web.apache.sls
+apache-install:            #全局唯一id
+  pkg.installed:           #pkg是状态模块，installed是一个方法
+    - name: httpd          #参数
+eof
+salt '192.168.3.67' state.sls web.apache    #salt选择192.168.3.67为目标主机，执行state模块的sls方法，参数为web.apache(查找web目录下的apache.sls文件)
+
+cat << eof>>top.sls
+base:				#base目录下
+  '192.168.3.67':	#主机
+    - web.apache	#状态文件
+  '192.168.3.70':
+    - web.apache
+eof
+salt '*' state.highstate   #高级模块：在base目录下找top.sls文件
+
+
+状态关系：
+  状态依赖
+
+主机数据收集：静态数据grains
+jinja模板
+include导入
+
+无master架构: file_client:local    				#不需master和minion
+无minion架构： yum -y install salt-ssh(串行)    #不需master和minion
+salt-api
+Multi Master: master高可用
+  #数据(配置和秘钥)一致
+
+
+
+
+zabbix:
+自定义item
+自定义图形(多个监控项在一张图形显示，数据单位要一致)
+自定义聚合图形screen
+自定义幻灯片(自动播放screen)
+
+添加jmx监控---需要jdk环境支持
+配置能登录jconsole---添加模板
+
+mysql监控---需要php php-mysql支持
+percona数据库监控插件---导入模板
+
+
+强制关闭触发器：修改父级模板(在触发器配置的地方)
+
+
+
+添加节点：ssh主动  jnlp被动
+This project is parameterized  #参数构建
+Throttle builds                #限制并发构建
+在必要的时候并发构建           #并发构建
+限制项目的运行节点             #label
+构建                           #构建上游(通过拉动构建步骤)
+构建后操作                     #参数化构建下游
+Build periodically             #定时构建
+Poll SCM                       #定时并且检查有修改才构建
+hook                           #触发构建
+文件夹：权限控制   view：多种插件形式
+
+
+sonarqube代码质量平台：可以和jenkins集成
+
+properties：性能(参数)
+
+权限管理插件：	Role-based Authorization Strategy
+
+Jenkins和gitlab集成自动触发：
+  1.jenkins在全局配置添加gitlab的cookie认证(cookie从gitlab得到：jenkins可以连接gitlab拉取代码)
+  2.jenkins在具体的job中配置代码分支和gitlab使用的cookie
+		job构建触发器选项：Build when a change is pushed to GitLab. GitLab webhook URL: http://192.168.3.70:8080/jenkins/project/first-job-xiugai
+  3.gitlab集成选项配置jenkin的cookie(代码有变动能够通知)	
+	
+	
+找软件包的时候，可以先找到官网帮助文档--->install    #elk
+修改配置文件就是要修改逻辑私有信息(集群名称/id/ip/hostname/port...)	
+可视化添加或修改配置的时候，查看存储目录的变化	
+	
+	
+########################################################################
+
+
+iaas：操作系统部署好的  
+paas：应用程序部署好，自定义代码和管理数据  
+saas：账号级别---只要邮件账号就可以使用，不用管理代码和数据
+
+桌面虚拟化：瘦客户机
+应用程序虚拟化	
+	
+kvm是一个内核模块
+qemu是一个虚拟化软件，虚拟化出除cpu和内存之外的资源,有一个xml配置文件描述虚拟机配置给libvirt用	
+libvirt是管理kvm的工具(xen,vmware...)	
+	
+
+创建虚拟机：
+镜像	
+qemu-img命令：创建硬盘
+virt-install命令：  安装虚拟机
+
+管理虚拟机：
+tightvns工具：可以连接virt-install启动的虚拟机
+virsh命令：管理虚拟机
+
+openstask：
+keystone:用户认证和服务注册
+glance：镜像服务(镜像可以根据官网制作一个)
+nova：计算(调度)服务，分控制和计算节点
+neutron：网络，分控制和计算节点
+
+openstask给新创建虚拟机传输秘钥：通过url下载下来的。url路径不是虚拟机绑定的网卡，那么需要路由(命名空间)。
+
+超配
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	

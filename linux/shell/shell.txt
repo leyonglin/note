@@ -586,8 +586,8 @@ ${ }	 用途1：引用变量  用途2：字符串处理及默认值
 echo -e "n\np\n1\n\n+100M\nn\np\n2\n\n+1024M\nw\n"|fdisk /dev/sdb&> /dev/null || return 68
 
 进程间通信：
-	A: kill -Signal B_pid		  #A进程发信息给B进程
-	B: trap "command" Signal    #捕获信号Signal并进行处理command[command;command;...]
+	A: kill -Signal B_pid		  #A进程发信息给B进程,signal是数字
+	B: trap "command" Signal    #捕获信号Signal并进行处理command[command;command;...]，command为动作(命令或者表达式或者函数)
 
 
 

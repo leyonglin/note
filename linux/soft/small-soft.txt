@@ -7,7 +7,8 @@
 	#make oldconfig  复用之前内核编译选项
 
 3.编译：make -j 2   #-j cpu个数
-	
+	    make modules_install 	
+		make install
 insmod kernel_file.ko #装载模块
 rmmod  kernel_file    #卸载模块
 lsmod  #/lib/modules 中根据编译内核版本号来查看的装载模块
@@ -112,6 +113,22 @@ influx --help
 
 ###############################################################################################
 
+
+ 分区：
+ fdisk /dev/sda
+   m -- p -- n -- 选格式p(可以空格) -- 选分区1(可以空格) -- 起始(可以空格) -- 结束+size{K,M,G} -- p [--d]
+   lsblk -f(切记先查看以前使用什么文件系统的)-- 格式化：mkfs.ext4 /dev/sda1 // mkfs -t xfs /dev/sda1 --  lsblk -f /df -T    
+   /etc/fstab：/dev/hda1   /   ext4        defaults   0 0  -- mount -a  --  lsblk
+   ！！！格式化文件系统可以加选项-f强制覆盖，但...请谨慎使用
+ partprobe
+ 
+#自动创建2G和剩下容量的两个分区,删除为d
+echo -e "m\n n\np\n1\n\n+2048M\n n\np\n2\n\n\n\n w\n"|fdisk /dev/sdb
+partprobe
+#echo -e "t\n1\n8e\n t\n2\n8e\n w\n" |fdisk /dev/sdb       #lvm为8e，手动改会显示"fdisk -l /dev/sda"
+
+ 
+
 优势：LVM最大的特点就是可以对磁盘进行动态管理,而且不会丢失现有的数据
 概念：
 	(1)PE(Physical Extend) 物理拓展
@@ -122,18 +139,16 @@ influx --help
 	(1)物理磁盘被格式化为PV，空间被划分为一个个的PE
 	(2)不同的PV加入到同一个VG中，不同PV的PE全部进入到了VG的PE池内
 	(3)LV基于PE创建，大小为PE的整数倍，组成LV的PE可能来自不同的物理磁盘
+		查看：pvdisplay
+		修改：vgchange -s 1   #修改为1mb大小 这里只能写2的倍数(除1) 最大为64
 	(4)LV直接可以格式化后挂载使用了
 	(5)LV的扩充缩减实际上就是增加或减少组成该LV的PE数量，其过程不会丢失原始数据
 
-#自动创建2G和剩下容量的两个分区,删除为d
-echo -e "m\n n\np\n1\n\n+2048M\n n\np\n2\n\n\n\n w\n"|fdisk /dev/sdb
-partprobe
-#echo -e "t\n1\n8e\n t\n2\n8e\n w\n" |fdisk /dev/sdb       #lvm为8e，手动改会显示"fdisk -l /dev/sda"
 
 #创建
 pvcreate /dev/sdb1 /dev/sdb2
-vgcreate [-s 8M] vg1 /dev/sdb1 /dev/sdb2	
-lvcreate -L 100M -n lv1 vg1         #从vg1中创建一个大小100M名为lv1的逻辑卷
+vgcreate [-s 8M] vg1 /dev/sdb1 /dev/sdb2	#-s指定pe大小
+lvcreate -L 100M -n lv1 vg1         #从vg1中创建一个大小100M名为lv1的逻辑卷,创建或者扩容需要是pe倍数
 mkfs.ext4 /dev/vg1/lv1
 ls -l /dev/vg1/lv1 /dev/mapper/vg1-lv1
   dm是Device Mapper的缩写，个人觉得是逻辑卷LVM
@@ -148,7 +163,7 @@ resize2fs /dev/vg1/lv1	[200M]    #更新逻辑卷文件系统信息,df -Th  ，x
 pvcreate /dev/sdb3
 vgextend vg1 /dev/sdb3
 lvextend -L +8m /dev/vg1/lv1
-#vgs 查看剩余多少容量
+#pvdisplay(PEsize * TotalPE) 查看剩余多少容量
 
 #删除用lvremove
 umount /mnt
@@ -157,7 +172,10 @@ vgremove vg1
 pvremove /dev/sdb1 /dev/sdb2
 echo -e "d\n\n d\n w\n" |fdisk /dev/sdb 
 
-
+删除一块磁盘：
+lvreduce -L -20476m /dev/centos/root
+vgreduce centos /dev/sdd1
+pvremove /dev/sdd1
 
 
 

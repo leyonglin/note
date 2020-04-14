@@ -135,3 +135,21 @@ RRDtool (Round Robin Database Tool)就是一个强大的绘图的引擎,展现�
 https://collectd.org/：占用资源少
 Zenoss: 资源占用多
 
+
+snmp
+yum -y install net-snmp net-snmp-utils
+配置：/etc/snmp/snmpd.conf
+snmp tab,tab
+
+
+
+
+
+
+
+
+
+
+
+
+
