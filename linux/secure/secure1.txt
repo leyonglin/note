@@ -73,12 +73,12 @@ linux下设置密码复杂度限制:
 登陆：
   区分登录Shell和非登录Shell呢，可以通过查看$0的值，登录(密码登录和su - master)Shell返回-bash，而非登录(su master)Shell返回的是bash	
   取得 bash 时需要完整的登陆流程的，就称为 login shell(输入用户名密码shell才启动)，non-login shell，不需要登录就可以获取bash页面
-  non-login shell 不同于login shell，登陆退出不读取以下配置文件(~/.bash_history 除外)。
+  non-login shell(su) 不同于login shell(su -)，登陆退出不读取以下配置文件(~/.bash_history 除外)。
 	1./etc/profile (#login shell登陆)   #全局配置
 		调用/etc/profile.d/*.sh
 		    /etc/inputrc  用来处理键盘映射表（自定义热键~/.inputrc）  
 	  ~/.bash_profile   ~/.bash_login    ~/.profile	#个人配置，按顺序只会读取上面三个文件的其中一个
-		调用：~.bashrc(#non-login shell) ---> 调用 /etc/bashrc 及 /etc/profile.d/*.sh（包括终端显示）
+		调用：~.bashrc(#non-login shell) ---> 调用 /etc/bashrc(通用) 及 /etc/profile.d/*.sh（包括终端显示）
 	2.~/.bash_logout     #退出，non-login shell 不会读取 
 	3.~/.bash_history    #历史记录
 
@@ -120,6 +120,9 @@ linux下设置密码复杂度限制:
 	PCPU：指WHAT域的任务执行后耗费的CPU时间。
 	WHAT：表示当前执行的任务
 pkill -kill -t pts/3
+tailf /var/log/secure | grep "Failed password"   #登录失败记录，sudo执行失败记录
+/var/log/messages    #内核信息记录，如防火墙自定义rich-rule写入日志
+
 
 异常进程：top  --  ps -ef
    将相关依赖去除/别名 /exec/curl/wget/tty模块
@@ -148,8 +151,12 @@ chattr
 	u  ：与 s 相反的，当使用 u 来配置文件时，如果该文件被删除了，则数据内容其实还存在磁碟中，可以使用来救援该文件喔！
 
 SUID 权限仅对二进位程序(binary program)有效；运行者对於该程序需要具有 x 的可运行权限；运行者将具有该程序拥有者 (owner) 的权限。(passwd)
-sgid 使得在该目录内创建的文件/目录，不属于创建者所属的组，而是属于父目录所属的组(所有者还是创建者) 常用于共享
+SGID 使得在该目录内创建的文件/目录，不属于创建者所属的组，而是属于父目录所属的组(所有者还是创建者) 常用于共享
 SBIT 目录中的所有文件只能由其所有者删除或移动
+
+RUID 用于在系统中标识一个用户是谁，当用户使用用户名和密码成功登录后一个UNIX系统后就唯一确定了他的RUID.
+EUID 用于系统决定用户对系统资源的访问权限，通常情况下等于RUID,可以根据SUID改变
+SUID 用于对外权限的开放。跟RUID及EUID是用一个用户绑定不同，它是跟文件而不是跟用户绑定。
 
 cd 等变换工作目录的命令,目录所需权限：使用者对这个目录至少需要具有 x 的权限,如果使用者想要在这个目录内利用 ls 查阅档名，则使用者对此目录还需要 r 的权限。 
 可执行的命令,使用者对这个目录至少需要具有 x 权限；使用者对文件至少需要具有 r 的权限才行！（进去读）
@@ -167,6 +174,14 @@ HISTCONTROL=ignoredups				   #过滤相邻相同命令
 eof					  
 history -c       #临时清理history（包括家目录下的history）
 history -d num #删除指定history
+
+将用户、用户IP和操作时间都记录下来命令
+USER_IP=`who -u am i 2>/dev/null| awk '{print $NF}'|sed -e 's/[()]//g'` 
+export HISTTIMEFORMAT="[%F %T][`whoami`][${USER_IP}] "  
+把所有命令都记录下来到message
+export PROMPT_COMMAND=\
+'{ msg=$(history 1 | { read x y ; echo $y ;});\
+logger \"[$(who am i)]\":"[euid=$(whoami)]":[`pwd`]" $msg";}'
 
 
 find   被攻击的时候可以看创建了什么文件

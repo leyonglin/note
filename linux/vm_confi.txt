@@ -56,7 +56,7 @@ cURL是一个利用URL语法在命令行下工作的文件传输工具
 https://www.selenic.com/smem/
 smem -h  #查看内存
  
-
+supervisor
 
 
 

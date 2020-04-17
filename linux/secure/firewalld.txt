@@ -74,7 +74,7 @@ firewall-cmd --permanent --add/remove-rich-rule="rule family="ipv4" source addre
 web端口（80）对白名单单位时间不限制连接数，其他IP每秒限制2次                   
 firewall-cmd --permanent --add-rich-rule='rule family="ipv4"  source address="0.0.0.0/0" port port="80" protocol="tcp" accept limit value="2/s"'    ip每秒限制2次
 
-用途为限制每个Ip每秒钟最大连接数为2次，多余的拒绝链接，不会占用端口；超过次数将记录至日志，便于日志分析与检查。
+用途为限制每个Ip每秒钟最大连接数为2次，多余的拒绝链接，不会占用端口；超过次数将记录至日志message，便于日志分析与检查。
 firewall-cmd --permanent --add-rich-rule='rule family="ipv4" source address="0.0.0.0/0" port port="1080" protocol="tcp" 
             log prefix="attack" level="notice" limit value="2/s" audit limit value="2/s" accept limit value="2/s"'
 
