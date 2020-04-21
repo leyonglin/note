@@ -134,21 +134,6 @@ set [-uvCHhmBx]
 	-B  ：默认激活。与刮号 [] 的作用有关；
 	-C  ：默认不激活。若使用 > 等，则若文件存在时，该文件不会被覆盖。
 
-cat <<eof>>test
-HISTFILE=/var/history/$USER-$UID.log
-HISTSIZE=1000
-HISTFILESIZE=5000
-HISTIGNORE=”pwd:ls:ls -ltr:”
-HISTTIMEFORMAT="%F %T "
-HISTCONTROL = ignorespace              #第一个字符为空格的时候，不会被记录到history
-HISTCONTROL=ignoredups				   #过滤相邻相同命令
-shopt -s histappend					   #多个终端共享history，实时追加；	
-readonly PROMPT_COMMAND="history -a"   #这个意味着，每次执行命令都会在结束后执行"history -a"
-eof									   #readonly显示只读变量，readonly 变量  #定义只读变量						  
-history -c       #临时清理history（包括家目录下的history）
-history -d num #删除指定history
-
-
 
 --help
 batch：系统有空时才进行背景任务，调用 at 来进行命令的下达

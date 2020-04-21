@@ -32,7 +32,7 @@
   stty -echo    #擦除回显
   stty echo     #打开回显
   
-				
+ 对于管道组合的多个命令，它们都会放进同一个进程组中，会进入子shell执行相关操作。当执行完毕后，进程组结束，子shell退出。而子shell中设置的环境是不会粘滞到父shell中的(即不会影响父shell)				
  
  seq [-s +] [-w] 1 [2 10]  		 #for i in `seq 1 2 10`; do echo $i; done
  seq -f "dir%g" ["%03g"]  5
@@ -124,7 +124,16 @@ EOF
  while read -r pack
  do apt -y remove $pack
  done<"$file"             # 重定向stdin到文件$Filename
- 		  
+ 		
+read：-t 超时 -a用户的输入赋值给一个数组  -p提示语  -e支持文件自动补全
+	#ps -ef|grep -v grep|grep nginx | while read u p o; do echo $p; done
+	#export PROMPT_COMMAND=\
+	 '{ msg=$(history 1 | { read x y ; echo $y ;});\
+	 logger \"[$(who am i)]\":"[euid=$(whoami)]":[`pwd`]" $msg";}'
+IFS：变量  ---  定义read的分隔符
+
+		
+		
  for i in "1 2"; do echo ${i}; echo ok; done		  
  
  1 2 == {1,2} == {1..2}#不支持变量
@@ -139,7 +148,10 @@ EOF
  
  查看变量：$变量名/${变量名}    失效unset
  
- 变量类型：环境变量(大写)env/set  /etc/profile // ~/.bash_profile    位置变量$1..$n    预定义变量$0 $$ $? $# $*("$1 $2 $3 $4") $@( "$1" "$2" "$3" "$4" ) $!(上一个进程的进程号)     自定义变量
+ 变量类型：环境变量(大写)env/set  /etc/profile // ~/.bash_profile    
+           位置变量$1..$n    
+		   预定义变量$0 $$ $? $# $*("$1 $2 $3 $4") $@( "$1" "$2" "$3" "$4" ) $!(上一个进程的进程号) $-(是否交互) $_(在shell启动时，设置为用于调用的绝对路径名引起在环境或参数列表中传递时执行的shell或shell脚本。随后，扩展到上一个命令的最后一个参数)    
+		   自定义变量
  shell变量的值默认视为文本，当进行数学运算，自动转换称整数
  
  ""  ''   ``==$()     ${数组/截取}
@@ -461,7 +473,7 @@ AWK:
 	awk -F[:] 'BEGIN{i=0;j=0} {if($3<500){i++}else if($3>=500&&$3<1000){j++} else{k++}} END{print i,j,k}' passwd     #自定义变量：i=0;j=0,这是有逻辑的(将其中一个500改成100)
 	awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}' data  #求最大值  最值：awk '{if($1>max){max=$1}else if($1<3){min=$1}}END{print "MAX =",max"\n""MIN =",min}' data
 	awk 'BEGIN{sum=0}/^$/{++sum}END{print sum}' /etc/services                        #统计空行
-	awk 'BEGIN{printf "%-20s%-20s%-20s%-20s%-20s%-20s\n","Name","Chinese","English","Math","Physical","Average"}{sum=$2+$3+$4+$5;avg=sum/4}{printf "%-20s%-20d%-20d%-20d%-20d%-0.2f\n",$1,$2,$3,$4,$5,avg}' student.txt #统计平均值,逗号表示字符串分隔符，分号表示命令分隔符
+	awk 'BEGIN{printf "%-20s%-20s%-20s%-20s%-20s%-20s\n","Name","Chinese","English","Math","Physical","Average"}{sum=$2+$3+$4+$5;avg=sum/4}{printf "%-20s%-20d%-20d%-20d%-20d%-0.2f\n",$1,$2,$3,$4,$5,avg}' student.txt #统计平均值,逗号表示字符串分隔符，分号表示命令分隔符(因为是在awk中，如果是在bash命令行则是空格为分隔符)
 	awk占位符%[modifier]control-letter  -减号是左对齐,+加号是右对齐,#显示8进制在前面加0,显示16进制在前面加0x 
 三元运算：	
 	awk -F: '{usertype=$3<500?"系统用户":"普通用户" ; print $1,usertype}' passwd   #等同于awk -F: '{usertype=$3<500?"系统用户":"普通用户"}{ print $1,usertype}' passwd
@@ -563,6 +575,12 @@ expr substr "$str" 2 5  # 从第二个位置开始取5个字符，echo ${str:(-6
 expr length "string"   #获取字符串长度    ${#var}
 expr index "string" str   #获取字符在字符串中出现的位置
 
+
+bash模式扩展：~家目录  ？单个字符  *任意数量的字符  */*.txt  (命令列表)#当前shell { 命令列表; }#子shell执行
+              [ab]任意一个 [!ab]非    [a-c]范围  [[:digit:]]*以数字开头 [![:digit:]]*不以数字开头
+              {1,2,3}  {j{p,pe}g,png} {cat,d*}  {a..c}范围 {001..5} {0..8..2}  ${!S*}  
+              `` $(...)变量引用  $((...))算术  (ab)整体
+			  <(命令列表)  >(命令列表)    #进程替换，可以看做是命令列表的执行结果的临时文件，但这个临时文件是fd文件描述符
 ( )	     用途1：在运算中，先计算小括号里面的内容   用途2：数组    用途3：匹配分组
 (( ))	 用途1：表达式，不支持-eq这类的运算符。不支持-a和-o，支持<=、>=、<、>这类比较符和&&、||      用途2：C语言风格的for(())表达式
 $(( ))	 用途1：简单算数运算   用途2：支持三目运算符 $(( 表达式?数字:数字 ))   用途3：进制转换
@@ -571,7 +589,7 @@ $( )	 执行Shell命令，与反撇号等效，但移植性不如``
 [ ]	     条件表达式，支持布尔运算符(! -a和-o),里面不支持逻辑判断符( &&  || )
 $[ ]	 简单算数运算
 [[]]     支持=~操作符 [[ hello == hell? ]]  支持逻辑判断符(！ &&  || )
-{ }		 对逗号（,）和点点（...）起作用，比如touch {1,2}创建1和2文件，touch {1..3}创建1、2和3文件
+{ }		 对逗号,和点点...起作用，比如touch {1,2}创建1和2文件，touch {1..3}创建1、2和3文件
 ${ }	 用途1：引用变量  用途2：字符串处理及默认值
 
 
@@ -589,8 +607,150 @@ echo -e "n\np\n1\n\n+100M\nn\np\n2\n\n+1024M\nw\n"|fdisk /dev/sdb&> /dev/null ||
 	A: kill -Signal B_pid		  #A进程发信息给B进程,signal是数字
 	B: trap "command" Signal    #捕获信号Signal并进行处理command[command;command;...]，command为动作(命令或者表达式或者函数)
 
+#############################################################################################
+
+命令的优先级：alias ==> Compound Commands ==> function ==> build_in ==> hash ==> $PATH ==> error: command not found
 
 
+命令：
+help
+stat -c format
+
+#############################################################################################
+
+shell是命令解释器，bash是shell的一种
+
+子shell不代表进程号不一样，但是变量赋值域不一样
+    子shell：echo qian${b} ; ( b=6 ) ; echo hou${6}
+    当前shell：echo qian${e} ; { e=6; } ; echo hou${e}
+
+引用：转义字符\ 和 '' 和 ""
+
+元字符：|  & ; ( ) < > space tab
+
+控制操作符：&& || &  ; ;; ( ) | |& 换行符
+
+简单命令：一条命令+参数
+管道：！command1 |或|& command2...
+命令队列：多个命令或管道通过|| & && ; 组合而成
+复合命令：判断+循环语句 ( 表达式 )  ！表达式  && ||  (命令队列)  { 命令队列; }
+
+函数
+
+###################################################################################################
+
+
+
+
+help
+pwd  exec  exit logout unset printf source unalias 
+let 表达式  #计算
+set 用来显示本地变量 -v -x -n -e -h(将执行命令记录到hash中，默认打开)  -B(大括号拓展,默认打开) -C(防止重定向覆盖已存在文件)
+env 用来显示环境变量
+builtin alias(内置命令)：在内置命令与函数名冲突的时候有用
+
+enable: 
+	-a       #查看
+    builtin  #开启
+    -n [builtin]  #关闭
+local 函数级别变量
+export：导出变量，用户变量级别(当前用户即该用户的子shell)
+	-p (可省略)：显示环境变量
+	-n 变量实际上并未删除，只是不会输出到后续指令的执行环境中。
+	-f [函数名]  添加函数
+readonly：
+    readonly [-p]      #查看只读变量
+	readonly   var=value  #声明只读变量。
+	readonly  -a array=(val1 val2 val3)  #声明只读数组，每个名称都是下标数组变量
+	readonly  -A arrayC=([1]=va1 [3]=va2 [2]=va3)  #每个名称都是键值数组变量，相当于定义了在-a基础上定义了下标
+	readonly  -f f1  #声明只读函数
+declare：[+/-][Aafrxi][变量名称＝设置值]
+       declare [-p] 查看
+	   r只读   x(用户)全局变量  i数字类型
+shopt命令是set命令的一种替代,很多方面都和set命令一样,但它增加了很多选项。可以使用
+    #-p:选项来查看shopt选项的设置   
+    -u:表示关闭一个选项
+    -s:表示开启一个选项	
+	extglob:打开扩展的模式匹配特性
+getopts：getopts OPTSTRING VARNAME [ARGS...]
+    VARNAME:告诉getopts哪个变量用于选项报告
+    *ARGS:告诉getopts解析这些可选的参数，而不是参数位置
+  Example：getopts :fA:x VARNAME   #告诉getopts查找-f,-A,-x选项，-A选项后面会有一个参数
+	#最前面的冒号“：”用于指定getopts工作于silent mode，在silent模式下，当用户输入的参数不满足OPTSTRING时，不会讲illegal option这样的错误信息打印出来，使代码看起来更加专业
+	#OPTSTRING:告诉getopts会有哪些选项和哪会有参数(用选项后加”:”表示)即OPTSTRING： ":fA:x"  
+	#OPTARG：保存参数值，即选项后面带参数的值
+	#OPTIND：getopts使用OPTIND作为索引，来处理下一个需要处理的参数，记录当前的状态。
+hash命令：显示、添加或清除哈希表	
+    linux系统下会有一个hash表，当你刚开机时这个hash表为空，每当你执行过一条命令时，hash表会记录下这条命令的路径，就相当于缓存一样。第一次执行命令shell解释器默认的会从PATH路径下寻找该命令的路径，当你第二次使用该命令时，shell解释器首先会查看hash表，没有该命令才会去PATH路径下寻找。
+    -l  显示hash表内容
+    -r 清除hash表
+    -d openssl 删除openssl记录
+    -t openssl 查看openssl命令路径（hash表中没有的话，可以调用which命令）
+    -p /usr/bin/openssl aliesopenssl 往hash表中添加一条，执行aliesopenssl即执行openssl命令（起别名）
+eval：
+	eval 执行以下两个步骤：
+	第一步，执行变量替换         --->第一遍扫描
+	第二步，执行替换后的命令串。 --->第一遍扫描
+shift(n):每执行一次，参数减n
+test和[]:
+    ! 表达式：返回值取反
+    (表达式):改变优先级
+    表达式1 -a/-o 表达式2
+trap:
+    -l: 查看内置捕获信号
+	-p：输出
+    1	SIGHP	挂起进程
+    2	SIGINT	终止进程
+    3	SIGQUIT	停止进程
+    9	SIGKILL	无条件终止进程
+    15	SIGTERM	尽可能终止进程
+    17	SIGSTOP	无条件停止进程，但不是终止进程
+    18	SIGTSTP	停止或暂停进程，但不终止进程
+    19	SIGCONT	继续运行停止的进程
+    trap "echo 'Sorry! I have trapped Ctrl-C'" SIGINT
+    删除捕获，命令形式为：trap -- ***，例如trap -- SIGINT
+unset：-v删除变量 -f删除函数
+bind:
+    -l 列出所有的功能
+	-q <功能>  列出指定功能的按键和按键组合
+	-v 显示按键组合的设置
+    -x '"\C-l":echo 111'   设置组合按键，Ctrl+l，就可以显示111	 
+showkey -a: 获取键盘值	
+mapfile：与readarray同义
+    mapfile myarr <alpha.log
+    echo ${myarr[@]}	
+read: history 1 | { read x y;echo $y; }
+    -p:提示信息	
+	-d：分隔符
+	-n num:限制字符数
+	-t time：超时时间
+	-s ：关闭回显
+	-u fd:从文件描述符读入
+type -a	cmd    #用来显示指定命令的类型，判断给出的指令是内部指令还是外部指令。
+ulimit:  /etc/security/limits.conf
+    -H:硬限制一旦设定后非root用户不能修改
+	-S:软限制设定了可以增加到硬限制
+	-a:显示当前系统所有的limit资源信息（其它选项可以参考该选项输出）
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 
 

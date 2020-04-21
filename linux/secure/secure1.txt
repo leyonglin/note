@@ -166,14 +166,20 @@ cd 等变换工作目录的命令,目录所需权限：使用者对这个目录�
 
 
 cat <<eof>>test
+HISTFILE=/var/history/$USER-$UID.log
 HISTSIZE=1000
+HISTFILESIZE=5000
 HISTIGNORE=”pwd:ls:ls -ltr:”
 HISTTIMEFORMAT="%F %T "
 HISTCONTROL = ignorespace              #第一个字符为空格的时候，不会被记录到history
 HISTCONTROL=ignoredups				   #过滤相邻相同命令
-eof					  
+shopt -s histappend					   #多个终端共享history，实时追加；	
+readonly PROMPT_COMMAND="history -a"   #这个意味着，每次执行命令都会在结束后执行"history -a"
+eof									   #readonly显示只读变量，readonly 变量  #定义只读变量						  
 history -c       #临时清理history（包括家目录下的history）
-history -d num #删除指定history
+history -d num   #删除指定history
+history -a          #保存当前bash的history
+
 
 将用户、用户IP和操作时间都记录下来命令
 USER_IP=`who -u am i 2>/dev/null| awk '{print $NF}'|sed -e 's/[()]//g'` 
