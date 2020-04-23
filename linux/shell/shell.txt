@@ -576,7 +576,7 @@ expr length "string"   #获取字符串长度    ${#var}
 expr index "string" str   #获取字符在字符串中出现的位置
 
 
-bash模式扩展：~家目录  ？单个字符  *任意数量的字符  */*.txt  (命令列表)#当前shell { 命令列表; }#子shell执行
+bash模式扩展：~家目录  ？单个字符  *任意数量的字符  */*.txt  (命令列表)#zishell { 命令列表; }#当前shell执行
               [ab]任意一个 [!ab]非    [a-c]范围  [[:digit:]]*以数字开头 [![:digit:]]*不以数字开头
               {1,2,3}  {j{p,pe}g,png} {cat,d*}  {a..c}范围 {001..5} {0..8..2}  ${!S*}  
               `` $(...)变量引用  $((...))算术  (ab)整体
@@ -731,26 +731,87 @@ ulimit:  /etc/security/limits.conf
     -H:硬限制一旦设定后非root用户不能修改
 	-S:软限制设定了可以增加到硬限制
 	-a:显示当前系统所有的limit资源信息（其它选项可以参考该选项输出）
+fc：命令自动掉用vi编辑器修改已有历史命令
+	
+	
+######################################################################################
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+bash:
+    -c
+	  sudo bash  ./test.sh a          #./test.sh为可执行文件名，a为参数
+	  sudo bash  './test.sh a'        #./test.sh a 为可执行文件名
+	  sudo bash -c './test.sh a'      #bash环境下执行./test.sh a ，sudo的时候有用
+	  sudo bash -c 'echo "kettle" >> nohup.log1'   #生成root用户的nohup.log1文件，即整条命令是使用root执行的
+	  sudo echo "kettle" >> nohup.log              #生成master用户的nohup.log，echo命令是使用root身份执行，重定向是使用master用户执行的 
+	-i #PS1  $-
+	-l
+	  exec -l bash
+	  exec bash --login
+	--posix  #bash --postx(posix mode)类似于 sh , sh的搜索路径为PATH(source 或者.)，bash搜索路径为PATH和当前目录
 
-
-
+bash条件表达式(man bash  /CONDITIONAL EXPRESSIONS)
+算术运算：(man bash  /ARITHMETIC EVALUATION)
+	
+[root@localhost ~]# if ! ls &>/dev/null; then echo no; else echo yes; fi
+yes
+[root@localhost ~]# if (! ls &>/dev/null); then echo no; else echo yes; fi
+yes
+[root@localhost ~]# if { ! ls &>/dev/null; }; then echo no; else echo yes; fi
+yes
+[root@localhost ~]# if [ ! ls &>/dev/null ]; then echo no; else echo yes; fi
+yes
+[root@localhost ~]# if ! cd /ttt &>/dev/null; then echo no; else echo yes; fi
+no
+[root@localhost ~]# if [ ! cd /ttt &>/dev/null ]; then echo no; else echo yes; fi
+yes
+[root@localhost ~]# if { ! cd /ttt &>/dev/null; }; then echo no; else echo yes; fi
+no
+[root@localhost ~]# if (! cd /ttt &>/dev/null); then echo no; else echo yes; fi
+no
+	
+目录栈：
+dirs：功能是显示当前目录栈中的所有记录
+	语法格式：dirs [-clpv] [+n] [-n]
+	-c 删除目录栈中的所有记录
+	-l 以完整格式显示  -p 一个目录一行的方式显示  
+	-v 每行一个目录来显示目录栈的内容，每个目录前加上的编号
+	   +N 显示从左到右的第n个目录，数字从0开始
+	   -N 显示从右到左的第n个日录，数字从0开始
+	-r 受限shell(不能cd或者tab，重定向等等)
+	--posix   posix模式
+pushd：将目录加入到栈中并cd到该目录	
+	语法格式：pushd [目录 | -N | +N] [-n]
+	-n 目录名  #将目录入栈时，不切换目录
+	+N 		   #将第N个目录移至栈顶（从左边数起，数字从0开始）
+    -N 		   #将第N个目录移至栈顶（从右边数起，数字从0开始）
+popd：用于删除目录栈中的记录	
+	+N 将第N个目录删除（从左边数起，数字从0开始）
+    -N 将第N个目录删除（从右边数起，数字从0开始）
+	
+作业控制命令：
+bg : 继续执行后台暂停的作业   
+fg ：在前台继续执行暂停的作业
+jobs 列出作业
+   -l：列出所有后台作业 
+   -s：列出后台暂停作业
+kill：向进程发送信号	
+wait：等待进程退出	
+suspend [-f] #暂停执行shell
+	
+当用户注销（logout）或者网络断开时，终端会收到 HUP（hangup）信号从而关闭其所有子进程
+    让进程忽略 HUP 信号
+		nohup command
+	让进程运行在新的会话里从而成为不属于此终端的子进程
+		setsid command
+		(command &)   #将一个或多个命名包含在“()”中就能让这些命令在子 shell 中运行中
+	    disown 选项 pid   #事后补救
+	        -h 使指定作业忽略hup信号
+	        -r 运行中作业
+	        -a 所有作业
+		大量这种命令需要在稳定的后台里运行
+		screen    #systemd(1)───screen(40552)───bash(40553)───sleep(40579)
+		
+	
+		
+		
+		

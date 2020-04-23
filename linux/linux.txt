@@ -211,9 +211,9 @@ rsyslog配置文件：/etc/rsyslog.conf
     init 运行终端机模拟程序 mingetty 来启动 login 程序，最后就等待使用者登陆啦；
 
 
-.configure：侦测程序来侦测使用者的作业环境， 以及该作业环境是否有软件开发商所需要的其他功能,常见出Makefile(记录了原始码如何编译的详细资讯)
+.configure：侦测程序来侦测使用者的作业环境， 以及该作业环境是否有软件开发商所需要的其他功能,生成Makefile文件(记录了原始码如何编译的详细资讯)，nginx编译时的configure是shell文件
 make: 依据Makefile编译成可执行文件(gcc命令的集合)
-make install：移动到指定路径
+make install：依据Makefile移动到指定路径(nginx是创建目录mkdir及复制cp文件到对应目录)
 
 
 
@@ -224,6 +224,7 @@ ldd -v 函数库  #查看依赖
 将动态函式库加载高速缓存:  在 /etc/ld.so.conf 里面写下想要读入高速缓存当中的动态函式库所在的目录(是目录)
 ldconfig  #将/etc/ld.so.conf 中动态函式库所在的目录下动态函数库加载到cache中
 ldconfig -p   #查看
+#.o文件是源码编译出的二进制文件，一个.c或.cpp文件对应一个.o文件。.h是C语言的全局声明文件
 
 
 签名验证：md5sum / sha1sum  ： MD5 与 SHA1 加密机制（用法是一样的）

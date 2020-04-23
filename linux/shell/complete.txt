@@ -1,3 +1,9 @@
+
+命令：complete -F  __cmd_HUB  bsu
+	表示当执行bsu命令时，自动补全的候选单词由函数__cmd_HUB计算得到，具体的承载容器是变量COMPREPLY
+	特别说明一下，像这样的complete -F XXX   ./test.sh  也是合法的。如果XXX的计算后得到COMPREPLY=(aa bb cc), 则输入 ./test.sh 之后， 按tab键，可以自动弹出候选选项aa bb cc。		
+	
+
 #自定义脚本参数补全甲苯，使用方式source 参数补全脚本，也可放在~/.bashrc登陆自动加载
 #定义函数，foo b c ，foo为脚本名 b为第一个参数 c为第二个参数
 tongdaoji()
