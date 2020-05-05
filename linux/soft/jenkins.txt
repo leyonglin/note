@@ -25,3 +25,36 @@ Gitlab的Webhook功能，通过Webhook的相关设置，可以实现代码Push�
 
 pipeline：管道能通过Groovy语言脚本进行自动化构建多个jobs
 
+########################################################################
+
+
+jenkins：
+添加节点：ssh主动  jnlp被动
+This project is parameterized  #参数构建
+Throttle builds                #限制并发构建
+在必要的时候并发构建           #并发构建
+限制项目的运行节点             #label
+构建                           #构建上游(通过拉动构建步骤)
+构建后操作                     #参数化构建下游
+Build periodically             #定时构建
+Poll SCM                       #定时并且检查有修改才构建
+hook                           #触发构建
+文件夹：权限控制   view：多种插件形式
+
+
+sonarqube代码质量平台：可以和jenkins集成
+
+properties：性能(参数)
+
+权限管理插件：	Role-based Authorization Strategy
+
+Jenkins和gitlab集成自动触发：
+  1.jenkins在全局配置添加gitlab的cookie认证(cookie从gitlab得到：jenkins可以连接gitlab拉取代码)
+  2.jenkins在具体的job中配置代码分支和gitlab使用的cookie
+		job构建触发器选项：Build when a change is pushed to GitLab. GitLab webhook URL: http://192.168.3.70:8080/jenkins/project/first-job-xiugai
+  3.gitlab集成选项配置jenkin的cookie(代码有变动能够通知)	
+	
+	
+找软件包的时候，可以先找到官网帮助文档--->install    #elk
+修改配置文件就是要修改逻辑私有信息(集群名称/id/ip/hostname/port...)	
+可视化添加或修改配置的时候，查看存储目录的变化	

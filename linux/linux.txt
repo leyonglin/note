@@ -211,7 +211,7 @@ rsyslog配置文件：/etc/rsyslog.conf
     init 运行终端机模拟程序 mingetty 来启动 login 程序，最后就等待使用者登陆啦；
 
 
-.configure：侦测程序来侦测使用者的作业环境， 以及该作业环境是否有软件开发商所需要的其他功能,生成Makefile文件(记录了原始码如何编译的详细资讯)，nginx编译时的configure是shell文件
+.configure：侦测程序来侦测checking使用者的作业环境， 以及该作业环境是否有软件开发商所需要的其他功能,生成Makefile文件(记录了原始码如何编译的详细资讯)，nginx编译时的configure是shell文件
 make: 依据Makefile编译成可执行文件(gcc命令的集合)
 make install：依据Makefile移动到指定路径(nginx是创建目录mkdir及复制cp文件到对应目录)
 
@@ -308,7 +308,7 @@ RDP文件传输协议:RDP远程协议是一个多通道协议，让用户通过�
 ISP（Internet Service Provider）：因特网服务提供者（提供商）
 数据链路（data link）：把实现控制数据运输的协议的硬件和软件加到链路上就构成了数据链路
 数据链路层(data link layer)通常简称为链路层。两台主机之间的数据传输，总是在一段一段的链路上传送的，这就需要使用专门的链路层的协议
-网络层(network layer)负责为分组交换网上的不同主机提供通信服务。 在发送数据时，网络层把运输层产生的报文段或用户数据报封装成分组和包进行传送，网络层的另一个任务就是选择合适的路由
+网络层(networ0-k layer)负责为分组交换网上的不同主机提供通信服务。 在发送数据时，网络层把运输层产生的报文段或用户数据报封装成分组和包进行传送，网络层的另一个任务就是选择合适的路由
 NIC（Network Interface Card，网络适配器，即网卡）
 IP 间的通信依赖 MAC 地址
 
@@ -368,30 +368,13 @@ TCP 协议如何保证可靠传输
 最小的ip子网：255.255.255.252(如果是31不能表示位一个子网，因为没可用的主机地址。32表示主机的掩码，不是表示一个网络) (31和32没有网络地址和广播地址)
 
 
-HTTP_X_FORWARDED_FOR 和 HTTP_X_REAL_IP 都是可以被伪造的，但REMOTE_ADDR是客户端和服务器的握手IP，伪造不了，不然就无法返回
-ip伪装：
-server {
-    listen       80;
-    server_name  192.168.3.70;
-    location / {	 
-        #proxy_pass http://localhost;    #其实可以省略
-        #proxy_redirect off;			 #重写，修改从被代理服务器传来的应答头中的"Location"和"Refresh"字段
-        root html;
-        index index.html;
-        proxy_set_header   Host    $host;
-        proxy_set_header   X-Real-IP   $remote_addr;      #这里其实是修改了变量的值
-        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
-        set_real_ip_from 0.0.0.0/0;						  #信任ip，http(意味着可以单独一个文件), server, location
-        real_ip_header X-Forwarded-For;
-        real_ip_recursive off;							  #off 将real_ip_header指定的HTTP头中的最后一个IP作为真实IP
-														  #on 将real_ip_header指定的HTTP头中的最后一个不是信任服务器的IP当成真实IP
-    }
-}
-测试：
-curl -H "X-Forwarded-For: 1.1.1.1, 2.2.2.2" 192.168.3.70/echo -o /dev/null -s -w %{http_code}
 
-
-
+符合REST设计风格的Web API称为RESTful API。
+#目的是便于不同软件/程序在网络（例如互联网）中互相传递信息，允许客户端发出以统一资源标识符访问和操作网络资源的请求
+它从以下三个方面资源进行定义：
+    直观简短的资源地址：URI，比如：http://example.com/resources。
+    传输的资源：Web服务接受与返回的互联网媒体类型，比如：JSON，XML，YAML等。
+    对资源的操作：Web服务在该资源上所支持的一系列请求方法（比如：POST，GET，PUT或DELETE）
 
 
 

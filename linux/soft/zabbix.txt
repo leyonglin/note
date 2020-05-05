@@ -136,10 +136,112 @@ https://collectd.org/：占用资源少
 Zenoss: 资源占用多
 
 
-snmp
-yum -y install net-snmp net-snmp-utils
-配置：/etc/snmp/snmpd.conf
-snmp tab,tab
+
+###########################################################################################
+
+
+
+https://www.bilibili.com/video/BV15x411Z7HH?p=26
+
+taskset
+cpu指标：时间片
+上下文切换：cpu调度器实施的进程的切换过程，和使用率有关 vmstat -- cs(上下文切换) in(中断) 
+负载(运行队列)：vmstat -- r(运行队列) b(io等待)  wt(等待IO CPU时间)
+使用率：uptime  top(用户态70%和内核态30%)  vmstat
+
+服务类型：
+
+基准线：
+
+#当cpu很高的时候，如何ssh----->调整优先级
+
+
+
+内存：最小单位是页(4kb)
+剩余内存：free 
+活跃和非活跃内存：vmstat -a 1
+交换内存：free
+
+
+磁盘：block    
+实时：iotop
+使用率：df -Th
+iops：每秒io次数  iostat [-x] 1
+顺序io和随机io
+
+
+网络：
+实时：iftop
+smokeping
+
+piwik 开源网站流量分析程序
+
+nmon监控：可以生成xls报表
+
+
+####################################################################################################
+
+项目规划
+架构图
+主机分组
+   交换机
+   nginx
+   tomcat
+   mysql
+监控对象识别：
+  使用snmp监控交换机
+     #conf t
+     #snmp-server community cisco ro（只读） 配置只读通信字符串
+	 #zabbix添加交换机并设置宏
+  使用ipmi监控服务器硬件
+  使用agent监控服务器，mysql，web状态，nginx状态
+  使用jmx监控java
+	 #jconsole
+
+
+
+zabbix: 第一次可以在配置文件中开启debug
+自定义item
+自定义图形(多个监控项在一张图形显示，数据单位要一致)
+自定义聚合图形screen
+自定义幻灯片(自动播放screen)
+自定义拓扑图maps(架构)
+
+添加jmx监控---需要jdk环境支持
+配置能登录jconsole---添加模板
+
+mysql监控---需要php php-mysql支持
+percona数据库监控插件:自定义监控项（脚本(获取数据)+配置文件(自定义监控项UserParameter)+模板(*.xml)）
+
+主动模式：
+	DebugLevel=3       			#debug模式
+	StartAgents=0	   			#关闭10050端口
+	ServerActive=192.168.3.70	#server主机
+	Hostname=web-192.168.3.67	#设置主机名，必须和web端添加的主机一致
+添加主动模板：item的类型为主动模式
+保持时间同步：如果没有数据，日志也没报错，查看web端  管理--队列
+
+
+强制关闭触发器：修改父级模板(在触发器配置的地方)
+动作：1.动作：条件(触发器事件)   2.操作：执行动作  2.1 报警媒介
+
+
+########################################################################################
+
+自动化监控
+	1.自动注册 -- 主动模式
+		1.ServerActive=192.168.3.70     #你是谁
+		1.Hostname=web-192.168.3.67		#我是谁
+		1.HostMetadataItem=system.uname	#我有什么特征
+	2.主动发现
+		discover
+	3.zabbix api
+
+
+
+
+
+
 
 
 

@@ -6,7 +6,7 @@
 		3.dom
 		4.ajax
 		5.不能操作服务端的数据(数据库/文件)
-	node js运行在服务器端
+	node js运行在服务器端，事件驱动编程语言
 		1.基本语法
 		2.能操作服务器端的数据库和文件
 nvm：node js版本控制工具 -- nvm ls
@@ -15,15 +15,23 @@ commonjs:模块，包
 REPL：命令行运行环境
 
 静态页面(h5-css-js-jq) --> Ajax --> mvc框架 --> mvvm --> spa阶段(vue/angular/react..)
+CSS 的理念就是让文档的结构和设计分离，达到解耦的目的。
 动态 HTML技术是通过调用客户端脚本语言 JavaScript，实现对 HTML的 Web 页面的动态改造。
-利用 DOM（Document Object Model，文档对象模型）可指定欲发生动态变化的 HTML元素，DOM 内存在各种函数，DOM 是用以操作 HTML文档和 XML文档的 API（Application Programming Interface，应用编程接口）。使用 DOM 可以将 HTML内 的元素当作对象操作，如取出元素内的字符串、改变那个 CSS 的属 性等，使页面的设计发生改变。
+JavaScript 是一种轻量级的编程语言，由所有的现代浏览器执行
+jQuery 解決不同浏览器对 JavaScript 的兼容性问题，并封装了大量的 API
+利用 DOM（Document Object Model，文档对象模型）可指定欲发生动态变化的 HTML元素，DOM 内存在各种函数，DOM 是用以操作 HTML文档和 XML文档的 API（Application Programming Interface，应用编程接口）
+使用 DOM 可以将 HTML内 的元素当作对象操作，如取出元素内的字符串、改变那个 CSS 的属 性等，使页面的设计发生改变。
 	var content = document.getElementsByTagName('P'); 
 	content[2].style.color = '#FF0000';
+	#调用 getElementsByTagName 函数，从整个 HTML文档（document object）内取出 P 元素。接下来 的 content[2].style.color = '#FF0000' 语句指定 content 的索引为 2（第 3 个）的元素的样式颜色改为红色（#FF0000）
+BOM：浏览器对象模型(Brower Object Model)，是用于操作浏览器而出现的API，提供了一个访问HTML页面的一入口——document对象，以使得我们可以通过这个入口来使用DOM的强大功能
+#比如跳转到另一个页面、前进、后退等等，程序还可能需要获取屏幕的大小之类的参数。所以 BOM 就是为了解决这些事情出现的接口。比如我们要让浏览器跳转到另一个页面，只需要location.href = "http://www.xxxx.com";这个 location 就是 BOM 里的一个对象
+
 	
 xml比html能够让程序更容易读取到数据的数据结构
 JavaScript 衍生的轻量级易用 JSON
 
-
+vue：用于构建用户界面的渐进式框架
 
 
 unity：开发游戏工具(感觉像是三维动画攻击，结合c#(开发游戏语言))

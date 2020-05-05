@@ -478,6 +478,64 @@ and -a & &&
  native2ascii: 将汉字转换成16进制
 
 
+ #########################################################################################################
+
+ https://waylau.com/build-java-project-with-maven/
+ maven使用
+  
+ 安装：yum -y install maven
+ 查看版本：mvn --version    #检验安装
+ 创建本地仓库：mkdir /path/workspaceMaven
+ 配置: 配置文件/etc/maven/settings.xml 配置本地仓库 <localRepository>/path/workspaceMaven</localRepository>
+ 下载依赖：mvn help:system  #从中央仓库下载到本地仓库 "Downloading:"
+
+
+ java项目：
+ 
+ 创建项目项目目录结构：mkdir -p src/main/java/hello
+ java文件
+    cat<<eof>>src/main/java/hello/HelloWorld.java
+    package hello;
+    public class HelloWorld {
+        public static void main(String[] args) {
+            Greeter greeter = new Greeter();
+            System.out.println(greeter.sayHello());
+        }
+    }
+    eof
+    cat<<eof>>src/main/java/hello/Greeter.java
+    package hello;
+    public class Greeter {
+        public String sayHello() {
+            return "Hello world!";
+        }
+    }
+    eof
+ 在项目的根目录下创建一个Maven项目定义文件pom.xml
+   java               #项目的根目录
+   ├── pom.xml        #该文件主要是说明项目的名称、版本和依赖库
+   ├── workspaceMaven #本地仓库,在settings.xml配置
+   ├── src		       #项目目录	
+   │   └── main
+   │       └── java
+   │           └── hello
+   │               ├── Greeter.java
+   │               └── HelloWorld.java
+   └── target         #存放编译后文件和jar包
+       ├── classes
+       │   └── hello
+       │       ├── Greeter.class
+       │       └── HelloWorld.class
+       └── generated-sources
+           └── annotations
+ 编译Java代码:Downloading: 下载的依赖在本地仓库中
+   mvn compile 
+ 在项目根目录执行   
+   mvn exec:java -Dexec.mainClass="hello.HelloWorld"
+
+ mvn package    #在target目录下生成一个JAR文件，文件名由<artifactId> 和 <version>组成
+ mvn install          #将项目代码将会经过编译、测试、打包并拷贝到本地依赖库，提供给其他项目引用
+
 
 
 

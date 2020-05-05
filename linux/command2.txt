@@ -150,8 +150,8 @@ curl可以下载，但是长项不在于下载，而在于模拟提交web数据�
 		curl -u aiezu:password http://www.aiezu.com #用户名密码认证
 		curl -E mycert.pem https://www.baidu.com #采用证书认证
 wget是个专职的下载利器，简单，专一，极致。		
-		wget --mirror -p --convert-links -P baidu  http://www.baidu.com    #打包下载网站
-			–miror:开户镜像下载 -p:下载所有为了html页面显示正常的文件 –convert-links:下载后，转换成本地的链接 -P ./LOCAL：保存所有文件和目录到本地指定目录 
+		wget --mirror --convert-links --adjust-extension --page-requisites --no-parent http://example.org   #下载网站镜像
+			--mirror – 递归下载给定网站下的所有资源 --convert-links – 转换绝对链接成相对链接 --adjust-extension – 根据Content-Type调整文件名，添加合适的文件扩展名 --page-requisites – 下载依赖的其他CSS, Javascript, Image等资源 --no-parent – 不下载父级目录资源
 		wget --mirror -p --convert-links --spider http://www.baidu.com    #测试下载链接
 		wget -i filelist.txt #下载多个文件，-c  断点下载   -b后台下载
 		wget -r -A.pdf url   #下载pdf资源
