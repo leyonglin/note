@@ -65,19 +65,20 @@
 		    def 函数名(形参列表)：
 			    语句块
 		    
-            def mydeco(fn):            #装饰器函数，里面会内嵌一个fx函数
-            	def fx(name):
-            		print('1')
-            		fn(name)
-            		print('2')
-            	return fx
-            
-            @mydeco          
-            def  myfun(name):
-            	 print('myfun')
-            
-            #@mydeco 相当于myfunc()被调用了后，与添加该语句 myfun=mydeco(myfun) 效果一样的   
-            myfun()                    #返回fx函数执行结果
+			def mydeco(fn):     #装饰器函数，里面会内嵌一个fx函数
+			    def fx(name):
+			  	    print('1')
+			  	    print('####')
+			  	    #fn(name)      #这是执行myfun函数
+			  	    print('2')
+			    return fx
+			    
+		   @mydeco          
+		   def  myfun(name):
+			    print('myfun1')
+			    print('*******')
+		   myfun(myfun)          #执行mydeco函数
+
 
 函数的文档字符串：函数内第一次未赋值给任何变量的字符串是此函数的文档字符串
 	语法：  

@@ -182,27 +182,32 @@ python虚拟环境
 
 
 中间件其中一个作用：将两端输出输入数据进行格式化
-懒查询：转化成sql语句
+懒查询：转化成sql语句，待获取结果是才会查询
 观察者模型，广播，发布订阅
 
 最优匹配和匹配即停止
 
-处理未知事件
+处理未知事件 
 
-post：form
-get：
-
-meta
+获取客户端输入数据：
+    post：form
+    get：
+    meta
 
 cookie：客户端存储用户信息
 cookie+session：客户端存储sessionID+服务端存储sessionID映射的用户信息
 token：唯一。客户端存储token(不一定通过cookie存储)+服务端存储token映射的用户信息
 
+缓存：
+	内存数据库
+	数据库缓存---缓存级联少的表
+	
 
+aop中间件：在request到response过程中，嵌入功能处理模块
+切点：何处。例如：process_request
+切面：什么，在何时何处完成其功能。
 
-
-
-
+富文本：网页的文本编辑器(就像word文档一样)
 
 
 

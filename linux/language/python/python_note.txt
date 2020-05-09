@@ -190,38 +190,18 @@ print("flag1 = ", flag1)   print(flag2 is not False) ---> True/False
 	
 	
 	
+###################################################################################
+
+# unhashable 可变对象,如list、dict、set：同值不同址，不同值同址
+# hashable 不可变对象,如int、str、char、tuple：同值同址，不同值不同址	
+字典（dict）的键（key）必须是可以哈希的（hashable），immutable（不可改变性）
+判断是字典还是json
+	1.字典使用'' ,json使用""
+	2.字典的key可以是tuple
 	
-	
-	
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
- 
- 
- 
  
  
  
