@@ -11,6 +11,9 @@ SCSI/SATA/U盘硬盘机	/dev/sd[a-p]
 当前CDROM/DVDROM	/dev/cdrom
 当前的鼠标	/dev/mouse
 
+物理终端：直接连接在主机上的Keyboard键盘，video显示器，mouse鼠标统称
+虚拟终端（tty）：附加在物理终端之上，用软件方式虚拟实现
+pts(pseudo-terminal slave)是pty的实现方法。
 
 BIOS：启动主动运行的韧体，会认识第一个可启动的装置；
 MBR：第一个可启动装置的第一个磁区内的主要启动记录区块，内含启动管理程序；

@@ -71,12 +71,12 @@
 			  	    print('####')
 			  	    #fn(name)      #这是执行myfun函数
 			  	    print('2')
-			    return fx
-			    
+			    return fx			    
 		   @mydeco          
 		   def  myfun(name):
 			    print('myfun1')
 			    print('*******')
+				
 		   myfun(myfun)          #执行mydeco函数
 
 
