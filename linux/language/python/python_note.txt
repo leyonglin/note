@@ -196,15 +196,16 @@ print("flag1 = ", flag1)   print(flag2 is not False) ---> True/False
 # hashable 不可变对象,如int、str、char、tuple：同值同址，不同值不同址	
 字典（dict）的键（key）必须是可以哈希的（hashable），immutable（不可改变性）
 判断是字典还是json
-	1.字典使用'' ,json使用""
-	2.字典的key可以是tuple
+    #json可以以{}和[]开始  , 字典只能以{}开始       
+    #json：使用"" 不能用'' ，字典：可以使用''和""
+    #字典key可以是tuple
 	
 	
 ###################################################################################
 
 
 #对象(类，函数，变量)
-
+#使用help(模块或对象)确认导入是哪个模块
 import 文件                   #使用 文件名.对象
 
 from 文件 import 对象         #直接使用对象名
