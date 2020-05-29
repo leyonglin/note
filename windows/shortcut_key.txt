@@ -24,6 +24,7 @@ Ctrl+U  查看网页源代码(用鼠标也行)
 Ctrl+w退出/删除当前资源
 
 
+
 windows 下的共享目录
 	1.创建一个共享用户并设置密码
 	2.打开共享文件夹属性 -- 安全 -- 编辑添加共享用户    		#添加用户对本地文件的操作权限
@@ -39,10 +40,9 @@ linux 挂载
 	linux挂载
 		mount -t cifs //192.169.69.113/mount /mnt/server -o username=bangde,password=xx
 
-		
-	
 删除共享文件：
 	2.cmd(管理员模式) -- net share -- net share NAME /del
+
 
 	
 远程连接：
@@ -50,8 +50,12 @@ linux 挂载
 
 连接端：cmd--mstsc- ip+显示选项(用户名)
 
+
+
 wimdows添加命令行命令：
- 将应用程序及应用程序拓展(.dll)复制到wimdows的命令路径 C:\Windows\System32 下，同时需要相应的库文件(vcredist_x64(应用程序)：c++库文件)
+ 将应用程序(.exe)及应用程序拓展(.dll)复制到wimdows的命令路径 C:\Windows\System32 下，同时需要相应的库文件(执行vcredist_x64(应用程序)：c++库文件)
  
  
+ 
+制作u启：http://msdn.itellyou.cn/  + ultralso
  

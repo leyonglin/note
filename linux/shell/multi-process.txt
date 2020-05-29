@@ -47,3 +47,43 @@ wait             #wait命令的意思是，等待（wait命令）上面的命令
 end=`date +%s`  #定义脚本运行的结束时间
 echo "TIME:`expr $end - $start`"
 
+
+
+
+并发例子
+
+#!/bin/bash
+
+FifoFile=$$.fifo   # 创建管道名称
+mkfifo $FifoFile   # 创建管道
+exec 6<>$FifoFile  # 创建文件描述6，以读写方式操作管道$FifoFile
+rm $FifoFile       # 将创建的管道文件清除
+thred=4           # 指定并发个数
+
+# 创建任务列表
+task () {
+    echo "$u start"
+    sleep 5
+    echo "$u done"
+}
+
+#初始化文件描述符，为管道添加队列元素
+for ((i=0;i<=$thred;i++));do echo;done >&6     
+
+#开启线程执行任务
+for u in `seq 1 20`
+do
+    read -u6                                  #从fd6中读入一行，读完就会阻塞
+    {
+        task                                  
+        echo >&6                              #为管道添加队列元素
+    } &                                       #将这一部分都放到后台运行
+done
+wait                                          #等待子线程运行完父线程再执行后面内容
+exec 6>&-
+
+        
+    
+
+
+

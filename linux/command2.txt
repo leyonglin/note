@@ -209,7 +209,7 @@ ls | xargs -i mv {} {}.txt  #-i与{}搭配，即需要两个参数的时候
 cat arg.txt | xargs -I {} echo -p {} -l   		#管道左边输出等于-I右边的{}，然后传递给第二个{}
 find . -type f | xargs -I {}.t  cp {}.t {}.txt	#管道左边的输出等于{}.t传递给后面的两个{}.t
 find . -name "*.txt" -print0 | xargs -0 rm      #find -print0表示在find的每一个结果之后加一个NULL字符，而不是默认加一个换行符。find的默认在每一个结果后加一个'\n'，所以输出结果是一行一行的。当使用了-print0之后，就变成一行了，然后xargs -0表示xargs用NULL来作为分隔符。这样前后搭配就不会出现空格和换行符的错误了。选择NULL做分隔符，是因为一般编程语言把NULL作为字符串结束的标志，所以文件名不可能以NULL结尾，这样确保万无一失。
-ls | awk -F'.' '{print $1}'|xargs -i mv {}.bak {} #删除文件后缀	
+	
 	
 	
 	

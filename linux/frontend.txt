@@ -53,6 +53,9 @@ unity：开发游戏工具(感觉像是三维动画攻击，结合c#(开发游�
 		      aCh[0].cheched=true;
 			};  
 		  };
+	    function1();                      #在下面定义，这种一般在html中调用
+		function1();
+		  ...
 		}
 	</script>
 
@@ -103,12 +106,12 @@ $ ：1.一个函数，可以传递函数   2.变量标识符
       <script src="http://libs.baidu.com/jquery/2.1.4/jquery.min.js"> </script>
       #第二步 入口函数      
 	  $(document).ready(function(){         #jquery入口函数第一种方式
-			  alert("hello world!");
+			alert("hello world!");
       });          
       $(function(){                         #jquery入口函数第二种方式，常用
-          function1();                      #在下面定义
-		  function1();
-		  ...
+            $("#hide").click(function(){    #为节点添加事件
+                $("p").hide();
+            });
       })
      
 

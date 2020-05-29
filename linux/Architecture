@@ -152,6 +152,44 @@ openstask给新创建虚拟机传输秘钥：通过url下载下来的。url路�
 consul
 ambari
 
+	
+	
+###############################################################################
+
+https://github.com/liquanzhou/ops_doc	
+
+###############################################################################
+
+https://www.bilibili.com/video/BV15J411T7WQ?p=110	
+
+#能不能使用是因为内存中有没有	
+#类classmethod方法是在类内存地址上的，对象self方法是在创建对象内存时候动态创建的
+#类方法不依赖对象，修改类属性等
+#静态staticmethod方法是在类内存地址上的，和类方法差别是没有参数cls
+实例方法只能被实例对象调用，静态方法(由@staticmethod装饰的方法)、类方法(由@classmethod装饰的方法)，可以被类或类的实例对象调用	
+对象方法：
+    def instance_method(self,title):
+类方法：
+    @classmethod
+    def class_method(cls,title):
+静态方法：
+    @staticmethod
+	def static_method(title):
+
+
+死锁：两把锁，A有B锁需要A锁。B有A锁需要B锁
+解决方法：1.重构  2.设置超时释放锁
+
+生产者与消费者：即两个线程之间的通信
+
+进程：系统资源分配的最小单位，涉及到了状态的保存，分配CPU去执行进程称之为调度，进程状态的记录，恢复，切换称之为上下文切换
+#一个线程只能属于一个进程，而一个进程可以有多个线程，但至少有一个线程，cpu分配给线程，即真正在cpu上运行的是线程，线程是最小的执行单元，进程是最小的资源管理单元
+线程的出现是为了降低上下文切换的消耗，有共同都需要拥有的东西
+协程是一种用户态的轻量级线程
+#一个线程，协程看上去也是子程序，但执行过程中，在子程序内部可中断，然后转而执行别的子程序，在适当的时候再返回来接着执行
+
+属性/方法在运行时的动态替换，叫做猴子补丁（Monkey Patch）。
+
 
 
 ###################################################################################
@@ -161,6 +199,7 @@ django
 https://www.bilibili.com/video/BV1rx411X717?p=23
 
 MVC是软甲架构风格，不是标准(非必须)
+
 
 错误查看：
     调试模式/看日志
@@ -175,7 +214,6 @@ orm：orm代码--生成中间文件--执行中间文件创建数据库
     多对多 三个表，主键+临时表(购物车)+主键
 声明关系(外键)的一方是从表(主表删数据默认从表会一起删cascade，可以设置属性protect,set_null等)
 
-模型继承：继承父类的字段
 
 可以根据model生成表，也可以根据表生成模型
 
@@ -189,21 +227,17 @@ python虚拟环境
 
 兼容性强：多种条件都适用
 
+nested：嵌套
+throttle：节流
+decorate：装饰器
+
 重写
-增量：super
-继承：子类自动获得父类的属性和行为
+增量super：
+封装wrapper：将相同的东西封装(成父类)
+继承inherit：子类继承,自动获得父类的属性和方法
+模型继承：继承父类的字段
 
-
-对象方法：
-    def instance_method(self,title):
-类方法：
-    @classmethod
-    def class_method(cls,title):
-静态方法：
-    @staticmethod
-	def static_method(title):
-实例方法只能被实例对象调用，静态方法(由@staticmethod装饰的方法)、类方法(由@classmethod装饰的方法)，可以被类或类的实例对象调用
-
+分页器：https://www.bilibili.com/video/BV15J411T7WQ?p=258
 
 中间件其中一个作用：将两端输出输入数据进行格式化
 懒查询：转化成sql语句，待获取结果是才会查询
@@ -241,6 +275,7 @@ aop中间件：在request到response过程中，嵌入功能处理模块
 
 文件拓展名：是一种标记而已
 
+网站流量统计工具	
 
 程序调试：
    打印日志
@@ -262,8 +297,92 @@ aop中间件：在request到response过程中，嵌入功能处理模块
 nginx部署django项目：nginx进程(静态资源) 反向代理到 uwsgi进程(非静态资源)    #uwsgi和php是一样的
 # 常用的WSGI容器有Gunicorn和uWSGI，django自带wsgi.py配置文件
 	
-网站流量统计工具	
+
+#视图一般是用函数实现	
+类视图：视图用类实现    #类视图和restful搭配很好		
 	
+导入python packet可以做成可插拔式的   #在__init__.py中注册	
+
+序列化：基于通讯的需求，将数据转化成另一种格式
+反序列化：
+
+restful：写一个满足下列条件的接口
+    直观简短的资源地址：URI，比如：http://example.com/api/resources。
+    传输的资源：Web服务接受request与返回response的互联网媒体类型，比如：JSON，XML，YAML等(可以自己写或使用序列化工具)。
+    对资源的操作：Web服务在该资源上所支持的一系列请求方法/函数（比如：POST，GET，PUT或DELETE）
+
+https://www.django-rest-framework.org/
+restframework(前后端分离)：1.正常创建model.py  2.创建view(UserAPIview)  3.创建serializers.py   4.创建路由	
+
+https://docs.celeryproject.org/en/stable/	
+celery：使用消息队列  1.异步任务  2.定时任务	
+
+
+##################################################
+
+
+https://www.djangoproject.com/download/
+https://docs.djangoproject.com/en/2.2/
+
+
+
+
+
+
+
+
+
+
+#############################################################################################
+
+
+https://www.bilibili.com/video/BV1i7411G7vm?p=49
+
+
+
+NTFS权限：使用不同用户访问不同权限，配额 ，大文件
+Windows Preinstallation Environment（Windows PE），Windows预安装环境，是带有有限服务的最小Win32子系统
+
+域：domain
+内网环境：
+    工作组：人人平等
+	域：人人不平等，集中管理
+组成：
+    域控制器
+    成员机	
+	
+pki：加密技术	
+
+远程爆破：	
+https://www.bilibili.com/video/BV1i7411G7vm?p=46
+真空密码字典生成器	/  亦思社会工程学字典生成器
+nmap扫描 + hydra爆破	
+灰鸽子远程控制(后门)
+
+本地爆破：
+漏洞是利用系统执行过程的数据篡改
+   例如异常是执行某个程序(提前修改)	
+进入pe系统 替换密码文件(原系统变成普通盘)   
+
+ettercap：
+
+
+
+收集信息：
+资产：nmap
+域名：whois
+子域名爆破
+  dig axfr @8.8.8.8 baidu.com
+  dnsrecon
+  dnsenum
+web服务器信息
+  netcraft
+  wappalyzer
+扫描漏洞
+  openVAS
+  AWVS
+
+
 	
 	
 	

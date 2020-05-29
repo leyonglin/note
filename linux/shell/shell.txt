@@ -30,8 +30,8 @@
 				#8进制，数字对应ascii表，只有033能用于颜色定义(ANSI控制码)
 		   "\x3D"
 				#16进制，数字对应ascii表
-  echo "$((2#$var))"	    #二进制或者八进制或者十六进制  转换成10进制
-  echo "obase=2;$var"|bc    #十进制转换成 二进制或者八进制或者16进制
+  echo $((2#11010))   	    #其它进制转换成10进制
+  echo "obase=16;15"|bc     #十进制转换成其它进制
   echo -e "\033[?25l"  #隐藏光标
   echo -e "\033[?25h"  #显示光标
   stty -echo    #擦除回显
@@ -43,7 +43,8 @@
  seq -f "dir%g" ["%03g"]  5
  
  printf '\x45\n'
- printf "%s [%s...]\n" a 1 b 2 c 3  # %3.2f\n
+ printf "%s [%s...]\n" a 1 b 2 c 3  # %-3.2f\n
+ #printf "|%-5s|%-5s|%-5s|\n","id","name","ip" 和 printf "|%-5s|%-5s|%-5s|\n" id name ip 是不一样的  #要注意shell终端(空格为分隔符)和awk(,为分隔符)不一样
  grep -i(忽略大小写) -v(取反) -n(显示行数) -c(统计) -o(仅输出匹配关键词) -ABC(上下文) -w(匹配单词) -e(支持正则) -q(静默)   (grep(基本正则) egrep(正则) fgrep(速度快不支持正则))
  grep -n '[^[:lower:]]oo' regular_express.txt
  egrep -n 'o\{2\}' regular_express.txt
@@ -249,7 +250,26 @@ IFS：变量  ---  定义read的分隔符
  for var in val; do CMD; done         #关键字换行就不用; 不换行需要在 关键词前 加； 
  c语言风格的for循环： for ((初值;条件;步长控制))       for ((i=1;i<=${#arr[@]};i++ )); do CMD; done
  
- while 条件; do CMD; done 
+ while循环{
+     # while true  等同   while :
+     # 读文件为整行读入
+     num=1
+     while [ $num -lt 10 ]
+     do
+     echo $num
+     ((num=$num+2))
+     done
+     ###########################
+     grep a  a.txt | while read a
+     do
+         echo $a
+     done
+     ###########################
+     while read a
+     do
+         echo $a
+     done < a.txt
+ }
  
  case $1 in 
  var1)
@@ -355,59 +375,63 @@ ${变量//旧字符串/新字符串}	若变量内容符合『旧字符串』则�
 		正则表达式要完全匹配目标字符串内容(\d+  --- "123"(完全匹配)  "as123df"(不是))
 		"^正则表达式$"    在正则表达式开始和结束位置加上^$
 		
-	正则表达式转义：	
-	
+	正则表达式转义：		
 	raw字串：原始字符串对内容不解释转义，就表达内容原本意义
 		
 	贪婪与非贪婪：	
-		贪婪模式：正则表达式的重复匹配总是尽可能多的向后匹配更多内容
+		贪婪模式：#一次性吃掉它所能够吃掉的所有字符且可以回退
 			*  +  ?  {3,5}
 				re.findall(r"ab{3,5}","abbbbbb")   --->  结果：['abbbbb']
-		非贪婪模式(懒惰模式)：尽可能少的匹配内容
+		非贪婪模式(懒惰模式)：贪婪模式 + ？
 			*?  +?  ??  {3,5}?
 				re.findall(r"ab*?","abbbbbb")   --->  结果：['a']
-	
-	正则表达式的子组：
-		可以使用()为正则表达式建立子组，子组可以看作是正则表达式内部操作的一个整体，即先匹配整体，在内部子组匹配
-			子组是在正则表达式整体匹配到内容的前提下才会发挥作用，不影响正则表达式整体去匹配目标内容这一原则
-		re.findall(r"(ab)*","ababab")    #()会将ab当作一个整体
-	
-		子组所用：
-			1.作为内部整体可以改变某些元字符的行为(正则)
-				re.search(r"\w+@\w+\.(com|cn)","abc@123.com").group()   ---  'abc@123.com'
-				re.search(r"\w+@\w+\.(com|cn)","abc@123.cn").group()	---  'abc@123.cn'
-				re.search(r"\w+@\w+\.com|cn","abc@123.com").group()		---  'abc@123.com'
-				re.search(r"\w+@\w+\.com|cn","abc@123.cn").group()		---  'cn'
-			2.子组在某些操作中可以单独提取出匹配内容(编程)
-				re.search(r"(https|http|ftp)://\S+","https://www.baidu.com").group()   ---  'https://www.baidu.com'
-				re.search(r"(https|http|ftp)://\S+","https://www.baidu.com").group(1)  ---  'https'
-		子组注意事项：
-			1.一个正则表达式中可以有多个子组
-			2.子组一般由外到内，由左到右称之为第一组，第二组...
-			3.子组不能重叠，嵌套也不宜很多
-	
-	
-	捕获组和非捕获组
-		格式：(?P<name>pattern)
-			作用：可以通过组名更方便获取某组内容
-				re.search(r"(?P<dog>ab)cdef",'abcdef').group('dog')
-	
-	对字符串："industry  industries  industr123"的匹配结果：
-		(pattern)
-			industr(y|ies) ---> industry  industries
-		非获取匹配，不进行存储供以后使用,不会把pattern结果放到Matches的集合中
-			(?:pattern) 消耗字符，下一字符匹配会从已匹配后的位置开始。
-				industr(?:y|ies) ---> industry industries
-			1.(?=pattern) 不消耗字符，下一字符匹配会从预查之前的位置开始。				
-				industr(?=y|ies) ---> industr industr（12）
-			2.(?!pattern)
-				industr(?!y|ies) ---> industr（3）
-			3.(?<=pattern)
-				(?<=NT|2000)Windows“能匹配”2000Windows“中的”Windows“，但不能匹配”3.1Windows“中的” Windows
-			4.(?<!pattern)
-				(?<!NT|2000)Windows“能匹配”3.1Windows“中的”Windows“，但不能匹配”2000Windows“中的” Windows“	
-	向后引用（back-reference）一个子字符串（substring），该子字符串与正则表达式的第 num 个用括号围起来的子表达式（subexpression）匹配,从 1 开始的正整数，其上限可能是 99。例如：”(.)\1“匹配两个连续的相同字符
+	    侵占模式：贪婪模式 + "+"   #一次性吃掉它所能够吃掉的所有字符且不回退
+	  例子：232hjdhfd7474$
+        贪婪模式：\w+[a-z]     #会一次性吃掉它所能吃掉的所有的字符，也就是子串232hjdhfd7474,但会一个字符挨个回退，直到匹配或者子串为空
+		侵占模式：\w++[a-z]	   #会一次性吃掉它所能吃掉的所有的字符，也就是子串232hjdhfd7474,但不会回退，所以[a-z]无法匹配到内容
+		非贪婪模式：\w+?[a-z]  #尽可能少的匹配  共找到3处匹配：232h，jd，hf
 		
+    子组：使用(pattern)
+		<(title)>.*</\1>
+		子组注意事项：
+			1.子组一般由外到内，由左到右称之为第一组，第二组...    # "(A)(B(C))" 从外到内有四个子组
+			2.子组向后引用（back-reference）：只能用分组匹配后的内容(文本),不能引用正则
+			#(\d{1,3})(.\1){3}这个表达式实际上匹配的是四个数都相同的IP地址
+	
+        捕获组和非捕获组
+            捕获组格式：(?P<name>pattern)
+        		作用：可以通过组名更方便获取某组内容
+        			re.search(r"(?P<dog>ab)cdef",'abcdef').group('dog')
+            非捕获组：(?:pattern)  #不要当做分组，不能使用
+        
+        断言只是条件，本身并不会匹配
+        	1.pattern(?=pattern) 	正，先行			
+        		industr(?=y|ies) ---> industr industr（12）
+        	2.pattern(?!pattern)    负，先行
+        		industr(?!y|ies) ---> industr（3）	
+            1.(?<=pattern)pattern   正，后发
+            	(?<=NT|2000)Windows“能匹配”2000Windows“中的”Windows“，但不能匹配”3.1Windows“中的” Windows
+            2.(?<!pattern)pattern   负，后发
+        			(?<!NT|2000)Windows“能匹配”3.1Windows“中的”Windows“，但不能匹配”2000Windows“中的” Windows“	        
+        就用先行断言（?=或?!）：目标字符串在前
+        就用后发断言（?<=或?<!）：目标字符串在后
+        假如指定满足某个条件，就是正（=）。
+        假如指定不满足某个条件，就是负（!）。	
+
+	#正则表达式的子组：
+	#	可以使用()为正则表达式建立子组，子组可以看作是正则表达式内部操作的一个整体，即先匹配整体，在内部子组匹配
+	#		子组是在正则表达式整体匹配到内容的前提下才会发挥作用，不影响正则表达式整体去匹配目标内容这一原则
+	#	re.findall(r"(ab)*","ababab")    #()会将ab当作一个整体
+	#
+	#	子组所用：
+	#		1.作为内部整体可以改变某些元字符的行为(正则)
+	#			re.search(r"\w+@\w+\.(com|cn)","abc@123.com").group()   ---  'abc@123.com'
+	#			re.search(r"\w+@\w+\.(com|cn)","abc@123.cn").group()	---  'abc@123.cn'
+	#			re.search(r"\w+@\w+\.com|cn","abc@123.com").group()		---  'abc@123.com'
+	#			re.search(r"\w+@\w+\.com|cn","abc@123.cn").group()		---  'cn'
+	#		2.子组在某些操作中可以单独提取出匹配内容(编程)
+	#			re.search(r"(https|http|ftp)://\S+","https://www.baidu.com").group()   ---  'https://www.baidu.com'
+	#			re.search(r"(https|http|ftp)://\S+","https://www.baidu.com").group(1)  ---  'https'
 		
  
  #sed流式编辑器：
@@ -518,6 +542,8 @@ awk 'NR>=3&&NR<=6{print NR,$0}' passwd					#3-6行
 cat -n passwd|awk -F: '{print $1}{print NR}'		#对于一行，输出$1再输出$2 等同于cat -n passwd|awk -F: '{print $1;print NR}'	
 awk '{sum+=$2}END{print sum}' date  // cat data|awk '{sum+=$1} END {print "Average = ", sum/NR}'  //  cat data|awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}'  //   
 awk '($1~/[0-9]/&&$2~/[0-9]/)||($3~/[a-zA-Z]/){print $0}' awk.txt  #与或	
+awk '{a[$1]++;b[$1]+=$2}END{for(i in a){print i,a[i],b[i]}}'  #将第一列过滤重复列出每一项，每一项的出现次数，每一项的大小总和
+                
 	内置函数
 		rand，srand，int
 		gsub  sub  length  index
@@ -703,7 +729,7 @@ eval：
 	第一步，执行变量替换         --->第一遍扫描
 	第二步，执行替换后的命令串。 --->第一遍扫描
 shift(n):每执行一次，参数减n
-test和[]:
+test和[]:  表达式为：-n  -f >/-lt 和 -a
     ! 表达式：返回值取反
     (表达式):改变优先级
     表达式1 -a/-o 表达式2
@@ -821,6 +847,29 @@ suspend [-f] #暂停执行shell
 		大量这种命令需要在稳定的后台里运行
 		screen    #systemd(1)───screen(40552)───bash(40553)───sleep(40579)
 		
+
+
+横竖转换：-n的间隔符是空格符或者换行符
+    cat a.txt | xargs -n1         # 列转行
+    cat a.txt | xargs -n2       # 行转列
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 		
 		
