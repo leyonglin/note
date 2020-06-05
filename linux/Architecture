@@ -344,13 +344,16 @@ html：
 	li.id*4 
 	img
 py：
-    alt + enter      自动导包
-	Ctrl + p         提醒
-	Ctrl + /         注释
-	shift + f6       重命名
-	Ctrl + N         快速查找
-	Ctrl + 鼠标左键  定位
-	.re              快捷生成return
+    alt + enter          自动导包
+	Ctrl + p             提醒
+	Ctrl + /             注释
+	shift + f6           重命名
+	Ctrl + N             快速查找
+	Ctrl + 鼠标左键      定位
+	.re                  快捷生成return
+	Ctrl + d             复制一行插入到下面
+	alt + shift + ↑↓     移动一行
+	Ctrl + Alt + L       代码格式化
   返回：
 	HttpResponse
 	render
@@ -387,6 +390,17 @@ class Person(models.Model):
     class Meta:
         db_table = 'People'
 
+
+{% block header/banner/content/footer %} {% endheader %}
+
+静态资源：
+settings.py注册
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+使用：
+{% load static %}  #第一行
+<img src="{% static 'img/baidupan.jpg' %}" >   #位置
 
 
 

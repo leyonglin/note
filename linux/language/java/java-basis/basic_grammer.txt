@@ -487,7 +487,7 @@ and -a & &&
  查看版本：mvn --version    #检验安装
  创建本地仓库：mkdir /path/workspaceMaven
  配置: 配置文件/etc/maven/settings.xml 配置本地仓库 <localRepository>/path/workspaceMaven</localRepository>
- 下载依赖：mvn help:system  #从中央仓库下载到本地仓库 "Downloading:"
+ 下载依赖：mvn help:system  #从中央仓库下载到本地仓库 输出信息是"Downloading:"
 
 
  java项目：
@@ -528,13 +528,13 @@ and -a & &&
        │       └── HelloWorld.class
        └── generated-sources
            └── annotations
- 编译Java代码:Downloading: 下载的依赖在本地仓库中
-   mvn compile 
- 在项目根目录执行   
+ 编译Java代码:"Downloading:" 下载的依赖在本地仓库中
+   mvn compile            #class文件在target/classes/
+ 运行项目：在项目根目录执行  
    mvn exec:java -Dexec.mainClass="hello.HelloWorld"
 
- mvn package    #在target目录下生成一个JAR文件，文件名由<artifactId> 和 <version>组成
- mvn install          #将项目代码将会经过编译、测试、打包并拷贝到本地依赖库，提供给其他项目引用
+ mvn package    #在target目录下生成一个JAR文件，文件名由<artifactId> 和 <version>组成，会生成class文件 
+ mvn install    #将项目代码将会经过编译、测试、打包并拷贝到本地依赖库，提供给其他项目引用
 
 
 

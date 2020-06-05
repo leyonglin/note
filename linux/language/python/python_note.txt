@@ -206,6 +206,7 @@ print("flag1 = ", flag1)   print(flag2 is not False) ---> True/False
 
 #对象(类，函数，变量)
 #使用help(模块或对象)确认导入是哪个模块
+#使用dir(模块或对象)查看方法
 import 文件                   #使用 文件名.对象
 
 from 文件 import 对象         #直接使用对象名

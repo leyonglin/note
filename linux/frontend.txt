@@ -154,10 +154,169 @@ node.js
 
 
 
+#########################################################################################
 
 
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>菜鸟教程(runoob.com)</title>
 
+    <style>
+
+        * {
+            margin: 0; padding: 0;
+        }
+ 
+        #header {
+            {#width: 100%;#}
+            height: 50px;
+            background: red;
+        }
+        #header .head{
+            width: 300px; height: 50px;
+            background: gray;
+            margin: auto;
+        }
+
+        #banner {
+            height: 100px;
+            background: blue;
+        }
+
+        #category {
+            width: 500px; height: 100px;
+            margin: auto; background: aquamarine;
+        }
+        #category .item {
+            width: 125px; height: 80px;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-bottom: 20px;
+            padding-top: 10px;
+            border-right: 1px dashed black;
+            float: left;
+        }
+        #category .item.first{
+            padding-left: 0;
+        }
+        #category .item.last{
+            padding-right: 0;
+            border: 0;
+        }
+
+        #case {
+            height: 200px;
+            {#background: blueviolet;#}
+        }
+        #case .title-text{
+            width: 500px;
+            margin: auto;
+            padding-top: 20px;
+            padding-bottom: 10px;
+            font-size: 45px;
+        }
+        #case .item-wrapper{
+            width: 500px;
+            margin: auto;
+            overflow: auto;
+        }
+        #case .item-wrapper .item{
+            width: 100px;
+            height: 120px;
+            background: black;
+            float: left;
+        }
+        #case .item-wrapper .item.mg{
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        #case p{
+            width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 15px;
+            height: 40px; line-height: 40px;
+            text-align: center;
+            font-size: 30px;
+            color: gray;
+        }
+
+        {#绝对定位#}
+        .box {
+            width: 600px; height: 500px;
+            background: red;
+            margin: 10px auto;
+            {#为下面提供坐标系#}
+            position: relative;
+        }
+        .p1{
+            left: 149px; top:144px;
+            position: absolute;
+        }
+        .p1 .point{
+            {#转换对象，使之既能设置宽高又能对齐 display: inline-block;#}
+            {#块元素能设置宽高不能对齐，行元素能设置同行对齐不能设置宽高#}
+            width: 15px;
+            height: 15px;
+            background: blue;
+            float: left;
+        }
+        {# 为了对齐 #}
+        .p1 .info {
+            float: left;
+            line-height: 15px;
+        }
+
+          {#固定定位，相对于整个页面，即拉动滚动条图标一直显示在某个地方  #}
+        #div1{
+            width: 100%;
+            height: 110px;
+            background: gray;
+            position: fixed;
+        }
+
+    </style>
+</head>
+<body>
+<div id="header">
+    <div class="head"></div>
+</div>
+<div id="banner"></div>
+<div id="category">
+    <div class="item first"></div>
+    <div class="item"></div>
+    <div class="item last"></div>
+</div>
+<div id="case">
+    <div class="title-text">
+        Case
+    </div>
+    <div class="item-wrapper">
+        <div class="item"></div>
+        <div class="item mg"></div>
+        <div class="item"></div>
+    </div>
+    <p>查看更多</p>
+</div>
+{#绝对定位#}
+<div class="box">
+    <div class="p1">
+        <span class="point"></span>
+        <span class="info">中国</span>
+    </div>
+</div>
+{#固定定位#}
+<div id="div1">
+    固定定位
+</div>
+
+
+</body>
+</html>
 
 
 
