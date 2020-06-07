@@ -248,7 +248,7 @@
 		表名称：表名 // 子查询
 		where： and/or // =,<>,<,<=,>,>= // not //[not] in // between and // like '[^AC]%'
 			like：模糊查询 #_:匹配单个字符   %:匹配0到多个字符
-			in：select * from A where id in (select id from B) #当B表的数据集必须小于A表的数据集时
+			in：查询结果在in里面  #select * from A where id in (select id from B) 当B表的数据集必须小于A表的数据集时
 			#exists: 当A数据集小于B，语法也比较复杂
 		as: 別名  #select column_1 as 列1,column_2 as 列2 from table as 表
 		distinct:不显示字段的重复值。语法：select distinct 字段1, 字段2 from 表名；distinct和from之间的所有字段值都相同才会去重
@@ -256,9 +256,9 @@
 		having：WHERE 关键字无法与合计函数一起使用   HAVING SUM(OrderPrice)<2000
 		order by：语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序				
 	  两个表：
-	    in：子查询
-		union - 用于合并两个或多个 SELECT 语句的结果集。  #UNION ALL命令和UNION命令几乎是等效的，不过UNION ALL命令会列出所有的值(包括重复的)。
-		join on: inner join(相同的) // left join(左边全显示,右边不存在显示null，右边多余存在忽略) // right join(右边全显示,左边不存在显示null，左边多余存在忽略) // full outer join(并集,全都显示) #join与on配合(on和where一样)，更细致的用法是后面带where条件(key is null)
+		联合查询union - 用于合并两个或多个 SELECT 语句的结果集。  #UNION ALL命令和UNION命令几乎是等效的，不过UNION ALL命令会列出所有的值(包括重复的)。
+		连接查询join on: inner join(相同的) // left join(左边全显示,右边不存在显示null，右边多余存在忽略) // right join(右边全显示,左边不存在显示null，左边多余存在忽略) // full outer join(并集,全都显示) #join与on配合(on和where一样)，更细致的用法是后面带where条件(key is null)
+        #select [查询列表 as 别名⑤] from [表1 as 别名 连接类型 join 表2 as 别名 on 连接条件①] [where 筛选条件②] [group by 分组③] [having 筛选条件④]  [order by 排序列表⑥]
   对行的操作：
   	插入表记录：  insert into 表名(列1, 列2,...) [VALUES (值1, 值2,....)]  #insert into mytable values('summer','m','1983-08-24');   #插入多条记录：insert into 表名  select * from yourtable;
     删除一条记录：delete from 表名 where name='summer';  
@@ -874,8 +874,175 @@ tidb:https://gitee.com/pingcap/tidb
 如果一张表有很多记录，则添加会影响很大：用工具mysql-pt添加字段
 
 
+################################################################################################
+
+https://www.bilibili.com/video/BV12b411K7Zu?p=149
+
+DML：
+select [查询列表 as 别名⑦] from [表名 as 别名①]或者[表1 别名 连接类型 join 表2 别名② on 条件③ [连接类型 join 表2 别名 on 条件]...] [where 分组前筛选条件④] [group by 分组列表⑤] [having 分组后筛选⑥] [order by 排序列表⑧] [limit offset,size⑨];
+#子查询：本身就是单独查询，是可以执行的  按子查询出现的位置：1.select后面 2. from后面  3. where或having后面  4.exists后面(相关子查询，结果为1或0)        不同位置需要结果集(标量子查询，列子查询，行子查询，表子查询)不同
+	#子查询适用于，条件是查询语句。分析：查询公司工资比A高的人 ---> ①.查询出A工资  ②.查询工资>①
+	查询列表: 多个用,隔开   #显示内容
+		表中字段：字段用``转义，区别关键字和字段
+		常量值：100  'string'
+		表达式: 100%98
+		函数: VERSION()
+	  distinct: 去重
+	  + :  1.运算符 2.字段组合显示  
+	  
+	别名：显示名称
 	
+	分组前筛选条件：数据源是原始表
+	    条件表达式：>< = != <> >= <=    #不能判断null
+		逻辑表达式: &&和and ||和or !和not
+		模糊查询：like ：        1.% 0-n个字符  2._ 一个字符  #使用\转义  
+		          between and ： id between 100 and 120   
+				  in:            id in (1,3,5)       #数据类型需要一致           
+				  is null:       id is null
 	
+	分组后筛选：分组函数作为条件，数据源是分组后的结果集
 	
+	排序列表：id asc , age desc;  #支持单个字段和多个字段逗号隔开，表达式，函数，别名
+
+    分组列表：id , age;           #支持单个字段和多个字段逗号隔开，表达式，函数，字段别名
+
+	连接类型：inner  full            #inner显示共同有的，full显示全部
+			  left(左为主表) right(右为主表)   #查询结果为主表中的所有记录，从表有匹配则显示，没匹配则显示null
+			  cross: 新标准的笛卡尔乘积
+
+
+
+函数：
+	字符函数：
+		length('张zhang')
+		upper('zhang')
+		lower('ZHANG')
+		concat('字段','常量','函数')     #拼接
+		substr('zhang',2,3)				 #截取
+		lpad rpad('zhang',2,"*")         #填充  
+		replace("zhang","a","b")
+		
+	数字函数：
+		round() 四舍五入
+		ceil()  向上取整
+		floor() 向下取整
+		truncate() 截断
+		mod()      取余
 	
+	日期函数：
+		now()
+		cupdate()
+		curtime()
+		year()
+	
+	其他：
+		version()
+		database()
+		user()
+		
+	流程控制函数：返回一个值
+		if: select if(10<5,"大","小");
+		case:
+	
+	分组函数：
+		sum avg max min 
+		count：统计结果行数
+
+旧版本的多表查询：
+笛卡尔乘积：结果集为A表行数*B表行数，是连接查询的一种特例(没有添加筛选条件)
+select girlname,boyname from boys,girls [where girls.girl_id=boys.boy_id]
+
+
+连接查询join on：多表查询但表之间有关系，是一个语句
+子查询：结果集是动态实时用语句查询出来的，不同部分是单独的语句，可执行并得出结果集
+联合查询union：多表查询但表之间没有关系，不同部分是单独的语句，可执行并得出结果集
+
+
+插入insert：支持多列多表更新
+更新update：支持多表更新
+删除delete：支持多表更新
+
+
+DDL：针对库和表
+	create  
+	alter
+		alter table 表名 modify column 字段名 字段类型 新约束   	#修改已存在列(列级约束)
+		alter table 表名 add [constraint 外键名字] foreign key [外键字段] references 父表(主键字段);	#新添加一列(表级约束)
+	drop
+	#复制表结构，部分表结构，表数据，部分表数据
+
+数据类型：
+	数值：
+		整型：有无符号    超出以边界值填充    zerofull以0填充位数  
+		浮点型
+	文本：
+	枚举：
+	日期：
+
+约束：
+	类型：
+		not null : 非空
+		default：默认值
+		primary key：主键，唯一且非空，只能一个，允许组合
+		unique：唯一，可以为空，可以有多个，允许组合
+		foreign key：外键，被外键的列需要是key(primary或者unique)
+			#语法：foreign key [本表外键字段] references 父表(主键字段);
+		check：mysql不支持，检查输入值
+		
+	列级约束：在列后面直接添加						  #不支持外键，不可以起约束名
+	表级约束：[constraint 约束名] 约束类型(字段名)    #不支持非空not null 和 默认default ，可以起约束名但对主键无效
+	例子：
+		create table mytest(
+			id int primary key,    #列级约束
+			age int default 18,
+			constraint age_uq unique(age)  #表级约束
+		);
+	
+	主从表删除：原则上是先删主表再删从表。但是可以用 "级联删除" "级联置空"删除
+	
+标识/自增长列：可以不用手动的插入值，系统提供默认的序号值
+	auto_increment    #show variables like "%auto_increment%"  还可以设置步长
+	#1.只能是数值型，至多一个，需要是key
+
+主从表删除：原则上是先删主表再删从表。但是可以用 "级联删除" "级联置空"删除
+	
+TCL：事务：一个或一组sql语句组成一个执行单元，这个执行单元要么全部执行成功，要么全部执行失败	
+	acid：atomicity原子性(不可分割)  consistency一致性(A+B转账前(一致性状态)后(另一一致性状态)总余额不变)
+	      isolation隔离性(由隔离级别决定)     durability持久性
+	
+
+	步骤：
+		1.开启事务
+			set autocommit=0;   #关闭自动提交
+			start transaction;  #开启事务，可省略
+		2.编写食物中的sql语句
+		3.结束事务
+			commit  	#提交事务
+			rollback	#回滚事务
+		#savepoint 设置保存点，在回滚的时候可以只回滚保存点后的操作
+		
+		
+		
+	隔离机制：有四种分别避免以下情况
+		脏读：A更新时，B查看时是更新的数据(有可能回滚)
+		不可重复读：A更新提交前和后，B查看两次分别是不同数据
+		幻读：A更新未提交，B插入一行并提交，A提交发现更新多了一行
+
+
+视图：虚拟表，和普通表一样使用，但是通过相关表动态生成的数据
+	步骤1：创建 create [or replace] view myview as 查询语句     2. select * from myview
+		   修改 alter view myview as 查询语句
+		   删除：drop view 视图名,...
+	#简单视图可以更改，但很多不能更新(分组函数，group by，distinct,having,union,join,常量...)
+
+
+
+
+
+
+
+
+
+
+
 	
