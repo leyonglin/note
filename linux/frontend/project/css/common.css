@@ -1,0 +1,339 @@
+/* 声明字体图标 */
+@font-face {
+	font-family: 'icomoon';
+	src:  url('../fonts/icomoon.eot?snsrp8');
+	src:  url('../fonts/icomoon.eot?snsrp8#iefix') format('embedded-opentype'),
+	url('../fonts/icomoon.ttf?snsrp8') format('truetype'),
+	url('../fonts/icomoon.woff?snsrp8') format('woff'),
+	url('../fonts/icomoon.svg?snsrp8#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+	font-display: block;
+}
+
+/* 版心 */
+.w {
+	width: 1200px;
+	margin: 0 auto;
+}
+
+.style_red {
+	color: #c81623;
+}
+/* 快捷导航模块 */
+.shortcut {
+	height: 31px;
+	/* 文字居中 */
+	line-height: 31px;
+	background: #f1f1f1;
+}
+
+.fl {
+	float: left;
+}
+
+.fr {
+	float: right
+}
+
+.shortcut ul li {
+	float: left;
+}
+
+/* 选择偶数的li */
+.shortcut .fr ul li:nth-child(even) {
+	width: 1px;
+	height: 12px;
+	background-color: #666;
+	margin: 9px 15px 0;
+}
+
+/* 下拉按钮 */
+.arrow-icon::after {
+	content: '\e900';
+	font-family: 'icomoon';
+	margin-left: 6px;
+}
+
+/* header头部制作 */
+.header {
+	/* 子元素使用的绝对定位，这里给子元素提供定位 */
+	position: relative;
+	height: 105px;
+	/* background-color: pink; */
+}
+
+.logo {
+	position: absolute;
+	top: 25px;
+	width: 175px;
+	height: 61px;
+	/* background-color: skyblue; */
+}
+
+.logo a {
+	display: block;
+	width: 175px;
+	height: 61px;
+	background: url('../images/logo.png') no-repeat;
+	/* 隐藏文字 */
+	font-size: 0;
+}
+
+/* 搜索大盒子 */
+.search {
+	position: absolute;
+	left: 346px;
+	top: 25px;
+	width: 538px;
+	height: 36px;
+	border: 2px solid #b1191a;
+}
+
+.search input {
+	float: left;
+	width: 455px;
+	height: 35px;
+	padding-left: 10px;
+}
+
+.search button {
+	float: left;
+	width: 83px;
+	height: 36px;
+	background-color: #b1191a;
+	font-size: 16px;
+	color: #fff;
+}
+
+.hotwords {
+	position: absolute;
+	top: 66px;
+	left: 346px;
+}
+
+.hotwords a {
+	margin: 0 10px;
+}
+
+.shopcar {
+	position: absolute;
+	right: 60px;
+	top: 25px;
+	width: 140px;
+	height: 35px;
+	/* 垂直居中对齐 */
+	line-height: 35px;
+	/* 水平居中对齐 */
+	text-align: center;
+	border: 1px solid #dfdfdf;
+	background-color: #f7f7f7;
+}
+
+/* .shopcar::before {
+	content: '\ead0';
+	font-family: 'icomoon';
+	margin-right: 5px;
+}
+
+.shopcar::after {
+	content: '\ea3c';
+	font-family: 'icomoon';
+	margin-left: 10px;
+} */
+
+.shopcar .gouwuche img {
+	position: absolute;
+	right: 101px;
+	top: 0px;
+	width: 35px;
+	height: 35px;
+}
+
+.shopcar .you img {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	width: 35px;
+	height: 35px;
+}
+/* .shopcat div {
+	border: 0 10px;
+} */
+
+.count {
+	position: absolute;
+	/* 调整位置 */
+	top: -5px;
+	left: 95px;
+	/* 设置字体和行高一样 */
+	height: 14px;
+	line-height: 14px;
+	color: #fff;
+	background-color: #e60012;
+	/* 设置文字离四边距离 */
+	padding: 0 5px;
+	/* 调整盒子形状 */
+	border-radius: 7px 7px 7px 0;
+}
+
+/* nav模块制作 */
+.nav {
+	height: 47px;
+	border-bottom: 2px solid #b1191a;
+}
+
+.nav .dropdown {
+	float: left;
+	width: 210px;
+	height: 47px;
+	background-color: #b1191a;
+}
+.nav .navitems {
+	float: left;
+}
+
+.dropdown .dt {
+	width: 100%;
+	height: 100%;
+	color: #fff;
+	text-align: center;
+	line-height: 47px;
+	font-size: 16px;
+}
+.dropdown  .dd {
+	/* 设置显示与否，默认显示 */
+	/* display: none; */
+	width: 210px;
+	height: 465px;
+	background-color: #c81623;
+	margin-top: 2px;
+}
+.dropdown  .dd ul li {
+	position: relative;
+	height: 31px;
+	line-height: 31px;
+	margin-left: 2px;
+	margin-right: 2px;
+	padding-left: 10px;
+}
+.dropdown  .dd ul li:hover {
+	background-color: #fff;
+}
+
+.dropdown  .dd ul li span {
+	position: absolute;
+	right: 0px;
+	top: 0px;
+	width: 35px;
+	height: 31px;
+    color: white;
+}
+
+/* .dropdown  .dd ul li::after {
+	position: absolute;
+	top: 1px;
+	right: 5px;
+	color: #fff;
+	font-family: 'icomoon';
+	content: '\ea3c';
+	font-size: 14px;
+} */
+
+.dropdown  .dd ul li a {
+	font-size: 14px;
+	color: #fff;
+}
+
+.dropdown  .dd ul li:hover a {
+	color: red;
+}
+
+.dropdown  .dd ul li:hover span {
+	color: red;
+}
+
+.navitems ul li {
+	float: left;
+}
+
+.navitems ul li a {
+	display: block;
+	height: 45px;
+	line-height: 45px;
+    font-size: 16px;
+    padding: 0 25px;
+}
+
+.footer {
+	height: 415px;
+	background-color: #f5f5f5;
+	padding-top: 30px;
+}
+
+.mod_service {
+	height: 80px;
+	border-bottom: 1px solid #ccc;
+}
+
+.mod_service ul li {
+	float: left;
+	width: 270px;
+	height: 50px;
+	/* background-color: pink; */
+	padding-left: 30px;
+}
+
+.mod_service ul li h5 {
+	float: left;
+	width: 50px;
+	height: 50px;
+	/* 使用精灵图设置图标 */
+	background: url('../images/icons.png') no-repeat -252px -2px;
+	margin-right: 8px;
+}
+
+.service_txt h4 {
+	font-size: 14px;
+}
+
+.service_txt p {
+	font-size: 12px;
+}
+
+.mod_help {
+	height: 185px;
+	border-bottom: 1px solid #ccc;
+	padding-top: 20px;
+	padding-left: 50px;
+}
+
+.mod_help dl {
+	float: left;
+	width: 200px;
+}
+
+.mod_help dl:last-child {
+	width: 90px;
+	text-align: center;
+}
+
+.mod_help dl dt {
+	font-size: 16px;
+	margin-bottom: 10px;
+}
+
+.mod_copyright {
+	text-align: center;
+}
+
+.links {
+	margin:15px ;
+}
+
+.links a {
+	margin: 0 3px;
+}
+.copyright {
+	line-height: 20px;
+}

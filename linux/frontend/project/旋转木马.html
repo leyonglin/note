@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>旋转木马</title>
+	<!-- 添加6张图片，一开始都是坐标为(z=0),完成后所有图片分开，以y轴为中心旋转 -->
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		body {
+			/* 添加透视，这样子元素才会有透视效果(变大变小) */
+			perspective: 1000px;
+		}
+		section {
+			position: relative;
+			width: 300px;
+			height: 200px;
+			margin: 150px auto;
+			/* 3D呈现，让每个子元素都呈现3D效果 */
+			transform-style: preserve-3d;
+			/* 调用动画 3秒周期，匀速，无限循环*/
+			animation: rotate 10s linear infinite;
+			/* 添加一张固定在Y轴的图片 或者在添加一个div*/
+			/* background: url('images/erweima.png') no-repeat; */
+		}
+
+        section:hover {
+        	/* 鼠标放上去停止 */
+        	animation-play-state: paused;
+        	/* 兼容苹果电脑和谷歌浏览器 */
+        	-webkit-animation-play-state:paused;
+        }
+
+        /* 定义动画 */
+        @keyframes rotate {
+        	0% {
+        		transform: rotateY(0);
+        	}
+        	100% {
+        		transform: rotateY(360deg);
+        	}
+        }
+
+		section div {
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background: url('images/lunbotu.jpg') no-repeat;
+		}
+
+		section div:nth-child(1) {
+			/* 将第一张图片沿Z轴往前移动(眼睛方向) */
+			transform:  translateZ(300px);
+		}
+		section div:nth-child(2) {
+			/* 第二张图片先旋转在移动 */
+			transform: rotateY(60deg) translateZ(300px);
+		}
+		section div:nth-child(3) {
+			/* 第二张图片先旋转在移动 */
+			transform: rotateY(120deg) translateZ(300px);
+		}
+		section div:nth-child(4) {
+			/* 第二张图片先旋转在移动 */
+			transform: rotateY(180deg) translateZ(300px);
+		}
+		section div:nth-child(5) {
+			/* 第二张图片先旋转在移动 */
+			transform: rotateY(240deg) translateZ(300px);
+		}
+		section div:nth-child(6) {
+			/* 第二张图片先旋转在移动 */
+			transform: rotateY(300deg) translateZ(300px);
+		}
+	</style>
+</head>
+<body>
+	<section>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+		<div></div>
+	</section>
+</body>
+</html>

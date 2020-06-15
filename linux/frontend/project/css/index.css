@@ -1,0 +1,98 @@
+.main {
+	width: 980px;
+	height: 480px;
+	/* background-color: pink; */
+	margin-left: 220px;
+}
+
+.focus {
+	float: left;
+	width: 721px;
+	height: 465px;
+	/* background-color: purple; */
+}
+
+.focus ul li img {
+	margin-top: 10px;
+}
+
+.newflash {
+	float: right;
+	width: 250px;
+	height: 465px;
+	/* background-color: skyblue; */
+
+}
+
+.news {
+	margin-top: 10px;
+	height: 165px;
+	/* background-color: pink; */
+	border: 1px solid #e4e4e4;
+}
+
+.news_hd {
+	height: 33px;
+	border-bottom: 1px dotted #e4e4e4;
+	line-height: 33px;
+	padding: 0 15px;
+}
+
+.news_hd h5 {
+	float: left;
+	font-size: 14px;
+}
+
+.news_hd a {
+	float: right;
+}
+
+.news_bd {
+	padding: 5px 15px 0;
+}
+
+.news_bd ul li {
+	height: 24px;
+	line-height: 24px;
+	/* 单行超出以...显示 */
+	overflow: hidden;
+	/* 强制一行显示 */
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.lifeservice {
+	overflow: hidden;
+	height: 209px;
+	/* background-color: purple; */
+	border: 1px solid #e4e4e4;
+	border-top: 0;
+}
+
+.lifeservice ul {
+	width: 252px;
+}
+
+.lifeservice ul li {
+	float: left;
+	width: 62px;
+	height: 71px;
+	border-right: 1px solid #e4e4e4;
+	border-bottom: 1px solid #e4e4e4;
+	text-align: center;
+}
+
+.lifeservice ul li i {
+	display: inline-block;
+	width: 24px;
+	height: 28px;
+	background-color: pink;
+	margin-top: 12px;
+	/* 图片和文字垂直居中 */
+	/* vertical-align: middle; */
+	background: url('../images/icons.png') no-repeat -19px -15px;
+}
+
+.bargain {
+	margin-top: 4px;
+}

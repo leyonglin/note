@@ -414,6 +414,10 @@
 			表名.MYD:表记录
 			表名.MYI:索引信息
   Memory：数据存于内存中，重启表数据消失，表结构还在硬盘
+  Archive：档案存储引擎，只支持插入insert和查看select操作
+  blackhole：黑洞引擎，没有任何存储机制，但服务器会将操作记录到日志中
+  csv：将普通的csv文件(逗号隔开数据)作为mysql的表来处理
+  federated：应急，A机器中A表需要和B机器B表进行关联查询，则可以在A机器中创建一个B表(存储B机器B表连接数据，不存储实际数据，相当于一个软连接)，只能进行简单关联查询
   
   聚集索引方式: 逻辑顺序与磁盘上行的物理存储顺序相同，叶子节点就是对应的数据节点
   非聚集索引方式: 叶节点仍然是索引节点，只是有一个指针指向对应的数据块--B+tree
@@ -706,27 +710,28 @@ https://www.cnblogs.com/kevingrace/p/10482469.html
 
 DML：
 select [查询列表 as 别名⑦] from [表名 as 别名①]或者[表1 别名 连接类型 join 表2 别名② on 条件③ [连接类型 join 表2 别名 on 条件]...] [where 分组前筛选条件④] [group by 分组列表⑤] [having 分组后筛选⑥] [order by 排序列表⑧] [limit offset,size⑨];
-#子查询：本身就是单独查询，是可以执行的  按子查询出现的位置：1.select后面 2. from后面  3. where或having后面  4.exists后面(相关子查询，结果为1或0)        不同位置需要结果集(标量子查询，列子查询，行子查询，表子查询)不同
+#子查询：本身就是单独查询，是可以执行的  按子查询出现的位置：1.select后面 2. from后面  3. where或having后面  4.exists后面(相关子查询，结果为1或0)   #不同位置需要结果集(标量子查询(<,一个值)，列子查询，行子查询(in,范围)，表子查询(from,一个表))不同
 	#子查询适用于，条件是查询语句。分析：查询公司工资比A高的人 ---> ①.查询出A工资  ②.查询工资>①
 	查询列表: 多个用,隔开   #显示内容
 		表中字段：字段用``转义，区别关键字和字段
 		常量值：100  'string'
 		表达式: 100%98
-		函数: VERSION()
+		函数: VERSION()，流程控制函数if case
 	  distinct: 去重
 	  + :  1.运算符 2.字段组合显示  
 	  
-	别名：显示名称
+	字段别名：显示名称
+	表别名：方便查询条件引用(子查询等查询出来的结果集也可以使用)
 	
 	分组前筛选条件：数据源是原始表
 	    条件表达式：>< = != <> >= <=    #不能判断null
 		逻辑表达式: &&和and ||和or !和not
-		模糊查询：like ：        1.% 0-n个字符  2._ 一个字符  #使用\转义  
+		模糊查询：like ：        1. % 0-n个字符  2. _ 一个字符  #使用\转义  
 		          between and ： id between 100 and 120   
 				  in:            id in (1,3,5)       #数据类型需要一致           
 				  is null:       id is null
 	
-	分组后筛选：分组函数作为条件，数据源是分组后的结果集
+	分组后筛选：分组函数作为条件，数据源是分组后的结果集(例如sum(price))
 	
 	排序列表：id asc , age desc;  #支持单个字段和多个字段逗号隔开，表达式，函数，别名
 
@@ -735,7 +740,7 @@ select [查询列表 as 别名⑦] from [表名 as 别名①]或者[表1 别名 
 	连接类型：inner  full            #inner显示共同有的，full显示全部
 			  left(左为主表) right(右为主表)   #查询结果为主表中的所有记录，从表有匹配则显示，没匹配则显示null
 			  cross: 新标准的笛卡尔乘积
-
+			  STRAIGHT_JOIN 和 NATURAL JOIN
 
 
 函数：
@@ -790,12 +795,11 @@ select girlname,boyname from boys,girls [where girls.girl_id=boys.boy_id]
 
 
 DDL：针对库和表
-	create  
+	create   	#复制表结构，部分表结构，表数据，部分表数据	
 	alter
 		alter table 表名 modify column 字段名 字段类型 新约束   	#修改已存在列(列级约束)
-		alter table 表名 add [constraint 外键名字] foreign key [外键字段] references 父表(主键字段);	#新添加一列(表级约束)
+		alter table 表名 add [constraint 名字] foreign key [外键字段] references 父表(主键字段);	#新添加一列(表级约束)
 	drop
-	#复制表结构，部分表结构，表数据，部分表数据
 
 数据类型：
 	数值：
@@ -831,6 +835,7 @@ DDL：针对库和表
 	#1.只能是数值型，至多一个，需要是key
 
 主从表删除：原则上是先删主表再删从表。但是可以用 "级联删除" "级联置空"删除
+#外键数据删除或迁移会很麻烦，生产环境基本不用，是靠(java)程序进行逻辑关联
 	
 TCL：事务：一个或一组sql语句组成一个执行单元，这个执行单元要么全部执行成功，要么全部执行失败	
 	事务管理特性：
@@ -838,7 +843,7 @@ TCL：事务：一个或一组sql语句组成一个执行单元，这个执行�
 			isolation隔离性(不同事务之间干扰程度，由隔离级别决定)     durability持久性(事务一旦被提交成功，对数据库中数据的改变就是永久性的)
 	分布式系统的CAP理论：
 		一致性（Consistency）：分为强/弱/最终一致性三类
-		可用性（Availability）：可用性通常情况下与分布式数据冗余，负载均衡等有着很大的关联。
+		可用性（Availability）：通常情况下与分布式数据冗余，负载均衡等有着很大的关联。例如网络故障事只读不写
 		分区容错性（Partition tolerance）：分布式系统在遇到某节点或网络分区故障的时候，仍然能够对外提供满足一致性或可用性的服务。
 
 	步骤：
@@ -861,7 +866,7 @@ TCL：事务：一个或一组sql语句组成一个执行单元，这个执行�
 		幻读：A更新未提交，B插入一行并提交，A提交发现更新多了一行
 
 
-视图：虚拟表，和普通表一样使用，但是通过相关表动态生成的数据
+视图：将一段查询sql封装为一个虚拟表，和普通表一样使用，但是通过相关表动态生成的数据(只保存sql逻辑，不保存数据)
 	步骤1：创建 create [or replace] view myview as 查询语句     2. select * from myview
 		   修改 alter view myview as 查询语句
 		   删除：drop view 视图名,...
@@ -968,19 +973,19 @@ expain：语法：explain sql语句;
 		1.表的读取顺序  2.数据读取操作的操作类型  3.哪些索引可以使用  4.哪些索引被实际使用  5.表之间的引用  6.每张表有多少行被优化器查询
 		2.各字段解释
 		  | id   | select_type | table | type | possible_keys | key  | key_len | ref  | rows | Extra |
-		    id：id相同，从上往下顺序执行，id不同，值越大，优先级越高，越先执行   # null表示从临时表取数据  <derived2>:id为2的衍生表(临时表：会增加负担，如两个数据交换) 
+		    id：最好都是1(连接少),id相同，从上往下顺序执行，id不同，值越大，优先级越高，越先执行.   # null表示从临时表取数据  <derived2>:id为2的衍生表(临时表：会增加负担，如两个数据交换) 
 			  select_type：1.simple    2.primary    3.subquery   4.derived   5.union   6.union result ...
 			  table：
 		    type：    NULL       >   system   >  const    >     eq_ref       >          ref             >    range    >     index  >   ALL        #最好是ref
 			      不用查表/索引	   一行数据    主键=常量 唯一性索引扫描(主键=主键) 非唯一性索引扫描(=多值)  条件是范围     索引扫描   全表扫描
 			  possible_keys：指出MySQL能使用哪个索引在表中找到记录(如果是覆盖索引，则不会显示在这里)
 		    Key：实际用到的索引(null为没建立索引或者索引失效)
-			key_len:实际用到的索引条件的多少(索引条件相同，值相同)，长度越短效率越高，与精度成反比 
+			key_len: where查询条件实际用到的索引条件的多少(索引条件相同，值相同)，越大代表索引使用越多，越好      #一般在复合索引中最常见
 			  ref:显示索引的那一列被使用(值越多精度越高),格式为"库.表.字段"，如果可能的话，是一个常数(const)，哪些列或常量被用于查找索引列上的值
-			  rows：越小越好，表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数(每张表有多少行被优化器查询)
+			rows：越小越好，表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数     #小表驱动大表最明显，id相同，要让驱动表rows最小，然后给非驱动表添加索引，使非驱动表rows最小
 			extra:包含不适合在其它列中显示但十分重要的额外信息
-				Using filesort：MySQL中无法利用索引完成的排序操作称为“文件排序”（很危险）            #order by要么不建索引，要么和索引的顺序和个数一致 Seq_in_index
-				Using temporary：表示MySQL需要使用临时表来存储结果集，常见于排序和分组查询（最危险） #group by或order by要么不建索引，要么和索引的顺序和个数一致 Seq_in_index
+				Using filesort：(order by)MySQL中无法利用索引完成的排序操作称为“文件排序”（很危险）            #order by要么不建索引，要么和索引的顺序和个数一致 Seq_in_index
+				Using temporary：(group by)表示MySQL需要使用临时表来存储结果集，常见于排序和分组查询（最危险） #group by或order by要么不建索引，要么和索引的顺序和个数一致 Seq_in_index
 				Using index：查询字段从索引中就能够取得，不必读取数据行(覆盖索引，相当好)
 				Using where：去表里检索(用于查询列表字段)
 				Using join buffer：使用了连接缓存，配置文件增加buffer
@@ -988,7 +993,8 @@ expain：语法：explain sql语句;
 	
 
 索引原则：根据查询条件where建立索引
-	1.左连接加右表(左表是全显示的，关键是右表)，右连接加左表
+	1.小表(驱动表)驱动大表(被驱动表)，给被驱动表(explain相同id，靠后的表)建立索引   #小表注定全表扫描，给后面的表添加索引
+	  例如：左连接给右表加索引(左表是全显示的，关键是右表)，右连接加左表
 	
 	2.全值匹配:常量(=) 并且索引都用上
 	3.使用!=或者<>的时候无法使用索引会导致全表扫描
@@ -1003,6 +1009,8 @@ expain：语法：explain sql语句;
 	10.不在索引列上做任何操作(计算/函数/自动or手动类型转换..)会导致索引失效而转向全表扫描
 	11.字符串不加单引号索引失效：即char/varchar要需要加'',原因是在索引上做了操作(自动类型转换)  #会导致行锁变成表锁，阻塞直到提交
 
+连接查询优于子查询   #因为子查询会增加连接数(explain中id的11变成12)
+方法：通过连接查询将相关数据关联成一张表再进行条件过滤
 
 创建：create index idx_article_ccv on article(id,comments,views);
 显示：show index from article;                                        # 按Seq_in_index进行排序，即1排序完成再排序2...，保证所查字段排序与索引排序一致
@@ -1033,7 +1041,8 @@ pt-query-digest: https://www.cnblogs.com/zhoujinyi/p/12374565.html	https://www.p
 	5.show full processlist\G;
 
 
-永远小表驱动大表(先执行少的)：查询总次数一定情况下：使连接次数最少，一次连接查询次数最多
+永远小表(驱动表)驱动大表(被驱动表)：查询总次数一定情况下：使连接次数最少，一次连接查询次数最多
+	#同时给被驱动表建立索引能提高效率，而驱动表建立索引不能避免全表扫描，所以只能尽量使全表记录少
 	select * from A where id in (select id from B)             			 #返回真正的数据
 		等价于 1.for select id from B  2.for select * from A where A.id = B.id
 		当B表的数据集必须小于A表的数据集时，用in优于exists
@@ -1044,12 +1053,14 @@ pt-query-digest: https://www.cnblogs.com/zhoujinyi/p/12374565.html	https://www.p
 exists语法：将主查询的数据，放到子查询中做条件验证，根据验证结果(True/False)来决定主查询的数据结果是否得以保留
 
 
-order by子句：遵照索引建的最佳左前缀(单独与where)
+order by子句：遵照索引建的最佳左前缀(单独于where)
+#或者分页limit查询，字段顺序与索引顺序相同，升降序不混合
 mysql有两种排序，尽量使用index方式排序，避免使用FileSort方式排序            
 using index 和 filesort，filesort有双路排序(扫描两次磁盘)和单路排序(一次io,在内存排序) 
 #单路排序有可能一次性取不完，即sort_buffer_size(会导致创建临时文件)和max_length_for_sort_data太小
 			  	
-group by实质是先排序后进行分组，准找索引的最佳左前缀
+group by实质是先排序后进行分组，准找索引的最佳左前缀  
+#使用group by子句的时候，select后面只能放函数和group by后的字段
 where 高于 having ，能现在where限定的条件不要去having限定
 
 
@@ -1095,7 +1106,8 @@ show profile:参数默认是关闭状态，并保存最近15次的运行结果
 	行锁：偏向innodb存储引擎，开销大，加锁慢，会出现死锁，锁定粒度最小，发生锁冲突的概率最低，并发度也最高
 	表锁：偏向myisam存储引擎，其它和行锁相反
 	Myisam的读写锁调度是写优先，因为写锁后，大量更新会使查询很难得到锁，从而造成永远阻塞。因此不适合做写为主表的引擎	
-    innodb和myisam的不同点：1.支持事务(transaction)  2.采用了行级锁
+	myisam：不支持外键和事务，表锁，只缓存索引，不缓存真实数据，资源消耗少，场景：系统表
+	innodb：支持外键和事务，行锁，缓存索引和真实数据，并发写
 语法:1.lock table 表名字 read(write)   2.unlock tables;
 	读锁：session1 为 table1 添加了read lock(读锁) 
 			那么：session1只能读table1，不能修改table1,也不能读写别的table(无锁状态)
@@ -1103,6 +1115,8 @@ show profile:参数默认是关闭状态，并保存最近15次的运行结果
 	写锁：session1 为 table1 添加了写锁
 			那么：session1可读可写table1,但是不能读写其它的table
 				  非session1，读写table1会一直阻塞，能读写其它的table
+	#对资源拥有锁的操作者，视锁的类型对资源有不同权限，但释放锁之前不能操作别的资源
+	#对资源不拥有所得操作者，对该资源肯定不能写，有可能能读
 
 分析表锁：
 	查看锁：show open tables;  (0表示没锁)
@@ -1133,13 +1147,40 @@ show profile:参数默认是关闭状态，并保存最近15次的运行结果
 	4.尽量控制事务大小，减少锁定资源量和时间长度
 	5.尽可能低级别事务隔离
 
+	
+日志：
+事务日志：
+	重做日志（redo log）：在事务的执行过程中，便开始写入redo log文件中。未正常提交的事务根据redo log进行重做，从而达到事务的持久性
+	回滚日志（undo log）：事务开始之前，将当前是的版本生成undo log，保存了事务发生之前的数据的一个版本，可以用于回滚
+主从相关：
+	二进制日志（binlog）：事务提交的时候，一次性将事务中的sql语句（一个事物可能对应多个sql语句）按照一定的格式记录到binlog中，可通过sql_log_bin变量临时终止
+	中继日志（relay log)：将master的binlog日志中sql语句拷贝到本日志中，再应用到自己的(slave)数据库中
+错误日志（errorlog）：记录启动和关闭过程中产生的错误信息，运行中产生的错误信息
+慢查询日志（slow query log）：通过变量long_query_time记录超过该时间的查询记录
+一般/全局查询日志（general log）：记录所有的查询操作
 
+
+DBUtils封装了对JDBC的操作，简化了JDBC(中间件)操作，可以少写代码
+dao：database access object:数据访问对象层，封装了对数据库的增删查改
+
+#######################################################################################################	
+	
+	
 主从复制：master可以有多个slave，每个slave只有一个master，每个slave都有唯一一个服务器id
+原理：
+	主节点：创建binary log dump线程读取bin-log中的操作
+	从节点：在start slave之后，创建一个I/O线程用来连接主节点，请求主库中更新的bin-log。I/O线程接收到主节点binlog dump 进程发来的更新之后，保存在本地relay-log中
+			创建SQL线程负责读取relay log中的内容，解析成具体的操作并执行
 主：配置路径log_bin(master将sql操作写入二进制文件叫做'二进制事件')
 	配置路径log_err / basedir(根目录) / tmpdir / datadir(数据库目录) / read-only 
 		    binlog_ignore-db(设置不要复制的数据库) / binlog-do-db(需要复制的目录)
-从：唯一id / log-bin(日志)	
+从：唯一id / log-bin(日志)		
 	
+	
+	
+	
+mycat：读写分离，分库分表(数据是已经分配好了)	
+#全局序列：保证主键唯一	
 	
 	
 	
