@@ -1,0 +1,170 @@
+
+
+https://www.bilibili.com/video/BV14J4114768?p=8
+结构structure：html
+表现presentation：css
+	#头：header 内容：content/container 尾：footer 导航：nav 侧栏：sidebar 栏目：column 页面外围控制整体布局宽度：wrapper 页面主体：main 登录条：loginbar 标志：logo 广告：banner 热点：hot 新闻：news 下载：download 子导航：subnav 菜单：menu 子菜单：submenu 搜索：search 友情链接：friendlink 页脚：footer 版权：copyright 滚动：scroll 内容：content 标签页：tab 文章列表：list 提示信息：msg 小技巧：tips 栏目标题：title 加入：joinus 指南：guide 服务：service 注册：regsiter 状态：status 投票：vote 合作伙伴：partner          
+行为behavior：js
+
+1em就是当前文字一个大小距离
+emmet语法：使用tab快速生成html标签和css样式      			#速查表：https://docs.emmet.io/cheat-sheet/
+snipaste：截图工具   F1截图 F3桌面置顶  esc取消桌面置顶
+快速格式化代码
+
+
+行内样式表：直接在标签上修改<div style="..;.."></div>
+内部样式表：<head><style></style></head>
+外部样式表：<link rel="stylesheet" href="css文件路径">    #css文件中不用加<style>标签
+
+选择器：
+	标签选择器
+	类选择器
+	id选择器
+	通配符选择器 * 表示选择所有的标签
+复合选择器：
+	后代选择器：父类选择器 儿子或孙子类选择器
+	子选择器：父类选择器>儿子类选择器
+	并集选择器：选择器,选择器...
+	伪类选择器: 按顺序操作
+	  链接：
+		a:link      所有未被访问的链接
+		a:visited	所有已被访问的链接
+		a:hover		鼠标指针位于其上的链接
+		a:active	活动链接
+	  输入：
+		input:focus 关闭所在输入框
+
+元素显示模式：
+	块元素：
+	行内/内联元素
+	行内块元素
+模式转换：display: block(块)/inline(行内)/inline-block(行内块)
+
+元素的显示和隐藏：
+	display：none(隐藏) block(显示)          #隐藏并脱标
+	visibility：visible(显示) hidden(隐藏)   #隐藏不脱标
+	overflow：visible(显示) hidden(隐藏) scroll(滚动条)	auto(自动判断是否有滚动条)  #对溢出进行操作
+
+
+css特性：
+	层叠行：样式冲突的时候，就近原则
+	继承性：
+	优先级：继承/* < 标签选择器 < 类/伪类选择器 < id选择器 < 行内样式style="" < !important
+复合选择器有权重叠加问题
+
+盒子模型： 
+盒子阴影：box-shadow 
+
+！！！
+传统布局：
+	标准/文档流 ：使用元素，适合块级元素纵向排列 
+	浮动float ： 可以让多个块元素一行排列显示，适合多个块元素横向排列并且相互之间没有距离
+		清除浮动：父元素不适合使用固定高度，则需要清除浮动造成的影响（浮动只会影响到后面的元素，但不会压住文字）
+			额外标签法：
+			父级添加：overflow: hidden
+			:after 伪元素法
+			双伪元素清除浮动
+	定位position ：定位模式+边偏移
+		静态定位：static
+		相对定位：relative
+			相对于原来的位置移动的
+			不脱标，继续占有原来的位置
+		绝对定位：absolute
+			相对于有定位的祖先元素来说的，或者浏览器
+			脱标，不占有原来位置
+		固定定位：fixed
+			固定于浏览器可视区的位置
+			不随滚动条滚动而滚动，和父元素没有关系，不占有原先位置
+			固定在版心右侧位置：1.  left: 50%    2. margin-left: -xx
+			固定盒子居中：1.  left: 50%    2. margin-left: -xx
+		粘性定位:sticky
+			相对定位+固定定位(移动到可视区边缘的时候固定住)
+			使用: 1. position: sticky  2. top/left/right/bottom需设置其中一个
+	#子绝父相：子级使用绝对定位的话(不占位置)，父级用相对定位(占有位置)
+定位叠放次序z-index：数值越大越靠上
+
+
+格式：
+	jpg：高清，颜色较多
+	gif：小动画效果
+	png：透明背景图片
+	psd：photoshop专用，保存设计稿(能复制文字)
+ps切图：到处图片的一部分
+	通过ps导出部分图层
+	切片切图
+	插件切图cutterman
+
+
+
+css精灵技术：将小图片(背景图片)合并成大图片进行传输，减少服务器接受和发送请求的次数，提高响应速度
+	sprites:大图片/精灵图/雪碧图
+	原理：背景图片为精灵图，通过background-position调整精灵图的位置进行显示(每个小图片都会用到整张精灵图)
+字体图标iconfont：精灵图部分修改很麻烦，而字体图标将图标变成字体(展示图标本质是字体)，方便修改
+	使用：1. 下载  2. css中声明(@font-face...)  3. css设置文字集  4. html中使用
+
+css三角：https://www.cnblogs.com/jscode/archive/2012/10/19/2730905.html
+
+css用户界面样式：
+	鼠标样式：cursor
+	取消表单轮廓线：outline: none;
+	防止拖拽文本域：resize: none;
+
+vertical-align：设置图片或表单(行内块元素)和文字垂直对齐，解决图片底部默认空白缝隙问题
+
+溢出文字省略号显示
+  单行：
+	white-space: nowrap;   		#强制文字一行显示
+	overflow: hidden;      		#溢出部分隐藏起来
+	text-overflow: ellipsis;	#文字溢出时用省略号显示
+  多行：
+ 
+html5新特性： 
+	语义化标签： 
+		header头部标签 nav导航标签 article内容标签 section文档区域标签 aside侧边栏 footer尾部  
+		音频audio(mp3)  视频vidio(mp4)
+	input类型：type=""  
+	input属性：requried...
+	
+css3新特性：
+	属性选择器：input[value=text] div[class^="icon"]...
+	伪类选择器：li:ntn-child(2)
+	伪元素选择器：  div::before  div::after    #在选择元素前后添加内容   
+	盒子模型：box-sizing: border-box #padding和border不会撑大盒子
+	图像模糊：滤镜
+		filter: 函数(15px)
+	calc函数：例如：长比宽多30px
+	css3过渡：渐变效果
+		transition  
+
+2d转换transform: 改变标签在坐标轴的位置和坐标, 优点：不会影响到别的元素，可以指定过渡时间
+	移动translate：可指定px和百分比
+	旋转rotate：可以指定角度和旋转点
+	缩放scale：指定倍数和缩放中心点
+	#综合写法顺序：transition(150px, 50px) rotate(180deg) scale(1.2); 
+
+
+3d转换transform: 在2d基础上通过透视造成远小近大模拟三D效果
+	1.透视perspective：透视写在被透视元素的父元素上的，显示出三D效果
+	  三D呈现：transfrom-style:preserve-3d    #保持多个子元素三D效果
+	2.旋转rotate3d：可以指定旋转轴
+	  位移translate3d：Z轴决定大小
+	
+	
+动画：animation   通过动画序列(0% - 100%)实现更多控制(不同时间实现不同转换)
+	1.定义动画   2.调用动画	
+	
+
+
+浏览器私有前缀：为了兼容性
+	-moz-：   Firefox, 
+	-webkit-：Safari and Chrome
+	-o-：     Opera
+	-ms-：    ie
+	
+
+##########################################################################
+
+网站tdk三大标签seo搜索引擎优化
+	t：title
+	d：description
+	k: keyword

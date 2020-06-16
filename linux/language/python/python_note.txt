@@ -224,7 +224,9 @@ import 文件夹                 #需要有__init__.py文件，导入的就是�
 #类classmethod方法是在类内存地址上的，对象self方法是在创建对象内存时候动态创建的
 #类方法不依赖对象，修改类属性等
 #静态staticmethod方法是在类内存地址上的，和类方法差别是没有参数cls
-实例方法只能被实例对象调用，静态方法(由@staticmethod装饰的方法)、类方法(由@classmethod装饰的方法)，可以被类或类的实例对象调用	
+实例方法只能被实例对象调用
+静态方法(由@staticmethod装饰的方法，可以被类或类的实例对象调用
+类方法(由@classmethod装饰的方法)，可以被类或类的实例对象调用	
 对象方法：
     def instance_method(self,title):
 类方法：
