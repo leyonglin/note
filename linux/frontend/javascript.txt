@@ -19,6 +19,7 @@ js组成：
     alert()：弹窗输出
     prompt()：弹窗用户输入
     console.log("hahaha"); 浏览器控制台输出
+	#console.dir(obj)   打印对象
 	
 变量：存放数据的内存空间容器，可以通过变量获取及修改数据
 	格式：1.声明 var var_name   2.赋值 var_name = 18    或者 初始化： var var_name = 18  #多个逗号分开
@@ -28,6 +29,7 @@ js组成：
 	2.其他字母可以是下划线_美元符号$，字母或者数字。
 	3.一般采用驼峰法：第一个字母小写，其余有意义的单词首字母大写。
 	4.变量名是区分大小写的，不能是关键字或保留字。
+
 类型：不同的数据所占用内存空间不同（是一种弱类型/动态可修改的）运行是才会确定的
 	#typeof(var) #检测变量类型
 	简单/值数据类型：
@@ -41,7 +43,9 @@ js组成：
 		对象（Object）
 		数组（Array）
 		函数（Function）
-自变量就是变量的值
+		
+字面量就是变量的值
+
 数据类型转换：
 	转换成字符串：1.toString()  2.String()  3.拼接
 	转换成数值：1.parseInt()   2.parseFloat()   3.Number()    4.算式(加减乘除)   #第一二种数字开头可以转换
@@ -108,7 +112,8 @@ js引擎运行分两步：
 	转换成字符串：
 		arr.toString()    
 		arr.join()
-		
+	遍历方法：forEach()  map()  filter()  some()  every()
+	
 函数：封装了逻辑相同的代码块,一般有且只有一个return返回值，默认返回值为undefined	
 	声明：
 		1.function 函数名(形参,...){ 代码块 }   
@@ -117,11 +122,11 @@ js引擎运行分两步：
 	调用：1.函数名(实参,...)   2. 变量名(实参,...) 
 		
 变量作用域：	
-	全局作用域: 全局变量,浏览器关闭是销毁    			 #特殊情况，在函数内部没有声明的变量
-	局部作用域(函数作用域): 局部变量,程序执行完就销毁		
-	块级作用域：{}	
+	全局作用域: 全局变量,浏览器关闭是销毁    			 #var声明，特殊情况，在函数内部没有声明的变量
+	局部作用域(函数作用域): 局部变量,程序执行完就销毁	 #var声明	
+	块级作用域：{ let a = 10; }                          #let和常量const声明的变量	
 作用域链：就近原则		
-			
+变量提升：可以先使用再声明			
 
 #类和对象：类实例化(将变量替换成实际值)就变成对象，js没有类概念，则对象某种程度可以看做类
 创建对象的三种方式：
@@ -164,11 +169,269 @@ js对象有三种：自定义对象
 	str.substr()       #截取
 	str.replace()      #替换
 	str.split()        #转换成数组
+	str.trim()         #去掉两边空格
 
 
 
 ##########################################################################################
 
 
-this 和 self
+webApi：https://www.bilibili.com/video/BV167411p7hi?p=65
+javascript api中文手册：https://www.w3cschool.cn/javascript/dict
 
+DOM树：顶级对象为document
+	文档：一个页面就是一个文档，用document表示
+	元素：页面所有的标签，用element表示
+	节点：页面给中所有内容(标签，属性，文本，注释等)，用node表示
+
+获取元素：可以嵌套使用，获取的是对象
+	id元素：document.getElementById(id)
+	标签名：1.lis = document.getElementsByTagName('li')
+			  lis[i]    #通过索引遍历出元素
+			2.div.getElementsByTagName('li')
+	类名：document.getElementsByClassName()
+	通用：document.querySelector('选择器')   #返回第一个元素对象
+		  document.querySelectorAll('选择器')   #返回所有元素对象
+	body元素：document.body
+    html/根元素: document.documentElement	
+	#通过console.dir(obj)打印对象
+
+事件基础：触发--相应的机制
+	事件源：被触发的对象    #获取元素
+	事件类型：如何触发(鼠标经过，点击，按键...)
+	事件处理程序：通过一个函数赋值的方式完成
+
+
+操作元素：
+	element.innerHTML=""     		#可读写标签的文本内容
+	img.src=""				  		#获取或赋值标签属性
+	this.style.backgroupcolor="" 	#获取或赋值标签属性
+	element.getAttribute('属性')    #获取属性，可获取自定义和内置属性值
+	element.setAttribute('属性,值') #赋值属性，可赋值自定义和内置属性值
+	element.removeAttribute('属性') #删除属性
+	this.className=""				#添加或替换元素
+	element.classList               #返回元素的类名列表，可增删查改取反
+
+this：指向事件函数的调用者
+
+节点操作：通过节点层次获取元素
+	element.parentNode						#亲父节点
+	element.children	   					#子元素节点  childNode这个会获取所有节点
+	element.nextSibling/previousSibling		#兄弟节点，不是兄弟元素节点，可以通过nodetype筛选出元素节点
+		
+	document.createElement('li')			#创建节点
+	ul.appendChild(li)						#添加节点，格式parentelement.appendChild(childNode)
+	parentelement.insertBefore(child,位置)  #指定位置  如ul.insertBefore(li,ul.children[0])
+	
+	parentelement.removeChild(位置)         #删除指定位置的元素  如ul.removeelement(ul.children[0])
+	
+	node.cloneNode()						#克隆节点 如ul.children[0].cloneNode() 括号的参数为false不拷贝内容和true拷贝内容
+	ul.appendChild(li)						#添加节点，格式parentelement.appendChild(childNode)
+	parentelement.insertBefore(child,位置)  #指定位置  如ul.insertBefore(li,ul.children[0])
+
+
+创建元素的三种方式：
+	document.write("标签+内容")     #当整个文档流加载完毕(渲染完毕),再调用会导致页面重绘(将当前页面清除再执行)
+	innerHTML:  使用字符串拼接创建多个会比createElement耗时，使用数组形式会比createElement省时
+	createElement:
+增：
+	appendChild
+	insertBefore
+删：removeChild
+改：1.元素属性  2.普通元素内容  3.表单元素  4.元素样式
+查：
+	dom传统Api ：getElementById  getElementsByTagName  
+	h5新特性   ：querySelector   querySelectorAll
+	节点操作   : 父子兄弟节点
+
+
+排他思想：先清除所有事件，再添加事件
+
+h5规范：
+	自定义属性以data-开头   如data-index-1  
+	获取：div.dataset.index-1  
+
+事件类型：
+	鼠标事件：ondbclick(双击)
+	键盘事件
+	滚动事件
+
+
+
+注册事件有两种方式：
+	传统方式：以on开头的,如onclick,只能添加一个事件    
+	方法监听注册方式：addEventListener()    #旧版本使用attachEvent()
+		格式：事件源.addEventListener(事件类型，事件处理程序，[dom事件流])   #可多次使用添加多个监听器(事件)
+		
+删除/解绑事件：
+	传统方式： .onclick=null
+	方法监听注册方式：removeEventListener(事件类型，函数名)
+
+
+dom事件流：事件发生时在元素节点之间按照特定的顺序传播（一个事件会触发多个元素的事件）
+	捕获阶段：从dom最顶层节点开始，然后逐级向下传播到最具体的元素接收的过程成为事件捕获
+	当前目标阶段：
+	冒泡阶段：从最具体元素接收，然后逐级向上传播到dom最顶层节点的过程成为事件冒泡
+
+阻止事件冒泡：e.stopPropagation() 或者
+			  e.cancelBubble = true
+			  
+事件委托：给父节点添加注册点击事件，利用冒泡原理设置每个子节点，只操作一次dom，提高了程序的性能
+			  
+
+事件对象event: 事件函数的形参(function(e))，包含事件的相关数据   #兼容性：event = event || window.event
+	e.target ：返回触发事件的对象， this ：返回绑定事件的对象或者window
+	e.preventDefault()     #阻止事件的默认行为，或者e.returnValue
+	e.type                 #触发事件
+	e.pageX()              #鼠标在浏览器的坐标位置
+
+函数类型：
+	普通/命名函数: 指向window对象  
+	对象的方法：指向对象
+	构造函数：指向调用对象
+	绑定事件函数：指向事件源对象
+		btn.onclick = function(){ }
+		btn.addEventListener('click',function(){})
+	定时器函数：指向window对象
+		setTimeout(function(){},5000)
+	立即执行函数：指向window对象
+
+改变this的指向：call   apply   bind
+
+########################################################################
+
+https://www.bilibili.com/video/BV167411p7hi?p=94
+bom：浏览器对象模型
+	独立于内容而与浏览器窗口进行交互的对象
+	顶级对象为window
+	
+窗口加载事件：入口函数
+	window.addEventListener('DOMContentLoaded', function(){})   #不包括样式表，图片，flash等 
+	window.onload = function(){}   #当文档内容完全加载完成才会触发该事件
+		#load触发条件：1.a标签  2.F5刷新  3.前进后退按钮 
+
+调整窗口大小事件：resize
+
+定时器：
+	setTimeout(回调函数, 延时时间ms)   #只调用一次
+		#需要等待延时时间(某事件)结束才调用函数，所以成为回调函数
+	setInterval(回调函数, 延时时间ms)  #重复调用
+	clearTimeout()   #清除定时器
+
+js执行机制：先执行执行栈中的同步任务，将异步任务(回调函数)放到任务队列中，等待执行栈中同步任务执行完毕再执行异步任务
+	#同步和一部区别是任务执行顺序不同
+	单线程：同步，各部分顺序执行
+	多线程：异步，各部分不一定顺序执行
+	#js中的异步任务：事件函数  定时器函数  ajax函数
+	
+url: protocol://host[:port]/path/[?query1&query2...]#frament
+
+location对象：
+	location.href = ""     # 跳转到新页面
+	location.search = ""   # 获取url上的参数
+
+navigator对象：包含浏览器相关信息(useragent)
+
+history对象：记录访问过的url
+
+
+坐标位置:
+	element.offset：返回鼠标所在元素距离定位父元素的坐标位置   #元素位置，放大镜
+	element.client: 返回边框大小和元素大小					   #元素大小
+	element.scroll: 内容的实际大小                             #滚动距离
+
+立即执行函数：不需要调用，立刻能够自己执行的函数
+	()(实参): (function 函数名(形参) {})(实参)   #函数名和参数可省略
+	((实参)): (function 函数名(形参) {}(实参))
+
+动画函数封装：
+	通过定时器setInterval()不断移动盒子位置
+	缓慢动画效果：让元素运动速度慢慢变小
+	添加一个回调函数：定时器结束添加一个函数
+
+手动调用(点击)事件：原先需要触发的事件会自动被调用
+	element.click();
+
+节流阀/互斥锁：防止轮播图按钮连续点击造成播放过快
+	声明一个变量作为判断
+
+文档滚动: window.scroll(x,y)    #返回顶部
+
+JavaScript库：封装好特定功能的js文件，使用时调用就可以
+
+##########################################
+
+移动端
+
+触屏事件touch：touchstart   touchend   touchmove
+
+触摸事件对象touchevent:
+	touches：触摸屏幕的手指列表
+	targettouches：触摸当前dom元素的手指列表
+	changedtouches：手指状态改变列表(从无到有或从有到无)
+
+拖动元素：相当于pc端的鼠标变化
+
+click延时问题300ms：因为有些操作(双击缩放)需要点两下
+	解决方法：
+		禁用缩放
+		封装函数
+		fastclick插件
+		
+swiper插件：模块快速开发
+	1.引入相关文件
+	2.语法配置
+superslice插件
+iscroll插件
+
+
+##########################################
+
+本地存储：将字符数据存储在浏览器中
+	window.sessionStorage：生命周期为关闭浏览器窗口，同窗口数据共享，以键值对存储
+		存入：sessionStorage.setItem('key', 'value')
+		取出：sessionStorage.getItem('key')
+		移除：sessionStorage.removeItem('key')
+		全删: sessionStorage.clear()
+	localStorage：生命周期为不限事件，除非清缓存。同一浏览器多窗口共享，键值存储
+		存入：localStorage.setItem('key', 'value')
+		取出：localStorage.getItem('key')
+		移除：localStorage.removeItem('key')
+		全删: localStorage.clear()	
+
+
+##########################################
+
+
+es6：
+	类：class
+		继承：extend 和 super
+	#解决this和类this指向冲突的方法：添加一个变量that，将类变量赋值给that
+
+
+es5：
+	构造函数：旧版本的类，但是new出来的每个对象都会创建自己的函数，通过原型解决
+	构造函数原型prototype：构造函数通过原型分配的函数是所有对象所共享的
+	对象原型__proto__：指向构造函数原型
+
+
+##########################################
+
+严格模式:  限定一些功能，例如变量必须先声明
+	开启：在函数添加 'use strict';
+
+
+解构赋值：按一定模式，从数组或对象中取值，将提取出来的值赋值给另外变量
+	let arr = [1,2,3];
+	let [a,b,c] =arr;    #从数组中提取值重新赋值给变量abc
+	let person = { name: "zhang", age: 20};
+	let { name, age } = person;   #从对象中提取值重新赋值给变量abc
+	
+箭头函数：=>
+剩余参数：将多余的实参以数组形式保存在一个形参(...arg)中
+拓展运算符：将数组或对象转为用逗号分隔的参数序列
+	let ary = [1,2,3]
+	...arg   #"1","2","3"
+模板字符串：将模板当成字符串赋值``给变量
+set数据结构：是一个集合
+	是数据结构，所以能增删查改

@@ -1,0 +1,166 @@
+
+https://www.bilibili.com/video/BV167411p7hi?p=174
+jqueryapi中文手册: https://jquery.cuishifeng.cn/
+				   https://www.w3cschool.cn/jquery/dict
+
+jquery：快速，简介的js库
+
+入口函数：
+	$(
+	function () { js代码 }
+	)
+	
+	$(document).ready(function(){
+		alert('加载完成')
+	})
+
+jquery的顶级对象是$ ，同时$也是jQuery的别称
+
+dom对象：通过元素js获取的对象
+	var myDiv = document.querySelector('div')
+jquery对象：通过jqury方法获取的对象
+	$('div')
+#两种对象不能混用各自的属性和方法
+
+相互转换：
+	jquery对象转换成dom对象
+		$('video')   							  #jquery对象
+		$('video')[0]  或者 $('video').get(0)     #转换成dom对象
+	dom对象转换成jquery对象
+		var myDiv = document.querySelector('div') #dom对象
+		$(myDiv)								  #转换成jQuery对象
+		
+选择器：$("css选择器")
+
+筛选选择器: $("css选择器:筛选选择器")
+	:first
+	:last
+	:eq(index)
+	:odd: 奇数
+	:even：偶数
+筛选方法：
+	选择器.parent()                 #查找亲爸
+	选择器.parents()                #父级元素
+	选择器.children()				#亲儿子
+	选择器.find()					#后代选择器
+	选择器.sibilings()				#不包括自己的兄弟节点
+	选择器.eq()						#索引
+	
+隐式迭代：把匹配的所有元素内部进行遍历循环
+链式编程：$(".tab_con .item").eq(index).show().siblings().hide();
+		  #选中元素，让等于index的内容显示，而兄弟节点内容隐藏
+
+#排他操作
+$(function () {  
+	$("#left li").mouseover(function(){
+		var index = $(this).index();
+		console.log(index);
+		$("#content div").eq(index).show();
+		$("#content div").eq(index).siblings().hide();
+	})
+})
+
+样式操作: 
+	${this}.css({"width": "300px"})
+
+动画效果：
+	滑动：slideDown()  slideUp()  slideToggle()
+	显示隐藏：show()   hide()   toggle()
+	淡入淡出：fadeIn()  fadeOut()   fadeToggle()   fadeTo()
+	自定义动画：animate()
+
+#鼠标经过和离开hover，都会触发函数，频繁触发会停止stop之前的动作	
+$(".nav>li").hover(function(){
+	$(this).children("ul").stop().slideToggle();
+})
+
+内容文本：$("div").html()    $("div").text()
+
+元素操作：
+	遍历: each
+	创建: $("标签+内容")
+	添加: append prepend    before after
+	删除：remove    empty
+
+jquery尺寸和大小
+	位置
+		offset([coordinates])
+		position()
+		scrollTop([val])
+		scrollLeft([val])
+	尺寸	
+		height([val|fn])
+		width([val|fn])
+		innerHeight()
+		innerWidth()
+		outerHeight([options])
+		outerWidth([options])
+
+
+事件注册：绑定单个事件
+on()方法绑定事件
+	事件处理：在匹配元素绑定一个或多个事件的处理函数
+			$("div").on({
+				事件类型: function(){      #多个事件类型function相同,多事件空格隔开
+				},
+				事件类型: function(){
+				},			
+			});
+	事件委托：绑定在ul元素上，但是触发元素是li
+			$("ul").on("click","li",function());
+	动态创建：利用事件委托给未来动态创建的元素添加事件
+			$("ul").on("click","li",function());
+off()方法解绑事件
+	$("div").off(click)
+one()方法只触发一次事件
+trigger()事件自动触发
+
+事件对象event：
+
+对象拷贝：$.extend()
+
+多库共存：多个js库都是用$作为标识符，存在冲突
+		解决方法：
+			1.将$该成jQuery
+			2.var suibian = jQuery.noConfict()   #将$改成suibian
+
+插件：
+	www.jq22.com	   #懒加载
+	www.htmleaf.com    #开源免费免注册
+图片懒加载：当页面滑动到可视区域，再显示图片
+全屏滚动：https://github.com/alvarotrigo/fullPage.js/tree/master/lang/chinese#fullpagejs
+
+bootstrap: https://www.bootcss.com/
+	#https://v3.bootcss.com/css/
+	1.引入顺序：bootstrap.css -- jquery.js -- bootstrap.js
+	2.创建<div class="container"> 复制bootstrap代码 <div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

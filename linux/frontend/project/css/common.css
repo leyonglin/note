@@ -53,6 +53,8 @@
 	content: '\e900';
 	font-family: 'icomoon';
 	margin-left: 6px;
+	/* 透明度 */
+	/* opacity: .5; */
 }
 
 /* header头部制作 */

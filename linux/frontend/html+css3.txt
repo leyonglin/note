@@ -1,5 +1,5 @@
 
-
+前端文档：https://www.w3school.com.cn/
 https://www.bilibili.com/video/BV14J4114768?p=8
 结构structure：html
 表现presentation：css
@@ -17,14 +17,16 @@ snipaste：截图工具   F1截图 F3桌面置顶  esc取消桌面置顶
 外部样式表：<link rel="stylesheet" href="css文件路径">    #css文件中不用加<style>标签
 
 选择器：
-	标签选择器
-	类选择器
-	id选择器
+	标签选择器  div
+	类选择器    .class
+	id选择器    #id
 	通配符选择器 * 表示选择所有的标签
 复合选择器：
-	后代选择器：父类选择器 儿子或孙子类选择器
-	子选择器：父类选择器>儿子类选择器
-	并集选择器：选择器,选择器...
+	兄弟选择器：相邻 div+p      所有同级 div~p         #p元素被选中
+	后代选择器：父类选择器 儿子或孙子类选择器 ul li    #空格隔开，其下所有后代
+	子选择器：父类选择器>儿子类选择器  ul>li           #亲儿子
+	并集选择器：选择器,选择器...  div,.class,#id...    #逗号隔开，有其一即选中
+	交集选择器：选择器选择器...   div.class#id...	   #没有分隔符，都有才算选择
 	伪类选择器: 按顺序操作
 	  链接：
 		a:link      所有未被访问的链接
@@ -81,11 +83,13 @@ css特性：
 			相对定位+固定定位(移动到可视区边缘的时候固定住)
 			使用: 1. position: sticky  2. top/left/right/bottom需设置其中一个
 	#子绝父相：子级使用绝对定位的话(不占位置)，父级用相对定位(占有位置)
+
 定位叠放次序z-index：数值越大越靠上
 
 
 格式：
-	jpg：高清，颜色较多
+	svg：可缩放矢量图形
+	jpg：高清，颜色较多,白色背景
 	gif：小动画效果
 	png：透明背景图片
 	psd：photoshop专用，保存设计稿(能复制文字)
@@ -134,7 +138,7 @@ css3新特性：
 		filter: 函数(15px)
 	calc函数：例如：长比宽多30px
 	css3过渡：渐变效果
-		transition  
+		transition：all .3s  
 
 2d转换transform: 改变标签在坐标轴的位置和坐标, 优点：不会影响到别的元素，可以指定过渡时间
 	移动translate：可指定px和百分比
@@ -168,3 +172,22 @@ css3新特性：
 	t：title
 	d：description
 	k: keyword
+	
+	
+##########################################################################
+
+谷歌调试工具F12
+
+Elements：调试html和css
+console：调试js (可以手动输入如window)
+sources: js断点调试
+application: 本地存储	
+
+自适应布局：需要开发多套界面来适应不同的终端	
+响应式布局：一个网站能够兼容多个终端——而不是为每个终端做一个特定的版本	
+	
+	
+	
+	
+	
+	
