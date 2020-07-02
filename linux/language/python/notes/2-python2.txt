@@ -54,48 +54,27 @@
 
 
 02： 闭包 装饰器
+https://blog.csdn.net/five3/article/details/83447467   
+https://www.bilibili.com/video/BV1Rt411b7mK?p=3
 
-装饰器decorator：装饰器是一个函数，主要作用是用来包装另一个函数或类，目的是在不改变原函数(类名)的情况下改变被包装对象的行为
+#理解思路就是变量(函数def 函数名)定义和变量调用(函数名())，函数名() == 内存地址()
+
+装饰器decorator(语法糖)：装饰器是一个函数，主要作用是用来包装另一个函数或类，目的是在不改变原函数(类名)的情况下改变被包装对象的行为
+装饰器命名：根据被装饰对象命名（函数装饰器---被装饰对象是函数的  类方法装饰器--被装饰对象是类方法  类装饰器）
+
+特殊装饰器：@property：把ratio方法变成了一个属性，使用的是foo.ratio而不是foo.ratio()。
+装饰器基本构造:高阶函数+函数嵌套+闭包
+高阶函数：一个函数可以作为参数传给另外一个函数（在不改变源代码和调用方式的情况下增加新功能）
+		  或者一个函数的返回值为另外一个函数（覆盖函数名，不修改函数调用）
+函数嵌套：一个函数内定义了函数（局部作用域）
+闭包：在一个外函数中定义了一个内函数，内函数里运用了外函数的临时变量，并且外函数的返回值是内函数的引用。
+
 函数装饰器：指装饰器是一个函数，传入的是一个函数，返回的是另一个函数
 
-	语法：  def 装饰器函数名(参数)：
-			    语句块
-			    return 函数对象
-			    
-		    @装饰器函数名
-		    def 函数名(形参列表)：
-			    语句块
-			无参数：
-		      def use_logging(func): 
-                 print('装饰开始')			  
-		  	   	 def wrapper(*args, **kwargs):                             
-		  	   		 print("%s is running" % func.__name__)
-		  	   		 return func()
-		  	   	 return wrapper
-		      
-		      @use_logging
-		      def foo():
-		  	    print("i am ")
-			  #foo()   #输出和foo()是不同的                   	
-		      foo()			
-		    有参数：
-              def use_logging(level):                                           #因为装饰器要传参数，非必须，但这个在下面可以使用
-                  def decorator(func):                                          #要传入原来函数，必须的
-                      def wrapper(*args, **kwargs):                             #函数有参数，这个只能是函数foo才能使用，非必须的，最好有
-                          #if level == "warn":
-                          #    logging.warn("%s is running" % func.__name__)
-						  print('++++++++++')
-                          return func(*args)
-                      return wrapper
-              
-                  return decorator
-              
-              @use_logging(level="warn")
-              def foo(name='foo'):
-                  print("i am %s" % name)
-              
-			  print(foo.__name__)  #实际执行函数变成了wrapper函数
-              foo()       
+@use_logging   # foo = use_logging(foo)    foo是传入foo函数的内存地址，foo()是执行函数
+foo()          # 函数名() == 内存地址()    内存地址可以由高阶函数和嵌套函数return得到
+#被装饰函数有参数则在实际调用函数(__name__)添加参数，可使用断点调试查看
+
 
 
 函数的文档字符串：函数内第一次未赋值给任何变量的字符串是此函数的文档字符串
@@ -519,68 +498,3 @@ if __name__ == '__main__':
   c =  p.child('abc')
   c.getName()
 
-###########################################################################################################################	
-
-https://blog.csdn.net/five3/article/details/83447467   
-！！使用__name__ __class__可以确定具体是执行了那个函数或类
-装饰器是函数的命名：以装饰对象命名（函数装饰器---被装饰对象是函数的  类方法装饰器--被装饰对象是类方法  类装饰器）
-特殊装饰器：@property：把ratio方法变成了一个属性，使用的是foo.ratio而不是foo.ratio()。
-装饰器基本构造:高阶函数+函数嵌套+闭包
-高阶函数：一个函数可以作为参数传给另外一个函数，或者一个函数的返回值为另外一个函数
-闭包：在一个外函数中定义了一个内函数，内函数里运用了外函数的临时变量，并且外函数的返回值是内函数的引用。
-#1.类实现的装饰器
-class DecoratorTest(object): #定义一个类
-    def __init__(self,func):
-        self.__func = func
-    def __call__(self):      #定义call方法，当直接调用类的时候，运行这里。
-        print('pre msg')
-        self.__func()    
-        print('post msg')
-
-@DecoratorTest  
-def test():
-    print('主函数体')
-
-if __name__=='__main__':
-    test()	
-	
-#2.使用闭包
-def decorator(func):                      #func是一个形参，不一定是这个，只是为了见名知意
-    def inner(*args,**kwargs):
-        print('装饰前')
-        func()
-        print('装饰后')
-    return inner
-
-@decorator
-def test():
-    print('test')
-    
-test()
-
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		

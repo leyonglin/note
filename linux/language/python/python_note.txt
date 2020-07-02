@@ -398,8 +398,10 @@ __mro__ : 多继承查找顺序
 可迭代类型：包含__iter__函数
 生成器：yield关键字用于构造一个生成器，生成器是一个函数
 迭代器：包含__iter__函数和__next__函数的对象就是迭代器
-装饰器：@property   @age.setter
+装饰器：本质是函数，在不改变源代码和调用方式的情况下增加新功能
+		#@property   @age.setter
 描述器：在一个对象中，定义_get_(), _set_(), 和_delete_()至少其中一个，这个对象就是一个描述符
+		#orm
 		
 垃圾回收机制：引用计数法
 
@@ -415,5 +417,38 @@ gil使得python无法将多个线程映射到多个cpu上执行
 但是gil会根据cpu片(未对内存操作完成)和io操作时释放
 线程同步：即当有一个线程在对内存进行操作时，其他线程都不可以对这个内存地址进行操作，直到该线程完成操作， 其他线程才能对该内存地址进行操作
 
+！！
+使用__name__ __class__可以确定具体是执行了那个函数或类
 
+
+###############################################################################
+#1.类实现的装饰器
+class DecoratorTest(object): #定义一个类
+    def __init__(self,func):
+        self.__func = func
+    def __call__(self):      #定义call方法，当直接调用类的时候，运行这里。
+        print('pre msg')
+        self.__func()    
+        print('post msg')
+
+@DecoratorTest  
+def test():
+    print('主函数体')
+
+if __name__=='__main__':
+    test()	
+	
+#2.使用闭包
+def decorator(func):                      #func是一个形参，不一定是这个，只是为了见名知意
+    def inner(*args,**kwargs):
+        print('装饰前')
+        func()
+        print('装饰后')
+    return inner
+
+@decorator
+def test():
+    print('test')
+    
+test()
 
