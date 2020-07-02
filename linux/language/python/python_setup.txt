@@ -26,6 +26,12 @@ ubuntu:
 
 
 WINDOWS：
+
+python版本：
+	web-based installer 是通过需要bai联网完成安装的文件。
+	executable installer 是可执行的安装文件，下载后，双击安装即可。
+	embeddable zip file 是可嵌入式的压缩包文件，可以集成到其他应用中
+	
 sublime 配置 python3
 https://www.cnblogs.com/honkly/p/6599642.html
 tools --> build system --> new build system... --> 保存下列内容成 Python3.sublime-build（ 在 preferences--->brower packges    user目录下的SUBLIME-BUILD 文件）

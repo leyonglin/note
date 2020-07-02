@@ -278,8 +278,6 @@ aop中间件：在request到response过程中，嵌入功能处理模块
 购物车：https://www.bilibili.com/video/BV1rx411X717?p=92
 
 
-生成器，迭代器，装饰器，描述器
-
 nginx部署django项目：nginx进程(静态资源) 反向代理到 uwsgi进程(非静态资源)    #uwsgi和php是一样的
 # 常用的WSGI容器有Gunicorn和uWSGI，django自带wsgi.py配置文件
 	
@@ -289,8 +287,8 @@ nginx部署django项目：nginx进程(静态资源) 反向代理到 uwsgi进程(
 	
 导入python packet可以做成可插拔式的   #在__init__.py中注册	
 
-序列化：基于通讯的需求，将数据转化成另一种格式
-反序列化：
+序列化：基于通讯的需求，将数据转化成另一种格式(对象转换为有序字节流)
+反序列化：根据字节流中保存的对象状态及描述信息，通过反序列化重建对象
 
 restful：写一个满足下列条件的接口
     直观简短的资源地址：URI，比如：http://example.com/api/resources。
@@ -335,7 +333,7 @@ python manage.py runserver
 
 
 
-快捷键：
+快捷键：emmet语法
 html：
     h3
 	ul>li
