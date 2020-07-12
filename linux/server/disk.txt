@@ -1,4 +1,5 @@
 
+ 磁盘结构：https://www.bilibili.com/video/BV1gJ411H7qF?p=166
  https://www.cnblogs.com/zhaojiedi1992/p/zhaojiedi_linux_040_quota.html
 
  lsblk -d -o name,rota       1是HDD机械硬盘   0是ssd固态硬盘固态硬盘    (应该是的)
@@ -204,11 +205,15 @@ df 命令报错：
 逻辑块是分散在物理块上，而物理块是分散在不同扇区上
 
 块存储典型设备：磁盘阵列，硬盘，虚拟硬盘，实现需要Linux的Block Device的接口
+	主要接口有 Read/Write/Read Capacity/Inquiry 等等，需要通过接口访问到数据
 	DAS（Direct Attach STorage）：单机
 	SAN（Storage Area Network）：
 文件存储典型设备：FTP、NFS服务器，SamBa，需要支持POSIX接口(mount)
+	查找过程：目录树
 	NAS（Network Attached Storage）
 对象存储: 内置大容量硬盘的分布式服务器，通常意义的键值存储，其接口就是简单的GET、PUT、DEL和其他扩展，如七牛、又拍、Swift、S3
+	主要接口有 PUT/GET/DELETE 等。
+	另一种文件系统，查找过程不一样
 	核心是将数据通路（数据读或写）和控制通路（元数据）分离
 	OSD：对象存储设备
 	MDS：元数据服务器

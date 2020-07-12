@@ -123,6 +123,9 @@ firewall-cmd --permanent --direct --add-rule/chain ipv4 （filter INPUT 0 -s 0.0
 
 
 IPTABLES：
+
+容器：iptables > 表 > 链 > 规则
+
 四表：filter(过滤表) nat(地址转换表) mangle(包标记表) raw(状态跟踪表)
 五链：PREROUTING(路由前) POSTROUTING(路由后)  INPUT(入站)  OUTPUT(出站)  FORWARD(转发)
 匹配顺序:1.顺序匹配，匹配即停止    2.若无任何匹配，则按该链的默认策略处理
@@ -130,9 +133,9 @@ IPTABLES：
 netfilter 组件也称为内核空间（kernelspace），是内核的一部分，由一些信息包过滤表组成，这些表包含内核用来控制信息包过滤处理的规则集。
 iptables 组件是一种工具，也称为用户空间（userspace），它使插入、修改和除去信息包过滤表中的规则变得容易。
 
-filter: 一般的过滤功能.
-nat: 用于nat功能(端口映射, 地址映射等).
-mangle: 用于对特定数据包的修改.
+filter: 主机过滤功能.包含"input forword output"
+nat: 用于nat功能(端口映射, 地址映射等).包含"preroute output postroute"
+mangle: 用于对特定数据包的修改.包含"所有链"
 raw: 优先级最高, 设置raw时一般是为了不再让iptables做数据包的链接跟踪处理, 提高性能.
 
 PREROUTING：数据包进入路由表之前.
@@ -251,6 +254,12 @@ REDIRECT:本机转发
 	4.网络防火墙需要考虑双向问题
 	5.白名单一般不是改变默认策略，而是通过在链的最后设置reject规则实现白名单
 	
-	
-	
+
+源s和目标d要根据链所在位置确定的，在进入服务器前服务器是目标d，从服务器离开服务器是源s	
+允许主动连接130服务器：iptables -A OUTPUT -o ens33 -p tcp --dport 22 -d 192.168.3.130 -j ACCEPT
+拒绝主动连接其他服务器：iptables -A OUTPUT -o ens33 -p tcp --dport 22 -j DROP
+允许谁连接我
+iptables -A INPUT -i ens33 -p tcp -s 192.168.3.1 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -P INPUT DROP
+#iptables -A OUTPUT -o ens33 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT	
 	

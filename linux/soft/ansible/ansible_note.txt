@@ -3,6 +3,7 @@
 
 github文档：https://github.com/ansible
 官网文档：https://docs.ansible.com/
+帮助命令：1.ansible-doc -l 2.ansible-doc 模块名  3.ansible-doc [-s] 模块名   4.ansible-doc -t lookup -l   #查看ansible模块的文档   5.ansible 127.0.0.1 -m setup
 Ansible：批量操作 1.自动化部署app   2.自动化管理配置项   3.自动化持续交付   4.自动化(AWS)云服务管理/
 操作对象：1.hosts主机        2.networking网络设备
 ansible依赖python，需要python版本2.6以上，执行ansible的主机一般称为主控端，中控，master/堡垒机，window不能作为主控端
