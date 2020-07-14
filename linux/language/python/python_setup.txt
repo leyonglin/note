@@ -3,7 +3,7 @@
 安装(linux)：
 wget https://www.python.org/ftp/python/3.5.7/Python-3.5.7.tgz
 tar -xf Python-3.5.7.tgz 
-yum -y install libffi-devel gcc make,zlib* openssl-devel openssl
+yum -y install libffi-devel gcc make zlib* openssl-devel openssl
 cd Python-3.5.7/
 ./configure --prefix=/opt/Python                    (默认路径是/usr/local/)
 make && make install
