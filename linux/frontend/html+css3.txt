@@ -178,10 +178,12 @@ css3新特性：
 
 谷歌调试工具F12
 
-Elements：调试html和css
-console：调试js (可以手动输入如window)
+Elements：调试html和css   #渲染之后的源码
+console：调试js (可以手动输入对象如window)
 sources: js断点调试
-application: 本地存储	
+network: 抓包
+application: 本地存储(cookie)	
+
 
 自适应布局：需要开发多套界面来适应不同的终端	
 响应式布局：一个网站能够兼容多个终端——而不是为每个终端做一个特定的版本	
