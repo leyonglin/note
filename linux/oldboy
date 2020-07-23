@@ -1,0 +1,191 @@
+ioe: ibm服务器  oracle  emc存储
+UPS一般指不间断电源。UPS即不间断电源(Uninterruptible Power Supply)，是一种含有储能装置的不间断电源
+
+磁盘--程序文件
+内存--进程运行
+
+运行时：程序会被加载到主内存
+cpu读取数据过程：首先在最快的缓存中找数据，如果缓存没有命中(Cache miss) 则往下一级找, 直到三级缓存都找不到时，向内存要数据
+计算结果：把结果写到高速缓存；高速缓存中的数据写回主内存
+
+多核处理器是指在一枚处理器中集成两个或多个完整的计算引擎(内核)
+由程序程序决定。如果程序支持多核处理器，那么它会把要处理的数据分解成多个部分分别给予不同的核心寄存器让各个运算器共同运算
+CPU高速缓存通常分成了三个级别：
+	L1：每个核上都有一个L1缓存，同核上线程不共享，分两部分一个用于存数据的 L1d Cache（Data Cache），一个用于存指令的 L1i Cache（Instruction Cache）
+	L2：每个核上都有一个独立的L2 缓存，同核上线程共享
+	L3：同一个CPU插槽之间的核共享一个 L3 缓存
+进程是操作系统资源(内存)分配的基本单位，而线程是任务调度和执行(cpu)的基本单位
+系统在运行的时候会为每个进程分配不同的内存空间；而对线程而言，除了CPU外，系统不会为线程分配内存
+多核cpu：cpu核数  --线程    对于单核cpu，根据时间片切换线程，多线程在单cpu中并发执行
+多cpu中：物理cpu数--进程	对于单cpu，多个进程在这个单cpu中是并发运行，根据时间片读取上下文+执行程序+保存上下文
+
+写缓存buffer：内存空间，合并写入磁盘
+读缓存cache：内存空间
+
+GPL(通用公共许可证)：自由(谁都可以用，包括收费)不是免费，但要公布修改后的源代码
+linux嵌入式开发：家用电器，交换机路由器等
+闭源：不公开源代码，直接编译成二进制文件
+
+桌面：ubuntu   服务器：redhat或centos   稳定debian或freebsd   最新fedora(redhat的试用版)
+
+nat模式：物理机作为路由器转发
+仅主机模式：虚拟机和物理机能通信但不能上网
+桥接模式：虚拟机相当于物理机
+#桥接：依据OSI网络模型的链路层的地址，对网络数据包进行转发的过程。那么桥接模式的下一级就应该是路由器
+#网桥是一个二层设备，用于实现桥接
+
+vmware安装：https://www.bilibili.com/video/BV1gJ411H7qF?p=50
+
+uname -r : 3.10.0-957.el7.x86_64
+	3：主版本号，结构变化时修改
+	10：次版本号，功能变化时修改，奇数一般为测试版
+	0：次版本号的修订次数
+	957：编译次数，优化
+	el：企业版linux  pp：测试版  fc：fecora core   rc：候选版
+	
+虚拟终端：使用软件模拟物理终端
+引擎：就是将代码进行处理的核心代码
+驱动：类似中间件
+
+远程控制卡：https://www.bilibili.com/video/BV1gJ411H7qF?p=56
+
+raid：
+	vd：raid数量
+	pd：物理硬盘
+
+U启装系统：
+	Ultraiso:软碟通
+
+linux命令：
+	普通命令：存在二进制文件
+	内置命令：内置在bash解释器中
+
+centos6: 					  centos7									描述
+/usr/sbin/init	 n			  systemctl set-default TARGET.target		命令设置运行级别   		
+/etc/inittab  				  /usr/lib/systemd/system/default.target    设置运行级别的配置文件
+/etc/init.d/sshd start		  systemctl start sshd						程序启动命令(6还有service sshd start)   
+chkconfig sshd   on|off		  systemctl enable sshd						程序开机自启
+/etc/rc3.d/			          /usr/lib/systemd/system/           	    程序自启文件目录
+/etc/rc.d/rc.local			  /etc/rc.d/rc.local						开机自执行文件
+
+启动流程：https://www.bilibili.com/video/BV1gJ411H7qF?p=102
+
+
+0标准输入  <  0<  <<eof |
+1正确输出  1>  >>
+2错误输出  2>
+&输出	   &>
+>&n ： 打开文件描述符
+
+
+记忆：https://www.bilibili.com/video/BV1gJ411H7qF?p=115
+
+
+用户和用户组：id(0就是root)是唯一标识
+文件索引节点: 文件唯一标识
+
+分区格式化的时候会创建大量inode和block
+inode存储文件/目录的属性  唯一
+block存储目录和文件名称或者文件内容
+#例子：/etc/oldboy.txt  
+	oldboy.txt存储：1.oldboy.txt文件名存储在etc的block中  2.oldboy.txt的inode存储除内容和文件名之外的属性内容   3.oldboy.txt的block存储真正的文件内容
+	oldboy.txt查找：1.找到根/  2.查看/的inode(确定是否有权限及block指向)  3.查看/下的block(目录存储目录下的"目录名(etc)和文件名"及inode相应指向) 4.查找etc的inode  5.查找etc目录的block(oldboy.txt文件名)  6.查找oldboy.txt的inode   7.查找oldboy.txt的block(文件存储的是内容)
+#ln  /  ln -s  / cp / mv 原理分别是什么？
+查看分区inode：df -i
+磁盘空间满了：1.inode没了 2.block没了(如果已经删除了，但还是满状态，查看下有没有进程占用)	
+删除的原理是给文件名标记为delete，即不可见，并不是直接删除inode和block
+
+
+ls -lhi 
+	50442609 ：索引节点
+	-rw-r--r--. ： 权限  .表示selinux开启，没有就是关闭了            
+	1   ： 文件--具有相同inode的文件数(硬链接)    目录--该目录下目录数+2
+	root root  0    7月 6 07:10  1.txt
+	属主 属组 大小    时间      文件名 
+
+
+原理图比原理描述好
+
+
+正则：开发一般使用perl兼容正则
+LC_ALL=C   去除所有本地化的设置
+
+cut -d":" -f1-3,6- a.txt
+
+对于正则，正确描述最重要
+
+
+磁盘结构：https://www.bilibili.com/video/BV1gJ411H7qF?p=166
+
+
+0柱面0磁针1扇区的前446字节(系统引导信息)+64字节(磁盘分区表)+2字节(结束标志)
+
+
+为grub引导菜单设置密码
+
+
+man -k rsync       #查看命令所属章节及相关帮助名称，在man cmd最后也会有
+man 相关名称       #查看该命令相关的其他帮助
+
+MD5指纹验证：
+md5sum 1.txt > md5check.txt
+md5sum -c md5check.txt
+
+nfs工作流程
+nfs服务：https://www.bilibili.com/video/BV1gJ411H7qF?p=299   #前面有rsync服务
+挂载参数优化：https://www.bilibili.com/video/BV1gJ411H7qF?p=314
+nfs优化: 1.硬件  2. 内核  3.集群  4.程序参数  5.读写分离   (客户端使用参数  缓存(cdn)  使用其他)  
+
+架构思想：缓存  分布式  异步...    #避免访问存储服务器
+人为思想：上传需要等待3s(为数据同步争取时间...)
+
+基础优化
+	规范目录
+	主机名
+	主机解析
+	selinux和firewalld
+	清除多余系统账号和创建普通用户和提权
+	登陆提示和远程ssh优化
+	时间同步
+	计划任务
+	历史记录
+	文件描述符
+	内核优化
+	禁ping
+	补丁
+	为grub引导菜单设置密码
+	精简系统服务ssh|crond|sysstat|rsyslog|networkmanager|irqbalance
+"安装软件包，用户权限，目录文件权限，自启动服务，服务运行用户"最小化
+
+sshpass : 非交互远程执行命令
+ssh-keygen -f ~/.ssh/id_rsa -P '' -q   #非交互式
+	1.先看需要输入什么内容   2.静默模式
+
+
+ip：至少是一次网站访问
+pv：页面浏览量(与服务器交互一次html/php)
+uv：同一客户端一天内算一次(cookie)
+
+
+运维：
+	运维技术：保证数据安全，7*24不宕机，用户体验好
+	运维流程：运维流程、运维规范、运维制度、自动化、智能化、批量部署、批量管理、网站架构优化、监控预警、流量及日志分析统计、成本控制
+	价值体现：拿数据说话(数据可视化)，为企业省钱
+	学习方法：看--做--想--记录
+
+
+浅谈千万级PV/IP规模高性能高并发网站架构：
+  原则就一句话:把所有的用户访问请求都尽量往前推	
+	第一层：用户浏览器端缓存--->expires功能
+			网络传输数据少----->压缩功能
+	第二层：CDN---------------->就近访问
+	第三层：静态服务器层
+			使用伪静态(通过异步实时的消息队列时间更新)
+	第四层：动态服务器层------->热点代码，集群，负载均衡，业务拆分
+	第五层：数据库cache层------>redis
+	第六层：数据库层----------->读写分离，主从同步，分库分表
+	第七层：硬件层------------->ssd sata等
+
+
+
+

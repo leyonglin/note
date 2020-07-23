@@ -1,5 +1,8 @@
 
 用法：https://juejin.im/post/5e5c6a9ae51d4526db750a04
+mongodb文档：https://www.bilibili.com/video/BV1ET4y177fy?p=83	
+mongo shell是MongoDB的交互式JavaScript接口，也就是说接收js语法
+
 数据存储阶段
 文件管理阶段：
 	优点：使用简单，展现直观，长期保存，存储数据量比较大    

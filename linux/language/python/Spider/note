@@ -1,0 +1,106 @@
+
+https://www.bilibili.com/video/BV1ET4y177fy?p=5   #python企业级爬虫工程师 综合实战（爬虫与反爬虫揭秘）
+爬虫：模拟浏览器，发送请求，获取响应
+
+关键字段：
+发送请求
+	Content-Type: text/html;charset=utf-8    #回应数据类型
+	Host: www.baidu.com
+	Connection: keep-alive		   #保持tcp连接不断开
+	Upgrade-Insecure-Requests: 1   #升级为https
+	User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36
+	Referer: https://www.baidu.com/
+	Cookie: BIDUPSID=C1AF32B441AE4DBCE952FAAC09771FDE; ...
+响应请求字段：
+	Set-Cookie:     	#可能有多个
+	
+浏览器请求过程
+	请求：html页面
+	渲染：浏览器引擎通过分析html页面，会自动向服务器请求相关资源(css,js...)并按指定方式显示出来
+	
+爬虫：只发送指定请求，不进行渲染
+
+
+代理ip：REMOTE_ADDR  HTTP_VIA   HTTP_X_FORWARDED_FOR
+	透明代理：目标服务器知道是通过代理的，且可以知道源ip
+	匿名代理：目标服务器知道是通过代理的，但无法知道源ip
+	高级代理：目标服务器不知道是通过代理的
+代理方式
+	http
+	https
+	socks：1.只是简单传递数据，不关心上层是何种协议   2.代理耗时少
+	
+post请求得data来源
+1.固定值          固定值
+2.输入值 		  输入值
+3.预设值-静态文件 html中提取
+4.预设值-发请求	  指定地址发送请求
+5.在客户端生产的  分析js，客户端生成
+  定位js：
+	1.通过post文件的发送者，即google中F12的initiator定位
+	2.第一列中右边三个点中的search，搜索看post关键词数据在哪个文件中存在
+	3.elements--> event listeners --> 找对应事件
+  分析语句：console
+  模拟：在python环境里运行js代码(js2py)
+
+request.session : https://www.bilibili.com/video/BV1ET4y177fy?p=25
+
+数据提取
+	响应分类
+		结构化：按照统一层次方式就能找到对应数据
+			json数据
+				json模块
+				re模块
+				jsonpath模块
+			xml数据
+				re模块
+				lxml模块
+		非结构化
+			html数据：不同html不一样
+				re模块
+				lxml模块
+		
+XPath路径表达式：https://www.w3school.com.cn/xpath/xpath_syntax.asp
+
+
+https://www.bilibili.com/video/BV1ET4y177fy?p=42
+selenium：模拟真实用户对浏览器进行操作
+webdriver: 封装了浏览器各种功能的api(渲染)      #python代码-->调用webdriver-->操作浏览器(通过js)
+phantomjs：基于webkit引擎的无界面headless浏览器 运行在内存中 作用是渲染     #界面浏览器也可以通过特殊处理变成无界面浏览器
+
+句柄：标识对象，并能通过操作句柄操作对象
+
+html通过iframe标签来为网页嵌套页面
+
+反爬策略：
+	基于数量：
+		通过请求ip或账号单位时间总请求数量
+		通过请求ip或账号的访问间隔
+		设置阈值
+	爬取行为：
+		通过js跳转
+		通过蜜罐陷阱(按规律设置不可见的陷阱模块)获取代理ip
+		假数据混淆
+		阻塞任务队列(url混淆)
+	数据加密：
+		自定义字体(可以爬手机端的)
+		css偏移，通过源码的数据再进行偏移
+		图片化
+		js动态生成
+		编码格式
+		
+		
+图片识别殷勤：tesseract...		
+	
+地址去重：1.url对比  2.hash   3.布隆过滤器
+文本去重：1.编辑距离   2.simhash	
+	
+
+先有理论--架构思想(工作流程)再动手	
+scrapy:https://www.bilibili.com/video/BV1ET4y177fy?p=90	
+
+scrapy-splash服务：response的数据是已经经过渲染的
+
+gerapy : 管理scrapy的工具
+
+appium: 抓取app数据
