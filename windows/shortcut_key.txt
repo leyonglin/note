@@ -59,3 +59,63 @@ wimdows添加命令行命令：
  
 制作u启：http://msdn.itellyou.cn/  + ultralso
  
+ 
+ 
+修改文件名：
+	ren  *.txt  *.html
+
+
+cmd --> for /? #查看for用法
+#只显示执行结果
+@echo off
+#输出当前目录下匹配的文件  %%i: 匹配到的文件  "%%~ni"：文件名不要后缀	"%%~pi"：文件绝对路径目录   "%%~ni.html"：文件名不要后缀+.html作为文件名
+	for  %%i in (*.html *.bat) do echo "%%i" "%%~ni" "%%~pi" "%%~ni.html"
+#/d输出当前目录下匹配的目录
+	for /d %%i in (*.html) do echo %%i
+#/r递归输出当前目录下匹配的目录
+	for /r %%i in (*.*) do echo %%i
+#/l输出数字(1起始,1步长,9终止)
+	for /l %%i in (1,1,9) do echo %%i
+#/f读取单个文件内容
+	for /f %%i in (a.html) do echo %%i
+#添加代码块()
+	for  %%i in (*.html) do (
+		echo "%%i" "%%~ni" 
+		echo "%%~pi" "%%~ni.html" 
+		)
+#运行完成不关闭
+pause
+ 
+ 
+
+将匹配的文件或目录添加到.\rar_dir，命名为%%~ni.rar, 密码为123456
+	@echo off
+	set "rar=C:\Program Files\WinRAR\WinRAR.exe"
+	for /d %%i in (*.html) do (
+		"%rar%" a -p123456 .\rar_dir\%%~ni.rar %%i
+		)
+	pause
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

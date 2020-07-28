@@ -130,7 +130,7 @@
  MySQL中source命令   mysql> source *.sql;     //导入数据 
  
  
- Innobackupex：https://www.percona.com/downloads/[Percona-XtraBackup-LATEST/]
+ Innobackupex：https://blog.csdn.net/u010415792/article/details/13295727
  增量备份的基础是InnoDB引擎使用了LSN机制，非InnoDB引擎不存在增量备份的说法，每次都是全备（差量备份是针对全备的，增量备份可以基于全量/差量/增量基础上）。
  全备文件：2018-05-20_12-33-46
  差异文件：/backup/data_back/incre/2018-05-20_12-33-46/*
