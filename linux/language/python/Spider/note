@@ -20,6 +20,9 @@ https://www.bilibili.com/video/BV1ET4y177fy?p=5   #python企业级爬虫工程�
 	
 爬虫：只发送指定请求，不进行渲染
 
+渲染前的html代码是F12调试工具中的network(抓包)对应的请求中的response代码
+渲染后的html代码是F12调试工具中的elements中显示的代码
+
 
 代理ip：REMOTE_ADDR  HTTP_VIA   HTTP_X_FORWARDED_FOR
 	透明代理：目标服务器知道是通过代理的，且可以知道源ip
@@ -30,18 +33,18 @@ https://www.bilibili.com/video/BV1ET4y177fy?p=5   #python企业级爬虫工程�
 	https
 	socks：1.只是简单传递数据，不关心上层是何种协议   2.代理耗时少
 	
-post请求得data来源
-1.固定值          固定值
-2.输入值 		  输入值
-3.预设值-静态文件 html中提取
-4.预设值-发请求	  指定地址发送请求
-5.在客户端生产的  分析js，客户端生成
-  定位js：
-	1.通过post文件的发送者，即google中F12的initiator定位
-	2.第一列中右边三个点中的search，搜索看post关键词数据在哪个文件中存在
-	3.elements--> event listeners --> 找对应事件
-  分析语句：console
-  模拟：在python环境里运行js代码(js2py)
+get请求中的params参数和post请求中的data来源
+	1.固定值          固定值
+	2.输入值 		  输入值
+	3.预设值-静态文件 html中提取
+	4.预设值-发请求	  指定地址发送请求
+	5.在客户端生产的  分析js，客户端生成
+	  定位js：
+		1.通过post文件的发送者，即google中F12的initiator定位
+		2.第一列中右边三个点中的search，搜索看post关键词数据在哪个文件中存在
+		3.elements--> event listeners --> 找对应事件
+	  分析语句：console
+	  模拟：在python环境里运行js代码(js2py)
 
 request.session : https://www.bilibili.com/video/BV1ET4y177fy?p=25
 
@@ -70,7 +73,7 @@ phantomjs：基于webkit引擎的无界面headless浏览器 运行在内存中 �
 
 句柄：标识对象，并能通过操作句柄操作对象
 
-html通过iframe标签来为网页嵌套页面
+html可以通过iframe标签来为网页嵌套页面
 
 反爬策略：
 	基于数量：

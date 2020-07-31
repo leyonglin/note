@@ -189,7 +189,7 @@
 # 有的视频可能会遇到加密的情况，一般是有一个单独的 key 文件存在，而在 m3u8 文件中，也会存在一个 key 引用的内容
 
 import multiprocessing
-import subprocess
+import os
 import time
 import requests
 import json
@@ -199,23 +199,27 @@ from lxml import etree
 
 
 class JiQiMao():
-    def __init__(self,detail_url):
+    def __init__(self,detail_url,storage_dir):
         # 这个url是根据观察来的，是在一个js文件中
         self.parse_url = "http://apick.jiqimao.tv/service/ckplayer/parser/"
-        self.storage_dir = "C:/Users/bang/Desktop/nginx/spider_m3u8/part/"
+        self.storage_dir = storage_dir
+        # 显示集数的url
         self.detail_url = detail_url
         self.headers = {
                     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
                     }
 
     # 获取电视剧集数列表
-    def get_home_url(self):
+    def get_detail_message(self):
         response = requests.get(self.detail_url,headers=self.headers)
         #创建html对象
         detail_html = etree.HTML(response.content.decode())
-        #获取的是个列表，这里只下载一集
-        home_url = str(detail_html.xpath('//div[@data-group="ttp_vid_zuida"]//li/a/@href')[0])
-        return home_url
+        #获取的是个列表
+        home_url_list = detail_html.xpath('//div[@data-group="ttp_vid_zuida"]//li/a/@href')
+        video_name_list = detail_html.xpath('//div[@data-group="ttp_vid_zuida"]//li/a/@title')
+        
+        detail_message = {"home_url_list":home_url_list,"video_name_list":video_name_list}
+        return detail_message
 
     # 获取m3u8文件
     def get_m3u4_url(self, home_url):
@@ -227,18 +231,23 @@ class JiQiMao():
             "mode": "pc",
             "_": int(time.time() * 1000) + 62
         }
+        # print(params)
+        
         self.headers["Referer"] = home_url
-
         # 请求含有m3u8路径的响应
         response = requests.get(self.parse_url, params=params, headers=self.headers)
 
+        # with open("lianaixiansheng.html","wb")as f:
+        #     f.write(response.content.decode())
         # print(response.content.decode())
 
         # 过滤响应数据
         data = response.content.decode()[34:-1]
+        # print(data)
 
         # 转换成字典
         data_json = json.loads(data)
+        # print(data_json)
 
         # 第一个m3u8文件路径
         m3u8_url = data_json["data"]["parser"]["url"]
@@ -262,6 +271,11 @@ class JiQiMao():
         # 获取ts相对路径列表
         ts_url_list = re.findall(".*ts", response)
 
+        # 过滤掉开头
+        ts_url_list = ts_url_list[22:]
+        # 过滤掉结尾
+        ts_url_list = ts_url_list[:-38]
+
         data = {"relative_url":relative_url,"ts_url_list":ts_url_list}
         # print(data)
         return data
@@ -278,10 +292,20 @@ class JiQiMao():
         return finish_ts_url
 
     # 采用进程池多进程下载
+    #单线程
+    # def func(args):
+    #      for i in range(100):
+    #          print(i)
+    #多线程
+    # def func(args):
+    #   print(args)
+    # if __name__ == "__main__":
+    #    p = multiprocessing.Pool(5)
+    #    p.map(func, range(100))
     def download_ts(self,data):
         content = requests.get(data,headers=self.headers)
         file_name = data.split("/")[-1]
-        print(file_name)
+        print(self.storage_dir+file_name)
         with open(self.storage_dir+file_name,"wb")as f:
             f.write(content.content)
 
@@ -299,40 +323,52 @@ class JiQiMao():
     #     print(result)
 
     # 采用文件追加方式进行ts视频段合并
-    def video_merge(self,data):
-        dir = "C:/Users/bang/Desktop/nginx/spider_m3u8/part/"
+    def video_merge(self,data,video_name):
+        # dir = "D:/spider/video/spider_m3u8/part"
         ts_url_list = data["ts_url_list"]
         for i in ts_url_list:
             # print(i)
-            f1 = open(dir + i, "rb")
+            f1 = open(self.storage_dir + i, "rb")
             content = f1.read()
-            with open(dir + "finish.mp4", "ab") as mon:
+            with open(self.storage_dir + video_name+ ".mp4", "ab") as mon:
                 mon.write(content)
             f1.close()
+    
+    # 删除ts视频片
+    def del_ts(self,data):
+        ts_url_list = data["ts_url_list"]
+        for i in ts_url_list:
+            os.remove(self.storage_dir + i)
+
 
 
 if __name__ == '__main__':
-    jixiaolan = JiQiMao("http://jiqimao.tv/movie/show/6eea36203c98ba920c9871eefd45e16bb9db1ecf")
-    home_url = jixiaolan.get_home_url()
-    data = jixiaolan.get_m3u4_url(home_url)
-    finish_ts_url = jixiaolan.get_ts(data)
-    p = multiprocessing.Pool(10)
-    p.map(jixiaolan.download_ts, finish_ts_url)
-    print("download finish")
-    jixiaolan.video_merge(data)
-    print("video merge ok")
-
-#单线程
-# def func(args):
-#      for i in range(100):
-#          print(i)
-#多线程
-# def func(args):
-#   print(args)
-# if __name__ == "__main__":
-#    p = multiprocessing.Pool(5)
-#    p.map(func, range(100))
-
+    storage_dir = "D:/spider/video/spider_m3u8/part/"
+    detail_url = "http://jiqimao.tv/movie/show/fbd913b96b6111b76aeeb865a190247662a7dfb5"
+    jixiaolan = JiQiMao(detail_url,storage_dir)
+    detail_message = jixiaolan.get_detail_message()
+    home_url_list = detail_message["home_url_list"]
+    video_name_list = detail_message["video_name_list"]
+    # print(video_name_list[0][:-4])
+    # print(home_url_list)
+    #这里是因为返回了第一个url，如果返回一个列表，这里就要遍历
+    # 需要获取每个视频名称video_name，以及合并完视频段删除ts文件
+    for i in range(len(home_url_list)):
+        # print(home_url)
+        data = jixiaolan.get_m3u4_url(home_url_list[i])
+        # print(data)
+        finish_ts_url = jixiaolan.get_ts(data)
+        # print(finish_ts_url)
+        # break
+        # 下载采用线程池进行多线程下载
+        p = multiprocessing.Pool(10)
+        p.map(jixiaolan.download_ts, finish_ts_url)
+        print("download finish")
+        jixiaolan.video_merge(data,video_name_list[i][:-4])
+        print("video merge %s ok" % video_name_list[i][:-4])
+        jixiaolan.del_ts(data)
+        print("ts del %s ok" % video_name_list[i][:-4])
+        
 
 
 

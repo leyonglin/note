@@ -180,7 +180,7 @@ css3新特性：
 
 Elements：调试html和css   #渲染之后的源码
 console：调试js (可以手动输入对象如window)
-sources: js断点调试
+sources: 请求的结构化，js断点调试
 network: 抓包
 application: 本地存储(cookie)	
 

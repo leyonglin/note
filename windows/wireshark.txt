@@ -1,9 +1,10 @@
 
 1.捕获--选项                 #可以选择网卡，输出--可以按需求多文件抓取
-2.应用显示过滤器：条件过滤    （host port） （src dst） （ether ip tcp udp http ftp arp icmp）（&&  ||  ！）
+2.应用显示过滤器：协议+端口/主机/其他  
+	条件过滤    （host port） （src dst） （ether ip tcp udp http ftp arp icmp）（&&  ||  ！）
 	主机过滤：ip.src==192.168.1.100 or ip.dst==192.168.1.100 and ip.host==14.215.177.37
 	端口过滤：tcp.port == 80 or udp.port >= 2048
-	协议过滤：not arp/!arp    http tcp
+	协议过滤：not arp/!arp    http tcp  "http.host contains www.cnblogs.com"
 	udp.length < 30   http.request
 3.右键--设置时间参考   设置当前行相对时间为0
 3.右键--对话过滤器：将某个对话过滤出来(tcp三次握手四次断开)
@@ -47,14 +48,14 @@ charles：手机端抓包
 
 
 
-TCPDUMP:  or/and/not
+TCPDUMP:  or/and/not    网卡+ip+协议+port
 	tcpdump -D | less [类型：host，net，port，portrange  方向：src，dst  协议：tcp，udp，IP，vlan，arp... 多条件组合：and，or，not]
 	tcpdump or/and/not 
 			-i 接口/any		-c 抓包总数		-t/ttt(不显示时间戳)	-vv(详细输出)	-nn(不dns)
 	        [-p] 协议
 			src/dst port/portrange PORT		src/dst net ip/域名/网络位	  
 			-w 文件		-r 指定文件读出	#可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
-  tcpdump -i any -n '((icmp) and (net 192.168.71)) and (net 192.168.71.8)'   #使用net，条件都加括号
+  tcpdump -i any -n '((tcp) and (dst net 192.168.71)) and (port 22)'   #使用net，条件都加括号
   tcpdump  -c 100 -t -v -n -i any '(((dst net 104.193.88.77) or (dst net 104.193.88.123)) and (tcp[tcpflags] & (tcp-ack|tcp-fin|tcp-syn) !=0))'
 
 
