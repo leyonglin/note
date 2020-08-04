@@ -55,11 +55,21 @@ TCPDUMP:  or/and/not    网卡+ip+协议+port
 	        [-p] 协议
 			src/dst port/portrange PORT		src/dst net ip/域名/网络位	  
 			-w 文件		-r 指定文件读出	#可以用'(条件)'形成复合条件,高级过滤方式proxy[x:y]...	
-  tcpdump -i any -n '((tcp) and (dst net 192.168.71)) and (port 22)'   #使用net，条件都加括号
-  tcpdump  -c 100 -t -v -n -i any '(((dst net 104.193.88.77) or (dst net 104.193.88.123)) and (tcp[tcpflags] & (tcp-ack|tcp-fin|tcp-syn) !=0))'
+  tcpdump -c 100 -t -v -i any -n '((tcp) and (dst net 192.168.71)) and (port 22)'   #使用net，条件都加括号
+  
+  proto[x:y]           #过滤从x字节开始的y字节数。比如ip[2:2]过滤出3、4字节（第一字节从0开始排）  
+  proto[x:y] & z = 0   #proto[x:y]和z的与操作为0
+  tcpdump  -c 100 -t -v -n -i any 'tcpdump -i ens33 'tcp[13] = 18''    #第十三个字节为00010010
+  tcpdump -i any 'tcp[tcpflags] == tcp-ack' && 'ip[0] > 69'   # 0xf0 : 表示16禁止的f0，即1111 0000
+  
+
+
+
+
 
 
 tracert -d  -w 2 192.168.71.8
 traceroute -n -i -w 2 ens34 192.168.71.8
 
 mtr -rn -i 0.5 www.google.com
+

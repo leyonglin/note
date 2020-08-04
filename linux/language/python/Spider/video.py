@@ -212,10 +212,11 @@ class JiQiMao():
     # 获取电视剧集数列表
     def get_detail_message(self):
         response = requests.get(self.detail_url,headers=self.headers)
-        #创建html对象
+        # 创建html对象
         detail_html = etree.HTML(response.content.decode())
-        #获取的是个列表
+        # 获取的是个每集url列表
         home_url_list = detail_html.xpath('//div[@data-group="ttp_vid_zuida"]//li/a/@href')
+        # 需要获取每个视频名称列表video_name_list
         video_name_list = detail_html.xpath('//div[@data-group="ttp_vid_zuida"]//li/a/@title')
         
         detail_message = {"home_url_list":home_url_list,"video_name_list":video_name_list}
@@ -351,8 +352,7 @@ if __name__ == '__main__':
     video_name_list = detail_message["video_name_list"]
     # print(video_name_list[0][:-4])
     # print(home_url_list)
-    #这里是因为返回了第一个url，如果返回一个列表，这里就要遍历
-    # 需要获取每个视频名称video_name，以及合并完视频段删除ts文件
+    # 遍历，获取每一集对应的url
     for i in range(len(home_url_list)):
         # print(home_url)
         data = jixiaolan.get_m3u4_url(home_url_list[i])
@@ -366,6 +366,7 @@ if __name__ == '__main__':
         print("download finish")
         jixiaolan.video_merge(data,video_name_list[i][:-4])
         print("video merge %s ok" % video_name_list[i][:-4])
+        #合并完视频段删除ts文件
         jixiaolan.del_ts(data)
         print("ts del %s ok" % video_name_list[i][:-4])
         

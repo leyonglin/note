@@ -36,8 +36,8 @@ https://www.bilibili.com/video/BV1ET4y177fy?p=5   #python企业级爬虫工程�
 get请求中的params参数和post请求中的data来源
 	1.固定值          固定值
 	2.输入值 		  输入值
-	3.预设值-静态文件 html中提取
-	4.预设值-发请求	  指定地址发送请求
+	3.预设值-静态文件 源码html中提取
+	4.预设值-发请求	  指定地址发送请求得到响应数据
 	5.在客户端生产的  分析js，客户端生成
 	  定位js：
 		1.通过post文件的发送者，即google中F12的initiator定位
@@ -93,7 +93,7 @@ html可以通过iframe标签来为网页嵌套页面
 		编码格式
 		
 		
-图片识别殷勤：tesseract...		
+图片识别引擎：tesseract...		
 	
 地址去重：1.url对比  2.hash   3.布隆过滤器
 文本去重：1.编辑距离   2.simhash	
