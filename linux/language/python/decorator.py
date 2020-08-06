@@ -1,3 +1,24 @@
+#理解思路就是变量(函数def 函数名)定义
+#			 变量调用(函数名())，函数名() == 内存地址()
+#综合来说就是内存有没有
+
+#装饰器decorator(语法糖)：装饰器是一个函数，主要作用是用来包装另一个函数或类，目的是在不改变原函数(类名)的情况下改变被包装对象的行为
+#装饰器命名：根据被装饰对象命名（函数装饰器---被装饰对象是函数的  类方法装饰器--被装饰对象是类方法  类装饰器）
+#
+#特殊装饰器：@property：把ratio方法变成了一个属性，使用的是foo.ratio而不是foo.ratio()。
+#装饰器基本构造:高阶函数+函数嵌套+闭包
+#高阶函数：一个函数可以作为参数传给另外一个函数（在不改变源代码和调用方式的情况下增加新功能）
+#		  或者一个函数的返回值为另外一个函数（覆盖函数名，不修改函数调用）
+#函数嵌套：一个函数def内定义了函数def（局部作用域），return 函数名，即返回函数的内存地址
+#闭包：在一个外函数中定义了一个内函数，内函数里运用了外函数的临时变量，并且外函数的返回值是内函数的引用。
+#
+#函数装饰器：指装饰器是一个函数，传入的是一个函数，返回的是另一个函数
+#
+#@use_logging   # foo = use_logging(foo)    foo是传入foo函数的内存地址，foo()是执行函数
+#foo()          # 函数名() == 内存地址()    内存地址可以由高阶函数和嵌套函数return得到
+
+
+
 # 无参数装饰器
 # import time
 #
@@ -91,19 +112,19 @@
 
 # 装饰器和被装饰函数带参数，这一部分用断点调试
 
-user, passwd = "111", "123"
+import time        #第一步
+user, passwd = "111", "123"  #第二步
 
-
-def auth(auth_type):
-    print("auth_type:", auth_type)
+def auth(auth_type):            #第三步(定义) #第六步(调用) #使用了闭包，所以被装饰函数才可以使用参数auth_type
+    print("auth_type:", auth_type)   #第七步
 
     # 装饰器有参数添加一层
-    def outer_wrapper(func):
-        def wrapper(*args, **kwargs):
+    def outer_wrapper(func):      #第八步(定义) #第十步(调用)  #使用函数嵌套 和 高级函数
+        def wrapper(*args, **kwargs):   #第十一步
             print("wrapper func args:", *args, **kwargs)
-            username = input("username:").strip()
-            password = input("password:").strip()
             if auth_type == "local":
+                username = input("username:").strip()
+                password = input("password:").strip()            
                 if user == username and passwd == password:
                     print("\033[32:1mUser has passwd auth successd\033[0m")
                     res = func(*args, **kwargs)
@@ -114,17 +135,18 @@ def auth(auth_type):
             elif auth_type == "ldap":
                 print("ldap认证")
 
-        return wrapper
+        return wrapper          #第十二步 #使用高级函数
 
-    return outer_wrapper
+    return outer_wrapper    #第九步
 
 
-def index():
+def index():      #第四步
     print("welcome to index page")
 
 
-# auth()相当于执行了函数，本来是返回outer_wrapper,但是一执行就返回wrapper，因此auth_type判断是在wrapper内部
-@auth(auth_type="local")
+# @auth()相当于执行了函数，本来是返回outer_wrapper,但是一执行就返回wrapper，因此auth_type判断是在wrapper内部
+# @auth()相当于执行了函数, 返回outer_wrapper，然后@auth语法糖又要执行一遍函数，相当于执行outer_wrapper(func)
+@auth(auth_type="local")     #第五步
 def home():
     print("welcome to home page")
     # 被装饰函数如果有return返回值，则在装饰函数上也需要return返回
@@ -137,5 +159,5 @@ def bbs():
 
 
 index()
-print(home())
+print(home())    #这里的home经过语法糖@auth(auth_type="local") 和 @auth 两次调用，实际home变量指向wrapper函数体地址
 bbs()

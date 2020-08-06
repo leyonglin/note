@@ -32,6 +32,9 @@ https://www.bilibili.com/video/BV1ET4y177fy?p=5   #python企业级爬虫工程�
 	http
 	https
 	socks：1.只是简单传递数据，不关心上层是何种协议   2.代理耗时少
+
+post请求的Content-Type为application/x-www-form-urlencoded（默认的），参数是在请求体中(请求主体将以一个标准的键值对和&的querystring形式出现)	data=data #dict
+post请求的Content-Type是application/json;charset=UTF-8，而请求表单的参数在Request Payload中	, data = json.dumps(data) #str
 	
 get请求中的params参数和post请求中的data来源
 	1.固定值          固定值
