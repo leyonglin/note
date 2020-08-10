@@ -315,6 +315,31 @@ https://www.bilibili.com/video/BV1e54y1Q7CD?p=48
 __init__: 初始化实例
 属性描述符：用作数据检查(IntFiled)
 
+Foo = type('Foo',(object,), {'func': func})
+	#type第一个参数：类名
+	#type第二个参数：当前类的基类
+	#type第三个参数：类的成员
+
+
+class MyType(type):
+    def __init__(self, what, bases=None, dict=None):          #第一阶段
+        super(MyType, self).__init__(what, bases, dict)
+    def __call__(self, *args, **kwargs):
+        obj = self.__new__(self, *args, **kwargs)
+        self.__init__(obj)
+class Foo(object):					#创建Foo类调用上面__init__方法
+    __metaclass__ = MyType          #指定Foo类由谁创建，默认是type
+    def __init__(self, name):
+        self.name = name
+    def __new__(cls, *args, **kwargs):
+        return object.__new__(cls, *args, **kwargs)
+ 
+# 第一阶段：解释器从上到下执行代码创建Foo类
+# 第二阶段：通过Foo类创建obj对象
+obj = Foo()          #第二阶段第一步：obj调用MyType的call方法    第二阶段第二步调用__new__  第二阶段第三步调用__init__
+
+
+
 
 ！！
 # a = 'abc'

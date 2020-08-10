@@ -203,6 +203,19 @@
 #             # if flag == 1:
 #             #     fp.close()
 #             #     break
+#         
+#         # 断点下载
+#         # 文件总大小
+#         r1 = requests.get(url, stream=True, verify=False)
+#         total_size = int(r1.headers['Content-Length'])
+#         # 本地文件下载了多少
+#         if os.path.exists(file_path):
+#             temp_size = os.path.getsize(file_path)  # 本地已经下载的文件大小
+#         else:
+#             temp_size = 0
+#         # 核心部分，这个是请求下载时，从本地文件已经下载过的后面下载，追加到文件中去
+#         headers = {'Range': 'bytes=%d-' % temp_size}  
+#    
 #         # 下载大文件方法  
 #         res = requests.get(url=url, headers=self.headers, verify=False, stream=True)
 #         print(res.headers)
@@ -225,7 +238,8 @@
 #         ffmpeg = "D:/vmware-mount/windows/ffmpeg-4.3-win64-static/bin/ffmpeg"
 #         cmd = ffmpeg
 #         name = name + ".mp4"
-#         cmd = cmd + " -i " + name_video_absolute + " -i " + name_audio_absolute + " -acodec copy" + " " + self.storage_dir + name
+#         # 不用多线程操作特别慢
+#         cmd = cmd + ' -threads 10' + " -i " + name_video_absolute + " -i " + name_audio_absolute + " -acodec copy" + " " + self.storage_dir + name
 #         print("cmd %s" % cmd)
 #         # 将命令执行结果输出到文件中
 #         f = open('log.txt', 'w')

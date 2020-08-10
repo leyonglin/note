@@ -1,0 +1,168 @@
+
+QT: 使用c++语言写的，Python语言的GUI编程解决方案之一
+
+环境配置：https://me.csdn.net/hitguolu
+工具
+	python3
+	pycharm
+模块
+	pyqt5：python程序，调用QT库
+		pyUIC：将qt designed设计的ui文件，转换成py文件 
+			调用格式为pyuic5 -o {输出文件名} {输入designer设计好的.ui后缀界面文件}  例如：pyuic5 -o login.py login.ui
+		配置环境变量：系统环境变量QT_QPA_PLATFORM_PLUGIN_PATH --> C:\Python36\Lib\site-packages\PyQt5\Qt\plugins
+	pyqt5-tool：提供designer命令 用于设计UI界面 
+	pyInstall：打包py文件为exe可执行文件
+	pyrcc：将ico文件转换成py文件，用于小工具的图标 
+	
+	可以使用pycharm的external tool自定义命令
+		name:Qt Designer 
+		tools settings: 
+		Program: C:\Python36\Lib\site-pcakages\pyqt5-tools\designer.exe 
+		woreking directory :$FileDir$
+		
+		name:PyUIC 
+		tool settings: 
+		Program:C:\Python36\python.exe 
+		Parameters: -m PyQt5.uic.pyuic $FileName$ -o $FileNameWithoutExtension$.py 
+		working directory: $FileDir$
+
+		name: PyInstall 
+		tool settings: 
+		Program:C:\Python36\Scripts\pyinstaller.exe 
+		Paramerers: -F -w --icon "python.ico" $FileNameWithoutExtension$.py 
+		working directory:$FileDir$
+		
+		name: pyrcc 
+		toos setting: 
+		program: C:\Python36\Scripts\pyrcc5.exe 
+		Parameters: $FileName$ -o $FileNameWithoutExtension$.py 
+		working directory: $FileDir$
+		
+		
+		
+		
+使用：https://www.cnblogs.com/linyfeng/category/1546338.html
+	qt designer:
+		主界面不同区域介绍：
+			工具箱 区域：提供GUI界面开发使用的各种基本控件，如单选框、文本框等。可以拖动到新创建的主程序界面。
+			主界面区域：用户放置各种从工具箱拖过来的各种控件。模板选项中最常用的就是Widget（通用窗口）和MainWindow（主窗口）。二者区别主要是Widget窗口不包含菜单栏、工具栏等。可以分别创建对比看看。
+			对象查看器 区域：查看主窗口放置的对象列表。
+			属性编辑器 区域： 提供对窗口、控件、布局的属性编辑功能。比如修改控件的显示文本、对象名、大小等
+			信号/槽编辑器 区域：编辑控件的信号和槽函数，也可以添加自定义的信号和槽函数。
+		绝对布局管理: 属性编辑器区域的geometry属性
+		常用控件：
+		（1）显示控件。
+				Lable：文本标签，显示文本，可以用来标记控件。
+				Text Browser：显示文本控件。用于后台命令执行结果显示。
+		（2）输入控件，提供与用户输入交互
+				Line Edit：单行文本框，输入单行字符串。控件对象常用函数为Text() 返回文本框内容，用于获取输入。setText() 用于设置文本框显示。
+				Text Edit：多行文本框，输入多行字符串。控件 对象常用函数同Line Edit控件。
+				Combo Box：下拉框列表。用于输入指定枚举值。
+		（3）控件按钮，供用户选择与执行 
+				Push Button：命令按钮。常见的确认、取消、关闭等按钮就是这个控件。clicked信号一定要记住。clicked信号就是指鼠标左键按下然后释放时会发送信号，从而触发相应操作。
+				Radio Button：单选框按钮。
+				Check Box：多选框按钮。
+				ComboBox下拉框
+		
+		信号和槽是PyQt编程对象之间进行通信的机制。
+			信号与槽的连接方法是通过QObject.signal.connect将一个QObject的信号连接到另一个QObject的槽函数
+		
+		信号和槽：有该信号则执行响应动作
+			Clicked：鼠标左键点击按钮并释放触发该信号。最常用。记住这个就差不多够了。
+			Pressed：鼠标左键按下时触发该信号
+			Released：鼠标左键释放时触发该信号
+			Toggled：控件标记状态发生改变时触发该信号
+			
+		判断：
+			radioButton.isChecked()  --> 用于判断RadioButton控件是否被选中
+			comboBox.currentText() 返回下拉框的值
+		
+		文本框值操作：
+			def set_display_edit(self):
+				#设置前先清除文本内容
+				self.lineEdit.clear()
+				self.textEdit.clear()
+			
+				#设置文本框内容
+				self.lineEdit.setText("Lineedit contents")
+				self.textEdit.setPlainText("Textedit contents")
+			
+				#获取文本框内容，并弹框显示内容
+				str1 = self.lineEdit.text()
+				str2 = self.textEdit.toPlainText()
+				QMessageBox.information(self,"获取信息","LineEdit文本框内容为:%s,TextEdit文本框内容为：%s" %(str1,str2))
+		
+		弹出消息框：
+			QMessageBox类中常用方法
+				information(QWdiget parent,title,text,buttons,defaultButton)：弹出消息对话框。				
+				question(QWidget parent,title,text,buttons,defaultButton)：弹出问答对话框
+				warning(QWidget parent,title,text,buttons,defaultButton)：弹出警告对话框
+				critical(QWidget parent,title,text,buttons,defaultButton)：弹出严重错误对话框
+				about(QWidget parent,title,text)：弹出关于对话
+			参数解释如下：
+				parent：指定的父窗口控件。
+				title：表示对话框标题。
+				text：表示对话框文本。
+				buttons：表示多个标准按钮，默认为ok按钮。
+				defaultButton表示默认选中的标准按钮，默认选中第一个标准按钮。
+			其他方法如下：
+				setTitle()：设置标题
+				setText()：设置正文消息
+				setIcon()：设置弹出对话框的图片
+			QMessageBox的标准按钮类型
+				QMessage.Ok 同意操作、QMessage.Cancel  取消操作、QMessage.Yes  同意操作、QMessage.No  取消操作、QMessage.Abort  终止操作、QMessage.Retry 重试操作、QMessage.Ignore  忽略操作
+		
+		交互：QInputDialog控件可以提供数字、字符串输入或提供下拉列表选择
+			 QInputDialog常用方法：
+				getint()：从输入控件中获得标准整数输入
+				getDouble()：从输入控件中获得标准浮点数输入
+				getText()：从输入控件中获得标准字符串的输入
+				getItem() ：从输入控件中获得列表里的选项输入
+		
+				QFileDialog.getOpenFileName()：获取单个文件路径
+				QFileDialog.getOpenFileNames()：获取多个文件路径
+				QFileDialog.getExistingDirectory()：获取文件夹路径
+		
+		最大最小及关闭按钮：
+			1.隐藏三个按钮：	
+			    self.setWindowFlags(Qt.WindowMaximizeButtonHint | Qt.MSWindowsFixedSizeDialogHint)
+			2、显示最小化按钮
+				setWindowFlags(Qt.WindowMinimizeButtonHint)
+			3、显示最大化按钮
+				setWindowFlags(Qt.WindowMaximizeButtonHint)
+			4、显示最小化和最大化按钮
+				setWindowFlags(Qt.WindowMinMaxButtonsHint)
+			5、显示关闭按钮
+				setWindowFlags(Qt.WindowCloseButtonHint)
+			6、固定界面大小尺寸，不能进行缩放（三种方法都可以）
+				setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)				
+				setFixedSize(width, height)				
+				setMinimumSize(800, 700)				
+					setMaximumSize(800, 700);
+	
+	
+https://blog.csdn.net/qq_25939803/article/details/100066444
+美化：在qt designer中的对象属性的stylesheet可以使用css语法配置
+		
+		
+生成命令：pyinstaller -F -w -i bitbug_favicon.ico ceshi.py
+	要符合ico尺寸的bitbug_favicon.ico
+	后台程序文件ceshi.py
+		
+		
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		

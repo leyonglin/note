@@ -1,4 +1,27 @@
 
+鸭子类型：类内置函数
+	obj.__module__  # 输出 lib.aa，即：输出模块
+ 	obj.__class__      # 输出 lib.aa.C，即：输出类
+	__doc__: """ 描述类信 """
+	__dict__: 输出类或实例变量
+	
+	__metaclass__: __metaclass__用来表示该类由谁来实例化创建(详情python_note.txt)
+	__new__: __new__ 是类方法，__init__ 是实例方法
+	_str_和_repr_： 调用实例本身的输出
+	__init: obj = Foo()  # 执行 __init__ ,Foo为定义的类
+	__del__: del test_del1 #删除一个对象时，会调用__del__方法清理内存
+	__slots__:  # __slots__ = ('x', 'y')只允许使用 x 和 y
+	__call__: obj()  # 执行 __call__		
+	__len__：len(obj)
+	__getitem__(self,key) ：1.可以用来属性取值：obj['k1']   2.用来分片
+	__setitem__(self,key,value)：obj['k2'] = 'wupeiqi'
+	__delitem__(self,key)：del obj['k1']
+	__getattr__(self, item):: 实例只有在属性不存在的情况下才会被调用，对已存在的属性不会调用 __getattr__, 如p.w
+	__setattr__(self, key, value):: 设置值, 如p.w = 7
+	__delattr__(self, item): del p.w
+	__getslice__、__setslice__、__delslice__: 该三个方法用于分片操作
+	@property和@score.setter ：定义一个方法，但加上装饰器后就像属性一样使用
+ 
 
 math：数学函数
   # import math
@@ -15,9 +38,6 @@ getpass：getpass函数终端中没有回显
 random：
   # from random import randint
   # face = randint(1, 6)  
-  
-Python内置的abs()函数取绝对值  
-
 # range(101)可以产生一个0到100的整数序列。
 # range(1, 100)可以产生一个1到99的整数序列。
 # range(1, 100, 2)可以产生一个1到99的奇数序列，其中的2是步长，即数值序列的增量。
@@ -27,4 +47,78 @@ sys模块的getsizeof函数来检查存储占用了多少内存空间
 #import sys
 #print(sys.getsizeof(f))  # 查看对象占用内存的字节数
 
-re模块来支持正则表达式相关操作
+os模块
+# os.chdir(self.storage_dir)
+print("删除视频段 %s %s" % (name_video,name_audio))
+os.remove(name_video)
+os.remove(name_audio)re模块来支持正则表达式相关操作
+
+re正则模块
+name_str = re.match(r"(.*),\"subtitle", name_str).group(1)
+
+
+time模块
+#时间戳
+time_now = int(time.time())
+timestamp = time.time()
+#将时间戳变成时间数组
+timeArray = time.localtime(timestamp)
+#将时间数组转换成时间戳
+timestamp = time.mktime(timeArray)
+#将时间数组转换成可视化时间
+dt_new = time.strftime("%Y-%m-%d %H:%M:%S",timeArray)
+# 将可视化时间转换成时间数组
+timeArray = time.strptime(dt,"%Y-%m-%d %H:%M:%S")
+
+
+#开启一个子进程，call表示同步执行，Popen表示异步执行
+f = open('log.txt', 'w')
+# 0为正确执行，1为错误执行,call表示同步执行，Popen表示异步执行
+result = subprocess.call(cmd, shell=True,stdout=f,stderr=f)
+f.close()
+#p.wait()   #异步执行的时候，主进程执行完成也要等待子进程完成才推出
+
+
+进程池：
+# 采用进程池多进程下载
+#单线程
+# def func(args):
+#      for i in range(100):
+#          print(i)
+#多线程
+# def func(args):
+#   print(args)
+# if __name__ == "__main__":
+#    p = multiprocessing.Pool(5)
+#    p.map(func, range(100))
+#等待上面子进程执行完成再继续执行主进程
+#    print("finish")
+###################################
+#from multiprocessing import Queue, Process, Pool
+#import os
+#def test():
+#    time.sleep(2)
+#    print('this is process {}'.format(os.getpid()))
+#    print("2miao")
+#
+#def test1():
+#    time.sleep(5)
+#    print('this is process {}'.format(os.getpid()))
+#    print("5miao")
+#
+#
+#def get_pool(n=5):
+#    p = Pool(n) # 设置进程池的大小
+#    p.apply_async(test)
+#    p.apply_async(test1)
+#    p.close() # 关闭进程池
+#    p.join()  #等待上面子进程执行完成再继续执行主进程
+#
+#if __name__ == '__main__':
+#    print(time.time())
+#    get_pool()
+#    print('ths process is ended')
+#    print(time.time())
+
+
+psutil是一个跨平台库（http://code.google.com/p/psutil/），能够轻松实现获取系统运行的进程和系统利用率（包括CPU、内存、磁盘、网络等）
