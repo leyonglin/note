@@ -183,7 +183,14 @@ console：调试js (可以手动输入对象如window)
 sources: 请求的结构化，js断点调试
 network: 抓包
 application: 本地存储(cookie)	
-
+断点调试：Deactivate breakpoints(停用断点)
+	条件断点：先设置断点 ---> 右键 ---> Add conditional breakpoint
+	DOM元素上设置断点：Elements ---> 右键break ok
+	XHR请求的断点
+	监听事件的断点
+	异常断点：debugger上的暂停图标
+注意：
+	如果一个表达式占了多行，并且你把一个行断点放在这个表达式的中间，DevTools会在下一个表达式上设置断点。例如，如果您尝试在下面截图中的第4行设置断点，DevTools会自动将断点放在第6行
 
 自适应布局：需要开发多套界面来适应不同的终端	
 响应式布局：一个网站能够兼容多个终端——而不是为每个终端做一个特定的版本	

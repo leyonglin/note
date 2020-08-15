@@ -20,7 +20,7 @@ print(response.content.decode('utf8'))
 # print(response.request.headers)
 
 
-######################## header #################################
+######################## header and cookie #################################
 
 
 url="http://www.baidu.com"
@@ -30,6 +30,13 @@ url="http://www.baidu.com"
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
 }
+
+#Cookie_temp = '_ga=GA1.2.1637330894.1594635482; tz=Asia%2FSingapore; _device_id=cbbd72bf5ce824f123f2dfa8e6b0797d; user_session=FULeJ3UzYYoWUbkq3AYJH_kXtW--S1b2YzDk0lyV9HVza8AB; __Host-user_session_same_site=FULeJ3UzYYoWUbkq3AYJH_kXtW--S1b2YzDk0lyV9HVza8AB; dotcom_user=leyonglin; has_recent_activity=1; _gat=1; _octo=GH1.1.1326980601.1594931725; logged_in=no; _gh_sess=FGjsXoGOiB9JZu5IyOS0iu2FJSIgjtqvMUVHgRB1IObUeIOtuuPJDCFQuAzINWo5RJXE042Xv5O3wtIiWmC8CkAmFcVqK63pGFNlLucZKmTMKtieNMC6Dhy5oKCkkjtzQD2Mr4gjoKhyd144Wy2tkqE17JR5Vte3SP7gI33aurWWrcZaNH3%2Fx3NVBvlWwBNt3CgRh1IgHVmSZHTawJ919ggHP3J9a0BLlKrZj5p9BAj9CqQ0y%2F4nA7BfhjzkGsyH0S1taBUSNRYqS%2Ftdmx7hsIqnlQGqXL047k9omOK64fAjmmt3--1YhDlDoyAz6ErhnD--r%2FLI1uaGC8QELLskWBX%2Buw%3D%3D'
+
+#cookie_list = Cookie_temp.split('; ')
+#cookies = {cookie.split('=')[0]: cookie.split('=')[-1]for cookie in cookie_list}
+#print(cookies)
+#response=requests.get(url, headers=headers, cookies=cookies)
 
 response=requests.get(url)
 print(len(response.content.decode()))
@@ -46,12 +53,12 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
 }
 
-data = {
+params = {
     'wd': 'python'
 }
 
 # timeout超时为3秒 ， verify不进行ca证书认证(有些网站证书过期但是点高级还是能使用)
-response=requests.get(url, headers=headers, params=data, timeout=3, verify=False)
+response=requests.get(url, headers=headers, params=params, timeout=3, verify=False)
 
 print(response.url)
 

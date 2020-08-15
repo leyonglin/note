@@ -173,3 +173,21 @@ https://github.com/jseidl/GoldenEye
 	会话劫持：document.cookie
 	跨站点请求伪造xss：
 
+https://blog.csdn.net/linyt/article/details/52966555
+sql注入：通过精心构造的URL参数，或者表单提交的参数，拼接到预先定义好的SQL格式时，改变了程序员预期的SQL结构
+爆库：MySQL中出现一个元数据库information_schema，它描述整个MySQL服务器所有数据库->表->字段关系树
+	  SQL语言提供了UNION语句，可以新增窃取其它数据合并到被注入SELECT结果
+	  MySQL对SQL做扩展，提供注释符#，让注入可以为所欲为
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -48,6 +48,7 @@ get请求中的params参数和post请求中的data来源
 		3.elements--> event listeners --> 找对应事件
 	  分析语句：console
 	  模拟：在python环境里运行js代码(js2py)
+#注意：如果参数是常量，那应该在上面有定义，如果参数是函数，可以进入函数，在结束的地方(结尾的}处打上标记，在debugger的scope的return value对应的值就是)
 
 request.session : https://www.bilibili.com/video/BV1ET4y177fy?p=25
 
@@ -110,3 +111,28 @@ scrapy-splash服务：response的数据是已经经过渲染的
 gerapy : 管理scrapy的工具
 
 appium: 抓取app数据
+
+
+
+验证码：
+	1. 知乎汉字验证码识别程序: https://github.com/996refuse/zheye
+		案例：https://www.bilibili.com/video/BV1Q54y1i7F2
+	2. 滑块验证：AI图片识别
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

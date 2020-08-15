@@ -1,3 +1,28 @@
+
+#https://www.bilibili.com/video/BV1EE411s7ED?from=search&seid=3730818927718702780
+#找借口所在的ajax请求
+
+#https://www.bilibili.com/video/BV1S441167b2?from=search&seid=13779863184173490969
+import execjs
+#查看node.js版本
+a = execjs.get().name
+print(a)
+# ctx = execjs.compile('''
+#     function add(x,y){
+#     return x+y
+#     }
+#
+# ''')
+with open('code.js','r')as f:
+    #加载js代码
+    ctx = execjs.compile(f.read())
+# 执行"e"是函数名,"python"是参数
+a = ctx.call("e","python")
+print(a)
+
+
+
+
 # coding:utf-8
 import requests
 import js2py

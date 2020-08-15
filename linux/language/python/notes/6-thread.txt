@@ -93,10 +93,12 @@ multiprocessing 模块创建进程
 	4.启动进程，会自动执行进程绑定的函数
 	5.完成进程的回收
 	#创建子进程流程：
-	process()          #功能：创建进程对象   参数：name 进程名称  target(必须) 绑定参数   args 元组给target函数按照位置传参   kwargs字典给target函数按照键值对传参 
-	p.start()          #功能：启动进程（target函数会自动进行，此时进程真正被创建）
-	p.join([timeout])  #功能：阻塞等待回收子进程     参数 超时时间
+	process(target=func, args=(i,))          #功能：创建进程对象   参数：name 进程名称  target(必须) 绑定参数   args 元组给target函数按照位置传参   kwargs字典给target函数按照键值对传参 
+	p.start()          #功能：后台启动子进程，主进程继续执行后面代码不会阻塞，如果主进程先执行完成还是会等待子进程执行完成再退出
+	p.join([timeout])  #功能：join: 主进程会阻塞，直到子进程执行完成再继续执行后面代码 
+	# run：创建Process时不指定target，会默认的执行子进程的run方法，默认run方法是什么都不做，可以重新指定 p.run = f 
 
+	
 	使用multiprocessing创建子进程，同样子进程复制父进程的全部代码段，子进程只执行传入函数(target = fun)的语句，父子进程各自执行互不影响，父子进程有各自的运行空间
 	如果join没回收到子进程，子进程退出后也会变成僵尸进程
 	示例：
@@ -190,12 +192,12 @@ p.daemon       #默认状态False 主进程退出不会影响子进程执行，�
 		4.关闭进程池，回收进程
 	from multiprocessing import Pool
 		Pool(processes)                    #功能：创建进程池对象                参数：表示进程池中有多少进程processes = n
-		pool.apply_async(fun,args,kwds)    #功能：将事件放入到进程池队列(异步，多进程执行速度/输出顺序不一定)        参数：func 事件函数(要先于进程池对象之前创建)    args 以元组形式给func传参   kwds 以字典形式给func传参
+		pool.apply_async(fun,args,kwds)    #功能：将事件放入到进程池队列(异步，多进程执行速度/输出顺序不一定，若主进程先执行完成会直接退出)        参数：func 事件函数(要先于进程池对象之前创建)    args 以元组形式给func传参   kwds 以字典形式给func传参
 										   #返回值：返回一个代表进程池事件的对象   通过调用 "返回对象.get()" 可以获得事件函数的返回值
-	    #pool.apply(fun,args,kwds)   	   #功能：将事件放入到进程池队列(同步)        参数：func 事件函数(要先于进程池对象之前创建)    args 以元组形式给func传参   kwds 以字典形式给func传参
 		pool.close()                       #功能：关闭进程池，不能新增事件，但仍可以执行原有事件 
-		pool.join()                        #功能：回收进程池
-		pool.map(func,iter)                #功能：将要做的事件放到进程池   参数：func 执行函数  iter迭代对象          返回值：返回事件函数的返回值列表    r = pool.map(fun,range(10))是一个返回值列表
+		pool.join()                        #功能：回收进程池(和apply_async一起使用，保证子进程执行完成才退出)
+		#pool.apply(fun,args,kwds)   	   #功能：将事件放入到进程池队列(同步)，就是即便进程池有三个进程，也只能挨个执行        参数：func 事件函数(要先于进程池对象之前创建)    args 以元组形式给func传参   kwds 以字典形式给func传参
+		pool.map(func,iter)                #功能：参数：func 执行函数  iter迭代对象(其他方式参数是数组)          返回值：返回事件函数的返回值列表    r = pool.map(fun,range(10))是一个返回值列表
 
 	示例：
 		#进程池
@@ -269,9 +271,6 @@ python中有地址，没有指针，使用内存不方便
 
 
 
-
-
-
 03： 进程通信 进程同步互斥
 
 
@@ -335,8 +334,8 @@ python中有地址，没有指针，使用内存不方便
 		5.多个线程之间执行互不干扰       6.线程也有自己的特有属性，比如指令集  id
 threading 模块创建线程
 	threading.Thread()     #功能：创建线程对象  参数：name 线程名称(默认Thread-1)  target：线程函数   args：元组 给线程函数位置传参   kwargs：字典 给线程函数键值传参
-	t.start()               #启动线程，自动运行线程函数
-	t.join([timeout])      #回收线程
+	t.start()              #启动线程，自动运行线程函数
+	t.join([timeout])      # 阻塞
 	示例：
 		#创建线程
 		import threading
@@ -403,6 +402,23 @@ threading 模块创建线程
 			a += 1
 			b += 1
 		t.join()
+
+线程池: from concurrent.futures import ThreadPoolExecutor, wait, ALL_COMPLETED, FIRST_COMPLETED
+	executor = ThreadPoolExecutor(max_workers=2)    #非阻塞，创建2个线程的线程池
+	task1 = executor.submit(get_html, (3))     #非阻塞，通过submit函数提交执行的函数到线程池中，submit函数立即返回，不阻塞（主线程继续执行后面代码），如果主线程先执行完成会等待子线程执行完成才结束进程
+	task1.done()		#非阻塞，查看线程是否执行完成
+	task2.cancel()		#非阻塞，取消正在排队的线程
+	task1.result()		#阻塞，获取线程返回值
+	
+	all_task = [executor.submit(get_html, (url)) for url in urls]   #非阻塞，执行线程
+	for future in as_completed(all_task):							#阻塞，获取线程执行结果
+	
+	executor = ThreadPoolExecutor(max_workers=2) 
+	urls = [3, 2, 4] 
+	for data in executor.map(get_html, urls):      #map传入参数是可迭代对象，executor.map(get_html, urls)执行本身是非阻塞的，但是遍历获取结果是阻塞的
+	
+	all_task = [executor.submit(get_html, (url)) for url in urls]  #非阻塞
+	wait(all_task, return_when=ALL_COMPLETED)					   #把线程池变成阻塞的，等待执行完成再执行后面代码
 
 python线程的GIL问题(全局解释器锁)
 	超级锁：给解释器加锁，解释器同一时刻只能解释一个线程
@@ -597,31 +613,5 @@ ftp文件服务器：
 			c.close()
 		if __name__ == '__main__':
 			server(8888)		
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
