@@ -391,6 +391,15 @@ find / -max[min]depth 5 -user nobody -name test.txt -size +100k -mtime +4/4 -typ
 find正则表达式由于-name参数只支持“*”、“?”、“[]”这三个通配符（.代表的就是普通的.而已）
 	find . -name '*a1*txt'（*代表可有可无）   //   find ./  -name '[a-z]*'（匹配小写开头）  //  find ./  -name '??' （匹配两个字符） // find . -name "*[1|2]"  //  find . -name "*[0-3]"
 
+
+xargs默认传参到最后,默认以特殊字符作为分隔符(替换为"")
+分割（xargs、xargs -d、xargs -0）
+分割后如何划批xargs -n  xargs -L(忽略文本上的特殊字符，例如文件名"a b.txt")），xargs -s 一次最多传递多少字节参数
+交互式处理（-p选项）
+预先打印一遍命令的执行情况（-t选项）
+参数如何传递（xargs -i）： 分段使用，意味着遇到{}则替代为结果，实现多位置传参  -I则是可以自定义一个结果{}符号
+传递终止符（-E选项）：遇到-E后面的字符串，则直接退出
+并发：-P
 xargs: -t在执行前回显cmd  -p交互  -d(分隔符)  -n3三行一组  -0
 cat example.txt | xargs -n 3    #以空格为分隔符，三个一行
 cat /etc/passwd | xargs -d ':'  echo

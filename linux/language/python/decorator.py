@@ -144,6 +144,7 @@ def index():      #第四步
 
 
 # @auth()相当于执行了函数，本来是返回outer_wrapper,但是一执行就返回wrapper，因此auth_type判断是在wrapper内部
+# 相当于func = decorator(auth_type="local")(func) 
 # @auth()相当于执行了函数, 返回outer_wrapper，然后@auth语法糖又要执行一遍函数，相当于执行outer_wrapper(func)
 @auth(auth_type="local")     #第五步
 def home():

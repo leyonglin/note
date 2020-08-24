@@ -1,6 +1,7 @@
 
  DDL（Data Definition Language）数据库定义语言: DDL不需要commit. CREATE ALTER DROP TRUNCATE COMMENT RENAME
  DML（Data Manipulation Language）数据操纵语言: 需要commit. SELECT INSERT UPDATE DELETE MERGE CALL EXPLAIN PLAN LOCK TABLE
+	在二进制日志中会记录事务的开始BEGIN和提交COMMIT
  DCL（Data Control Language）数据库控制语言  授权，角色控制等: GRANT 授权 REVOKE 取消授权
  TCL（Transaction Control Language）事务控制语言: SAVEPOINT 设置保存点 ROLLBACK 回滚  SET TRANSACTION
 （1）数据定义。（SQL DDL）用于定义SQL模式、基本表、视图和索引的创建和撤消操作。
@@ -541,16 +542,18 @@ mysqld --verbose --help  #使用命令查看帮助
 	4.创建配置文件
 		cat conf/my.cnf
 			[mysqld]
-			port=3333														 #这里将端口修改是为了确认配置没问题
-			user=mysql
 			basedir=/usr/local/mysql
 			datadir=/usr/local/mysql/data
+			log-error=/usr/local/mysql/log/mysqld-error.log
+			server-id = 1	
+			log-bin = /usr/local/mysql/binlog/mysql-bin                      #开启binlog日志，不写路径，默认在data数据目录下
+			binlog_format = ROW		
+			binlog_expire_logs_seconds = 100000		
+			
+			port=3333														 #这里将端口修改是为了确认配置没问题
+			user=mysql
 			#socket=/usr/local/mysql/tmp/mysql.sock symbolic-links=0		 #默认是在/tmp下的，如果配置了，服务端在连接的时候要使用-S选项指定sock位置
 			skip-mysqlx                               						 #5.7.12 之后新增了X plugin，不加载X plugin，这个会增加一个端口，是类似MongoDB的服务
-			log-bin = /usr/local/mysql/binlog/mysql-bin                      #开启binlog日志，不写路径，默认在data数据目录下
-			binlog_format = ROW
-			binlog_expire_logs_seconds = 100000
-			server-id = 1
 			slow_query_log = 1                    								#开启慢查询
 			long_query_time = 1                  				 				#慢查询时间 超过1秒则为慢查询
 			slow_query_log_file = /usr/local/mysql/log/localhost-slow.log       #慢查询日志位置
@@ -559,7 +562,6 @@ mysqld --verbose --help  #使用命令查看帮助
 			default-storage-engine = InnoDB
 			innodb_thread_concurrency = 16     								    #innodb线程并发数
 			#[mysqld_safe]	 													#有这个配置的话，需要启动改服务才会使下面的配置生效，不启动该服务，需要删除该配置
-			log-error=/usr/local/mysql/log/mysqld-error.log
 			pid-file=/usr/local/mysql/tmp/mysqld.pid
 	5.创建普通用户，并给与权限		
 	6.初始化/空密码(--initialize换成该选项会生成临时密码并在终端输出/有的说会在日志里出现)
@@ -567,6 +569,7 @@ mysqld --verbose --help  #使用命令查看帮助
 	7.mysqld --verbose --help  | head -30     								 #帮助
 	8.启动：su mysql -s /bin/bash -c "mysqld --defaults-file=/usr/local/mysql/conf/my.cnf --user=mysql &" (defaults-file要在第一个参数)     或者使用脚本启动 cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql.server(脚本默认路径是/usr/local，要是情况而修改)  
 	9.安全检查：./bin/mysql_secure_installation
+	10.停止：mysqladmin shutdown -p
 		
 	
 
@@ -632,6 +635,15 @@ mysqldump(逻辑备份):1.浮点型数据，会出现精度丢失 2.串行，效
 mysqldump -uroot -hlocalhost -p db_name table_name ...   #备份多张表
 mysqldump -uroot -hlocalhost -p --databases zsythink test  #备份多个库[--all-databases]
 mysqldump -uroot -hlocalhost -p -d db_name [table_name...]  #备份所有表/一张表的表结构
+mysqldump：
+	备份库的时候，无论何时都建议--databases或者--all-databases选项二选一(记录建库语句和use语句)
+备份表：
+set sql_log_bin=0
+myisam: mysqldump -uroot -p123456 -S /mydata/data/mysql.sock -q --lock-all-tables --flush-logs --master-data=2 --tables backuptest teacher >/tmp/myisam.sql ;
+innodb: mysqldump -uroot -p123456 -S /mydata/data/mysql.sock -q --no-autocommit --flush-logs --single-transaction --master-data=2 --tables backuptest student >/tmp/innodb.sql;
+二进制：mysqlbinlog mysql-bin.000002 >/tmp/new_binlog.sql
+set sql_log_bin=1
+	
 	
 xtrabackup(物理备份)：备份page数据块
 	innodb逻辑结构：表空间(tablespace) 段(segment) 区(extent) 页(page) 行(row)
@@ -1009,6 +1021,7 @@ expain：语法：explain sql语句;
 	10.不在索引列上做任何操作(计算/函数/自动or手动类型转换..)会导致索引失效而转向全表扫描
 	11.字符串不加单引号索引失效：即char/varchar要需要加'',原因是在索引上做了操作(自动类型转换)  #会导致行锁变成表锁，阻塞直到提交
 
+多表查询：1.连接查询(join on)  2.联合查询(union)  3.from子查询 where子查询 exists子查询
 连接查询优于子查询   #因为子查询会增加连接数(explain中id的11变成12)
 方法：通过连接查询将相关数据关联成一张表再进行条件过滤
 
@@ -1148,7 +1161,7 @@ show profile:参数默认是关闭状态，并保存最近15次的运行结果
 	5.尽可能低级别事务隔离
 
 	
-日志：
+日志：     物理日志：存储数据被修改的值    逻辑日志：存储sql语句
 事务日志：
 	重做日志（redo log）：在事务的执行过程中，便开始写入redo log文件中。未正常提交的事务根据redo log进行重做，从而达到事务的持久性
 	回滚日志（undo log）：事务开始之前，将当前是的版本生成undo log，保存了事务发生之前的数据的一个版本，可以用于回滚

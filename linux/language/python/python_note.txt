@@ -447,33 +447,48 @@ gil使得python无法将多个线程映射到多个cpu上执行
 
 
 ###############################################################################
-#1.类实现的装饰器
-class DecoratorTest(object): #定义一个类
-    def __init__(self,func):
-        self.__func = func
-    def __call__(self):      #定义call方法，当直接调用类的时候，运行这里。
-        print('pre msg')
-        self.__func()    
-        print('post msg')
 
-@DecoratorTest  
-def test():
-    print('主函数体')
+https://www.cnblogs.com/f-ck-need-u/p/10276417.html
+super()引用的时候也一样是按照mro算法来引用属性的
 
-if __name__=='__main__':
-    test()	
-	
-#2.使用闭包
-def decorator(func):                      #func是一个形参，不一定是这个，只是为了见名知意
-    def inner(*args,**kwargs):
-        print('装饰前')
-        func()
-        print('装饰后')
-    return inner
+抽象类是指：这个类的子类必须重写这个类中的方法(pass)，且这个类没法进行实例化产生对象。
+Python中的abc模块(Abstract Base Classes)专门用来实现抽象类、接口
+如果子类没有实现或者少实现了抽象类中的方法，在构造子类实例化对象的时候就会立即报错。
 
-@decorator
-def test():
-    print('test')
-    
-test()
+在Python中大多数时候不建议直接定义抽象类，这可能会造成过度封装/过度抽象的问题。
+如果想要让子类必须实现父类的某个方法，可以在父类方法中加上raise来抛出异常NotImplementedError，这时如果子类对象没有实现该方法，就会查找到父类的这个方法，从而抛出异常
+
+Mixin类：只有一个方法，功能非常单一，可以看作是Base类的功能扩充类
+	类名使用Mixin结尾，例如ListMixin、AbcMixin
+	多重继承时Mixin类放在主类的前面，或者说主类放在最后面，避免主类有和Mixin类中重名函数而使得Mixin类失效
+	Mixin类中不规定只能定义一个方法，而是少定义一点，让功能尽量单一、独立
+	例如：class Myclass(Mixin1, Mixin2, Base): pass
+		
+MethodType：动态地链接方法到实例对象或类上
+	当外部函数链接到实例对象上时，这个链接只对这个实例对象有效，其它对象是不具备这个属性的。
+	如果链接到类上，那么所有对象都可以访问这个链接的方法
+
+
+一个方法的参数给了默认参数，默认参数要是不可变类型的，不然使用这个默认参数的时候各对象会共享这个可变默认值
+
+私有属性：双下划线，__X这样的属性
+
+绑定方法和非绑定方法
+	class cls():
+		def m1(self):            #这里的self是一个变量，也可以不是self，任意名称
+			print("m1: ", self)
+c = cls()     #实例一个对象
+c.m1()		  #绑定方法：这里并没有传入参数
+cls.m1(c)	  #非绑定方法：这里必须手动传入参数(形参是self)，不然会报错
+
+
+迭代器协议:对象需要提供next方法,它要么返回迭代中的下一项,要么就引起一个StopIteration异常,终止迭代.
+可迭代对象:实现了迭代器协议的对象就是可迭代对象(实现方式是,实现iter方法)
+一个实现了iter方法的对象是可迭代的，一个实现next方法并且是可迭代的对象是迭代器。
+可以被next()函数调用并不断返回下一个值的对象称为迭代器：Iterator。
+所以一个实现了iter方法和next方法的对象就是迭代器。iter()返回迭代器本身,而next()返回容器的下一个元素,在结尾处引发StopInteration异常.
+
+生成器是带有 yield 关键字的函数
+
+
 
