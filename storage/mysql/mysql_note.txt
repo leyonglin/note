@@ -110,13 +110,14 @@
 			 create user '用户'@'ip' identified by '密码';   #创建一个只登陆用户
 			 grant  权限 on "库名"."表名" to   "用户名"@"ip";
    列级授权：grant select(id,name),update(add_time) on '用户'@'ip' to "用户名"@"%(ip)" identified by '密码';
-   删除权限: revoke 权限 on "库名"."表名" from "用户名"@"ip";
+   删除权限: revoke 权限 on "库名"."表名" from "用户名"@"ip";           #从已经授权的权限删除一部分权限
    查看授权：show grants for user@host;           #查看用户授权
              select user,host from mysql.user;    #查看用户，包括管理员
 	         select user,host,db from mysql.db;   #查看具体数据库授权，不记录所有库的授权	
 			 select * from mysql.tables_priv;     #查看具体到表的授权。
 			 select * from mysql.columns_priv;    #查看列级授权
 	删除用户：drop user  "用户名"@"ip";           #删除了权限用户还在，删除用户权限也会一起删除
+	修改用户密码：alter user 'name'@'ip' identified by 'password';
 
 ##################################################################################### 
 
@@ -256,8 +257,8 @@
 		group by：显示(sum)效果列
 		having：WHERE 关键字无法与合计函数一起使用   HAVING SUM(OrderPrice)<2000
 		order by：语句用于根据指定的列对结果集进行排序。DESC降序ASC顺序				
+	  联合查询union - 用于合并两个或多个 SELECT 语句的结果集(可对or的改写)。  #UNION ALL命令和UNION命令几乎是等效的，不过UNION ALL命令会列出所有的值(包括重复的)。
 	  两个表：
-		联合查询union - 用于合并两个或多个 SELECT 语句的结果集。  #UNION ALL命令和UNION命令几乎是等效的，不过UNION ALL命令会列出所有的值(包括重复的)。
 		连接查询join on: inner join(相同的) // left join(左边全显示,右边不存在显示null，右边多余存在忽略) // right join(右边全显示,左边不存在显示null，左边多余存在忽略) // full outer join(并集,全都显示) #join与on配合(on和where一样)，更细致的用法是后面带where条件(key is null)
         #select [查询列表 as 别名⑤] from [表1 as 别名 连接类型 join 表2 as 别名 on 连接条件①] [where 筛选条件②] [group by 分组③] [having 筛选条件④]  [order by 排序列表⑥]
   对行的操作：
@@ -597,7 +598,8 @@ select count(num),gender from students group by gender;   #分组的目的往往
 select * from tb1 limit 3;                              #显示前三行
 	where name like 't_';                               #条件，in /not in  like rlike  between  not between  !=
 	order by (desc asc)                                 #降序/升序
-多表查询：cross join(可以忽略) inner join(同时符合) left join   right join     联合查询：union  union all   full join
+多表查询：cross join(可以忽略) inner join(同时符合) left join   right join     
+联合查询：union  union all   full join
 子查询原则:    1.一个子查询必须放在圆括号中。2.将子查询放在比较条件的右边以增加可读性。
 
 #http://www.zsythink.net/archives/category/%e5%ad%98%e5%82%a8/
@@ -722,7 +724,7 @@ https://www.cnblogs.com/kevingrace/p/10482469.html
 
 DML：
 select [查询列表 as 别名⑦] from [表名 as 别名①]或者[表1 别名 连接类型 join 表2 别名② on 条件③ [连接类型 join 表2 别名 on 条件]...] [where 分组前筛选条件④] [group by 分组列表⑤] [having 分组后筛选⑥] [order by 排序列表⑧] [limit offset,size⑨];
-#子查询：本身就是单独查询，是可以执行的  按子查询出现的位置：1.select后面 2. from后面  3. where或having后面  4.exists后面(相关子查询，结果为1或0)   #不同位置需要结果集(标量子查询(<,一个值)，列子查询，行子查询(in,范围)，表子查询(from,一个表))不同
+#子查询：本身就是单独查询，是可以执行的  按子查询出现的位置：1.select后面 2. from后面  3. where或having后面  4.exists后面(相关子查询，结果为1或0)   #不同位置需要结果集(标量子查询(<,一个值)，列子查询(N行一列(in,范围))，行子查询(一行N列(WHERE (title,content) = (SELECT column1, column2 FROM table2)))，表子查询(from,一个表))不同
 	#子查询适用于，条件是查询语句。分析：查询公司工资比A高的人 ---> ①.查询出A工资  ②.查询工资>①
 	查询列表: 多个用,隔开   #显示内容
 		表中字段：字段用``转义，区别关键字和字段
@@ -795,10 +797,12 @@ select [查询列表 as 别名⑦] from [表名 as 别名①]或者[表1 别名 
 笛卡尔乘积：结果集为A表行数*B表行数，是连接查询的一种特例(没有添加筛选条件)
 select girlname,boyname from boys,girls [where girls.girl_id=boys.boy_id]
 
-
-连接查询join on：多表查询但表之间有关系，是一个语句
+联合查询union：两张单表，表之间没有关系，单独的语句都可执行并得出结果集
+	得到两张没有关联单表的数据(or的改写)
 子查询：结果集是动态实时用语句查询出来的，不同部分是单独的语句，可执行并得出结果集
-联合查询union：多表查询但表之间没有关系，不同部分是单独的语句，可执行并得出结果集
+	得出一张表的数据，但条件是在另一张表中
+连接查询join on：多表查询但表之间有关系，是一个语句
+	得到多张有关联的表的数据(from A join B on 条件 join C on 条件...)
 
 
 插入insert：支持多列多表更新
@@ -829,6 +833,7 @@ DDL：针对库和表
 		unique：唯一，可以为空，可以有多个，允许组合
 		foreign key：外键，被外键的列需要是key(primary或者unique)
 			#语法：foreign key [本表外键字段] references 父表(主键字段);
+		自增长：
 		check：mysql不支持，检查输入值
 		
 	列级约束：在列后面直接添加						  #不支持外键，不可以起约束名
@@ -989,10 +994,10 @@ expain：语法：explain sql语句;
 			  select_type：1.simple    2.primary    3.subquery   4.derived   5.union   6.union result ...
 			  table：
 		    type：    NULL       >   system   >  const    >     eq_ref       >          ref             >    range    >     index  >   ALL        #最好是ref
-			      不用查表/索引	   一行数据    主键=常量 唯一性索引扫描(主键=主键) 非唯一性索引扫描(=多值)  条件是范围     索引扫描   全表扫描
+			      不用查表/索引	   一行数据    主键=常量 唯一性索引扫描(连接查询) 非唯一性索引扫描(=多值)  条件是范围    全索引扫描  全表扫描
 			  possible_keys：指出MySQL能使用哪个索引在表中找到记录(如果是覆盖索引，则不会显示在这里)
 		    Key：实际用到的索引(null为没建立索引或者索引失效)
-			key_len: where查询条件实际用到的索引条件的多少(索引条件相同，值相同)，越大代表索引使用越多，越好      #一般在复合索引中最常见
+			key_len: where查询条件实际用到的索引条件的多少(索引条件相同，值相同，和数据类型有关)，单列索引越小越好(占用空间小)复合索引越大代表索引使用越多，越好      #一般在复合索引中最常见
 			  ref:显示索引的那一列被使用(值越多精度越高),格式为"库.表.字段"，如果可能的话，是一个常数(const)，哪些列或常量被用于查找索引列上的值
 			rows：越小越好，表示MySQL根据表统计信息及索引选用情况，估算的找到所需的记录所需要读取的行数     #小表驱动大表最明显，id相同，要让驱动表rows最小，然后给非驱动表添加索引，使非驱动表rows最小
 			extra:包含不适合在其它列中显示但十分重要的额外信息
@@ -1002,18 +1007,28 @@ expain：语法：explain sql语句;
 				Using where：去表里检索(用于查询列表字段)
 				Using join buffer：使用了连接缓存，配置文件增加buffer
 				impossible where:where子句的值总是false，不能用来获取任何元组(类似where 1=2,这说明条件有问题)
-	
+
+建立索引原则：
+	建表要有主键，一般是无关列，自增长
+	经常性条件查询的列建立索引
+	联合索引使用唯一值多的作为前导列	
+	注意索引树高度，长度较长的索引列可以使用前缀索引
+	降低索引条目，不创建没用索引
+	索引维护要避开业务繁忙期
+	小表不建立索引
 
 索引原则：根据查询条件where建立索引
 	1.小表(驱动表)驱动大表(被驱动表)，给被驱动表(explain相同id，靠后的表)建立索引   #小表注定全表扫描，给后面的表添加索引
-	  例如：左连接给右表加索引(左表是全显示的，关键是右表)，右连接加左表
+	  1.1 连接，左边是驱动表(all)，应使用小表，右边是子表
+	  1.2 左连接给右表加索引(左表是全显示的，关键是右表)，右连接加左表
+	  1.3 子查询是全显示的(in)
 	
 	2.全值匹配:常量(=) 并且索引都用上
 	3.使用!=或者<>的时候无法使用索引会导致全表扫描
 	4.存储引擎不能使用索引中范围条件 > 或 < 右边的列（中间条件使用范围条件,范围条件以后字段就无法索引）
 	5.is null , is not null 也无法使用索引
 	6.少用or，用它连接时会索引失效	
-	7.like 使用通配符('%abc...'不要是开头) 索引失效，会变成全表扫描的操作 (可以使用覆盖索引解决)
+	7.like 使用通配符('%abc...'不要是开头) 索引失效(使用es替代)，会变成全表扫描的操作 (可以使用覆盖索引解决)
 	
 	8.最佳左前缀法则(覆盖索引)：索引了多列，要遵守最左前缀法则，即查询条件从索引的最左前列开始并且不跳过索引中的列，并且只包含=的查询
 	9.尽量使用覆盖索引：少用select * ,查询字段与索引字段一致或顺序一部分
@@ -1073,7 +1088,7 @@ using index 和 filesort，filesort有双路排序(扫描两次磁盘)和单路�
 #单路排序有可能一次性取不完，即sort_buffer_size(会导致创建临时文件)和max_length_for_sort_data太小
 			  	
 group by实质是先排序后进行分组，准找索引的最佳左前缀  
-#使用group by子句的时候，select后面只能放函数和group by后的字段
+#使用group by子句的时候，select后面只能放函数和group by后的字段,where条件不用
 where 高于 having ，能现在where限定的条件不要去having限定
 
 
@@ -1195,8 +1210,28 @@ dao：database access object:数据访问对象层，封装了对数据库的增
 mycat：读写分离，分库分表(数据是已经分配好了)	
 #全局序列：保证主键唯一	
 	
-	
-	
+
+####################################################################################################
+
+https://www.bilibili.com/video/BV15J41167Wp?p=61
+索引的生成是倒序生成的，先将索引列取出，进行自动排序，作为叶子节点，再生成枝节点，再生成根节点
+
+辅助索引：根据非主键列建立索引，查到的是数据页码(真实数据所在的位置)，后面衍生为查到数据所在的主键id(缺点是数据页码是无序的)	
+聚集索引：根据主键id(唯一键)进行建立索引，目的是让数据页码变得有顺序，叶节点使用原表作为数据页（mysql自己生成的？）
+覆盖索引：在辅助索引中就能查到数据
+	建立联合索引(唯一值多的放在前面)
+回表：就是辅助索引查完后再到聚集索引中去查
+
+索引数高度：越低越好
+	1. 数据行数较多
+	  分库分表，分布式架构
+    2. 字段长度
+	  尽量选择字段长度短的作为索引列
+	  前缀索引能有效减小索引文件的大小，提高索引的速度。但是前缀索引也有它的坏处：MySQL 不能在 ORDER BY 或 GROUP BY 中使用前缀索引，也不能把它们用作覆盖索引(Covering Index)
+	3. 数据类型：例如：char和varchar
+
+
+
 	
 	
 	

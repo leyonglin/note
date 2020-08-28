@@ -1,4 +1,13 @@
 
+https://www.tampermonkey.net/ : 浏览器上运行和管理脚本的插件
+https://greasyfork.org/zh-CN : 用户脚本源
+
+
+https://www.office26.com/windows/windows-10-deployment-customize-os-image.html
+Windows系统多合一镜像：http://www.360doc.com/content/20/0324/22/7201102_901464382.shtml
+自定义windows镜像：打包windows镜像
+不用u启安装window系统：https://zhongce.sina.com.cn/article/view/20257
+
 Program Files（应用程序文件夹）：下载的软件安装默认存储位置
 Program Files（x86）文件夹，这个是用来存储不支持64位的32位的软件
 Window：系统目录  （命令目录：C:\Windows\System32）
@@ -6,12 +15,20 @@ Users\用户\AppData：用户对软件的配置
 ProgramData（系统配置文件夹）：Windows10的系统文件夹，放置程序的使用数据，设置等文件。
 PerfLogs：系统日志
 
+判断电脑是否翻新：鲁大师
+	附件：说明书、保修卡等
+	出厂时间
+	外表：
+		键盘，显示屏，螺丝，缝隙，风扇
+	序列号
+	气味：工业清洗液
+	电池：充电次数
+	磁盘：使用次数，分区等
+	逻辑上问题：系统是否激活，内存双通道是否同型号...
 
-.bat批处理文件   会在cmd命令行中执行并显示执行命令及输出结果
- @echo off       #这条命令代表关闭回显，即不输出命令仅输出结果
  
 概念：
- 硬件查看工具：cpu-z  
+ 硬件查看工具：cpu-z   鲁大师
 
  总线（Bus）是指计算机组件间规范化的交换数据（data）的方式，即以一种通用的方式为各组件提供数据传送和控制逻辑，可同时传输的数据数就称为宽度
 

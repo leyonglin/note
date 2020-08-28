@@ -1,4 +1,5 @@
 
+
 inurl:admin/mp3                             url中包含admin/mp3
 金庸site:edu.cn                               在edu.cn站点搜索金庸
 金庸filetype:doc                              包含金庸的doc文件

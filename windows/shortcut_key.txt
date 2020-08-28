@@ -23,6 +23,7 @@ win+r      +   control  控制面板   notepad：打开记事本   calc：启动
 Ctrl+U  查看网页源代码(用鼠标也行)
 Ctrl+w退出/删除当前资源
 
+EventVwr.msc 事件查看器
 
 
 windows 下的共享目录
