@@ -5,7 +5,7 @@ https://greasyfork.org/zh-CN : 用户脚本源
 
 https://www.office26.com/windows/windows-10-deployment-customize-os-image.html
 Windows系统多合一镜像：http://www.360doc.com/content/20/0324/22/7201102_901464382.shtml
-自定义windows镜像：打包windows镜像
+自定义windows镜像/打包windows镜像:
 不用u启安装window系统：https://zhongce.sina.com.cn/article/view/20257
 
 Program Files（应用程序文件夹）：下载的软件安装默认存储位置

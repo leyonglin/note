@@ -432,7 +432,7 @@
 		grant 权限列表 on 库名.表名 to "用户名"@"%(ip)" identified by "密码"  with grant option;
 		权限列表：all privileges、select 库表.表名、update 库表.表名
  
-	数据备份：命令行
+	mysqldump数据备份：命令行
 		完整备份：mysqldump -u用户名 -p 源库名 > **.sql
 			源库名：--all-databases         #所有库
 					库名      				#单个库
@@ -441,7 +441,20 @@
 		恢复：mysql -u用户名 -p 目标库名 < **.sql		(恢复指定库需要先从库)
 			mysql -u用户名 -p --one-database 库名 < **.sql (从全部备份中恢复一个库，先创建库)
 			恢复库时，要先创建，如果已有库恢复，同名表数据会被覆盖，新增表不会被删除
-		增量备份：
+		增量备份：binlog日志
+	参数：
+		1.连接参数
+		2.基础参数
+			-A 					备份所有库
+			-B 库名 库名...		备份指定库
+			库名 表名 表名...   备份单库里的多张表
+		3.特殊参数
+			-R     				备份存储过程和函数
+			-E     				备份事件(mysql计划任务)
+			--triggers  		备份触发器
+			--master-data=2		记录备份时刻binlog信息
+			--single-transaction innodb备份不锁表
+	mysqldump -uroot -p123 -S mysql.sock -R -E --triggers --master-data=2 --single-transaction -A > /tmp/mysql.sql
 
  查看执行过的sql语句：1. show binlog events in 'mysql-bin.000021'\G;
  					  2. mysqlbinlog mysql-bin.000001 | grep -E "^SET T" -C 1
@@ -1231,7 +1244,57 @@ https://www.bilibili.com/video/BV15J41167Wp?p=61
 	3. 数据类型：例如：char和varchar
 
 
+表空间：https://www.bilibili.com/video/BV15J41167Wp?p=78
 
+备份整块磁盘：dd if=需备份磁盘 of=备份磁盘	
 	
-	
-	
+持久化保证：https://www.bilibili.com/video/BV15J41167Wp?p=83
+
+A：原子性，要么都提交成功，要么失败，由undo日志保证(记录事务开始到结束之间的操作)(回滚)
+C：一致性，50+50=100+0
+I：隔离性，由锁保证(mcvv)
+D：持久性，提交是持久的，由redo日志保证(commit刷新到磁盘或被其它commit顺带刷新到磁盘)(前滚)
+
+并发事务处理带来的问题：
+	更新丢失(AB同时修改同一数据，导致先更新的被后更新的覆盖(AB都读到5，但A先修改为6，B仍以5为数据进行修改))  
+	脏读：读未提交的事务，A更新时，B查看时是更新的数据(有可能回滚)
+	不可重复读：A更新提交前和后，B查看两次分别是更新前(不会脏读)和更新后的数据
+	幻读：A更新未提交，B插入一行并提交，A提交发现更新多了一行
+
+隔离级别：
+	RU读未提交: 可脏读
+	RC读已提交: 提交就能查到(缺点：银行季度统计时，不可重复读：查询10点的账单但是查询需要持续2小时，如果频繁提交，就不好统计)
+	RR可重复读: 一个窗口被打开(银行季度统计：窗口不关闭一直持续查询，查询到的数据一直是打开的时间点)数据不变，由mvcc--undo快照保证，有幻读缺点
+	SR可串行化: 串行执行，可防止死锁，并发低
+
+幻读：A在批量修改，B在A开始但commit未完成之间插入满足A修改的数据行(不会被A一起修改)，导致A完成查看发现好像还有数据没修改现象(解决方法就是B在A未完成之前不能插入)
+在RR模式下，通过GAP(间隙锁)和next-lock(锁定一个范围，并且锁定记录本身)避免幻读现象(要有索引)
+
+
+wal: 事务优先写日志
+CSR(自动故障恢复)在内存追平LSN号,触发ckpt(checkpoint)将内存数据页更新到磁盘
+mvcc：多版本并发控制
+TXID:事务号,每一个事务生成一个事务号
+
+日志配置：https://www.bilibili.com/video/BV15J41167Wp?p=91
+二进制日志最小记录单元 -- event事件
+事件查看：
+	show master status;
+	show binlog events in "mysql-bin.00004"
+截取：
+	mysqlbinlog --start-position="" --stop-position="" mysql-bin.00004 > tmp.sql
+恢复：
+	set sql_log_bin=0 临时关闭日志
+	source tmp.sql
+	set sql_log_bin=1
+
+gtid截取：
+	mysqlbinlog --skip-gtids --include-gtids="server_id:1-3"   mysql-bin.00004 > tmp.sql
+
+主从(gtid)：从mysqldump开始看
+
+pt工具：优化
+
+优化：https://www.bilibili.com/video/BV15J41167Wp?p=171
+show engine innodb status\G;
+查看锁：select * from sys.innodb_lock_waits;

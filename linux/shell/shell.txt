@@ -239,7 +239,7 @@ IFS：变量  ---  定义read的分隔符
 	-a	(and)两状况同时成立！例如 test -r file -a -x file，则 file 同时具有 r 与 x 权限时，才回传 true。
 	-o	(or)两状况任何一个成立！例如 test -r file -o -x file，则 file 具有 r 或 x 权限时，就可回传 true。
 	!	反相状态，如 test ! -x file ，当 file 不具有 x 时，回传 true
-	&&  ||
+	&&  ||  #有多个会一直判断下去，不会因为中间有执行失败命令就直接退出
 
  #Shell中的 test 命令用于检查某个条件是否成立，它可以进行数值、字符和文件三个方面的测试
  if true/false;then
@@ -893,10 +893,68 @@ ls : --almost-all，可以缩写为--alm；如果想要指定--author，可以�
 	执行：./test.sh -a non-op_arg1 -b b_short_arg non-op_arg2 --rem --add /path --show -c non-op_arg3
 处理getopt解析的结果：根据while、case、shift将选项、参数进行分割单独保存
 
+################################################################################################
 
+!!!
+一切皆文件：指对资源提供统一的接口给用户
 
-
+bash进程：会分配0、1、2三个文件描述符，默认都对应终端文件
+          为终端文件分配一个文件描述符（交互）
+		  
+exec 3<1.txt        #只读
+	echo "aaa" >&3  #报错
+	read -u 3 && echo $REPLY
+exec 3>1.txt        #只写
+	read -u 3       #报错
+	echo "aa1" >&3  
+exec 3<>1.txt       #读写
+	read -u 3 && echo $REPLY  #追读
+	echo "aaa" >&3            #追加
 	
-		
+移除: exec 3>&-     
+
+exec 4>&3   # fd4关联到 fd3已经关联的文件，权限一样(可使用lsof查看)
+
+exec 9>&1   # fd=1和fd=9都关联到终端
+exec >&3    # 只有1会关联到3关联的文件，9不会
+
+变量文件描述符：
+	注意，每一次都会生成一个文件描述符，变量保存的是最新的(之前生成的也存在)
+	exec {fd1}<> /tmp/a.log
+	echo $fd1
+	ls -l /proc/`echo $$`/fd
+
+子Shell: (exec 3<> a.log;exec 4<> b.log;while read -u 3 linea;do read -u 4 lineb;echo $linea $lineb;done)
+
+每个重定向操作也是打开文件的操作，同时会分配文件描述符
+echo ha >a.log命令，Shell会打开a.log文件并将fd=1关联到该文件，当echo进程运行时会继承Shell的fd=1以及它关联的a.log属性，于是echo的标准输出就会输出到a.log中
+但是在命令中打开的文件(包括重定向)都是临时的，命令退出完后文件就会关闭，所分配的文件描述符也会释放
+
+如果使用了路径自动提示功能(比如两次tab键)，在提示目录中的文件时，需要打开那个目录，所以要为这个目录分配一个文件描述符
+ls -l /proc/`echo $$`/fd
+
+
+
+################################################################################################
+
+内置变量：
+[[ "abc1234,789" =~ [a-z]{1,}([0-9]+),([0-9]+) ]]
+	echo ${!BASH_REMATCH[@]}   # 0 1 2
+	echo ${BASH_REMATCH[0]}   # abc1234,789
+	echo ${BASH_REMATCH[1]}   # 1234
+	echo ${BASH_REMATCH[2]}   # 789
+
+[root@localhost ~]# foo a b
+	COMP_WORDS: 类型为数组，存放当前命令行中输入的所有单词；    #'([0]="foo" [1]="b" [2]="c")'
+	COMP_CWORD: 类型为整数，当前光标所在的索引；                #"2"
+	COMPREPLY: 类型为数组，候选的补全结果；
+	COMP_WORDBREAKS: 类型为字符串，表示单词之间的分隔符；
+	COMP_LINE: 类型为字符串，表示当前的命令行输入               #"foo b c"
+
+$REPLY：存储read读入的变量
+	
+trap
+	BASH_COMMAND变量记录的是当前正在执行的命令行
+	LINENO记录的是正在执行的命令所处行号		
 		
 		
