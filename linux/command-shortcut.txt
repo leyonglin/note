@@ -93,7 +93,7 @@ bash(命令行)
 
   
 操作：每次操作完成记得看最下面的完成提示
-1.
+1. 范围操作，从当前光标位置--motion后的光标位置
    y/Y + motion 
    c/d/C/D + motion	
    x/s/X/S + motion

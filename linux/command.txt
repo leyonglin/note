@@ -1,4 +1,8 @@
 
+tee命令可将一份标准输入原样拷贝到标准输出和0或多个文件中
+	echo hello world | tee /tmp/file1 /tmp/file2 | cat
+
+
 #捕获结束信号丢弃，开启后，将无法ctl +c退出
 trap "" HUP INT QUIT TSTP
 

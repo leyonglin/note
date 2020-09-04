@@ -1276,7 +1276,8 @@ CSR(自动故障恢复)在内存追平LSN号,触发ckpt(checkpoint)将内存数�
 mvcc：多版本并发控制
 TXID:事务号,每一个事务生成一个事务号
 
-日志配置：https://www.bilibili.com/video/BV15J41167Wp?p=91
+https://www.bilibili.com/video/BV15J41167Wp?p=91
+日志配置,备份恢复，mycat分库分表
 二进制日志最小记录单元 -- event事件
 事件查看：
 	show master status;
@@ -1297,4 +1298,12 @@ pt工具：优化
 
 优化：https://www.bilibili.com/video/BV15J41167Wp?p=171
 show engine innodb status\G;
-查看锁：select * from sys.innodb_lock_waits;
+查看锁：好像还不对？
+	select blocking_pid from sys.innodb_lock_waits;  								#得到会话线程blocking_pid
+	select thread_id from performance_schema.threads where processlist_id=3;        #得到工作线程tread_id
+	select * from performance_schema.events_statements_current where thread_id=35\G;
+	
+	
+	
+	
+	

@@ -20,6 +20,8 @@
  echo  -e  "\\abc$1bb\vTecmint\vis""\n##########\n""abc$1bb\\vTecmint\vis""\n##########\n""\n\vTecmint \n\vis""\n##########\n""Tecmint \ris""\n##########\n""community \cof""\n##########\n""\\\n"
 			    #\b  \n  \f  \t  \r  \\  \e(Esc键) \a(输出警告音) \v(\n+单词结尾位置开始) \c(把后面的删了)
 		   "\033[x;x;..mtest\033[x;x;..m"
+		   echo -e "\033[44;37m 44蓝底37白字 \033[0m"
+		   echo -e "\e[44;37m 44蓝底37白字 \e[0m"
 				#ANSI控制码开始的标志都为ESC[，ESC对应ASCII码表的033(换码(溢出))
 				#三种类型：40-47背景 30-37字体   0/1/4/5/7/8下划线等特殊效果(一二部分可叠加)
 				#在第一部分则表示作用于内容，在第二部分则表示作用于PS1
@@ -42,9 +44,10 @@
  seq [-s +] [-w] 1 [2 10]  		 #for i in `seq 1 2 10`; do echo $i; done
  seq -f "dir%g" ["%03g"]  5
  
- printf '\x45\n'
- printf "%s [%s...]\n" a 1 b 2 c 3  # %-3.2f\n
- #printf "|%-5s|%-5s|%-5s|\n","id","name","ip" 和 printf "|%-5s|%-5s|%-5s|\n" id name ip 是不一样的  #要注意shell终端(空格为分隔符)和awk(,为分隔符)不一样
+ printf可以指定字符串的宽度(要大于字符长度才有意义)、实现左对齐（使用减符号-）、右对齐（默认的）、格式化小数输出
+	printf '\x45\n'
+	printf "%s [%s...]\n" a 1 b 2 c 3  # %-3.2f\n
+	#printf "|%-5s|%-5s|%-5s|\n","id","name","ip" 和 printf "|%-5s|%-5s|%-5s|\n" id name ip 是不一样的  #要注意shell终端(空格为分隔符)和awk(,为分隔符)不一样
  grep -i(忽略大小写) -v(取反) -n(显示行数) -c(统计) -o(仅输出匹配关键词) -ABC(上下文) -w(匹配单词) -e(支持正则) -q(静默)   (grep(基本正则) egrep(正则) fgrep(速度快不支持正则))
  grep -n '[^[:lower:]]oo' regular_express.txt
  egrep -n 'o\{2\}' regular_express.txt
@@ -933,7 +936,9 @@ echo ha >a.log命令，Shell会打开a.log文件并将fd=1关联到该文件，�
 如果使用了路径自动提示功能(比如两次tab键)，在提示目录中的文件时，需要打开那个目录，所以要为这个目录分配一个文件描述符
 ls -l /proc/`echo $$`/fd
 
-
+cat < "filename"
+cat << eof (is doc) 
+cat <<< "string"
 
 ################################################################################################
 

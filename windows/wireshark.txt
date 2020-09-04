@@ -1,35 +1,42 @@
 
-1.捕获--选项                 #可以选择网卡，输出--可以按需求多文件抓取
-2.应用显示过滤器：协议+端口/主机/其他  
-	条件过滤    （host port） （src dst） （ether ip tcp udp http ftp arp icmp）（&&  ||  ！）
-	主机过滤：ip.src==192.168.1.100 or ip.dst==192.168.1.100 and ip.host==14.215.177.37
-	端口过滤：tcp.port == 80 or udp.port >= 2048
-	协议过滤：not arp/!arp    http tcp  "http.host contains www.cnblogs.com"
-	udp.length < 30   http.request
-3.右键--设置时间参考   设置当前行相对时间为0
-3.右键--对话过滤器：将某个对话过滤出来(tcp三次握手四次断开)
-4.右键--应用为列，可以添加到3
-1.统计--已解析地址 
-1.文件--导出-特定数据包(标记的/all/选定的)
-1.文件--合并
-4.双击可单独分裂出来
-1.编辑--首选项   
-	appearance：配置默认打开路径  and  ui界面
-	appearance -- columns (类型和字段需指定，标题自定义)
-3.右键 -- tcp流(重组后的信息)				
-1.分析 -- 专家信息 （错误信息）	
-	统计--会话/端口
+抓包工具：
 
+wireshare：
+	1.捕获--选项                 #可以选择网卡，输出--可以按需求多文件抓取
+	2.应用显示过滤器：协议+端口/主机/其他  
+		条件过滤    （host port） （src dst） （ether ip tcp udp http ftp arp icmp）（&&  ||  ！）
+		主机过滤：ip.src==192.168.1.100 or ip.dst==192.168.1.100 and ip.host==14.215.177.37
+		端口过滤：tcp.port == 80 or udp.port >= 2048
+		协议过滤：not arp/!arp    http tcp  "http.host contains www.cnblogs.com"
+		udp.length < 30   http.request
+	3.右键--设置时间参考   设置当前行相对时间为0
+	3.右键--对话过滤器：将某个对话过滤出来(tcp三次握手四次断开)
+	4.右键--应用为列，可以添加到3
+	1.统计--已解析地址 
+	1.文件--导出-特定数据包(标记的/all/选定的)
+	1.文件--合并
+	4.双击可单独分裂出来
+	1.编辑--首选项   
+		appearance：配置默认打开路径  and  ui界面
+		appearance -- columns (类型和字段需指定，标题自定义)
+	3.右键 -- tcp流(重组后的信息)				
+	1.分析 -- 专家信息 （错误信息）	
+		统计--会话/端口
 
-抓包工具：如果设置后其它软件不能使用，一般是因为有证书导入本地电脑，但是仅用于当前用户，导致其它软件的启动用户使用各自证书出现问题
 fiddler
-	1.配置：Tools -- Options -- HTTPS -- 1.Decrypt HTTPS traffic(抓取https包)/Actions(信任root证书和搜索根证书到桌面) -- 2.from browsers only(只抓取浏览器的包) -- 3.connections(代理端口)
-		选项详解：Inspectors --1. Headers(请求头数据)  -- 2.webforms(post) -- 3.raw(将请求头转换成纯文本)
-			过滤：filters -- show only the following hosts
+	1.配置：Tools -- Options -- 1.HTTPS -- 1.1 decrypt https traffic(抓取https包，都打勾也行) -- 1.2Actions(信任root证书，也可以reset all cerf)   # from browsers only(只抓取浏览器的包，左下角也有的选) --> 抓到https包后，能查看内容(双击是加密数据的话，往上一点点可以点击可以解密) 
+								2.Connections(代理端口) -- 2.1 启动自动设置为系统代理：act as system proxy on startup  2.2 允许非本机连接该代理：allow remote computer connect #如果浏览器配置了系统代理，则直接可以用（1.firefox要手动导入证书：方法就是在设置中搜索"证书"导入，再搜索"代理"使用系统代理，2.谷歌使用的是win系统的证书和系统代理，不用额外导入证书和设置代理(需要和火狐步骤是一样的)）
 	2.浏览器配置：switchyomega(浏览器插件) -- 选项 --新建情景模式 -- 代理服务器和代理端口(选择高级打开全部) -- 应用选项  然后，在插件出选择新建的情景模式
 		然后在浏览器设置--管理证书中添加fiddler的根证书
 		如果关闭fiddler的时候，需要将switchyomega切换成系统代理
-
+	功能：
+		Inspectors(检查器) --1. Headers(请求头数据)  -- 2.webforms(post) -- 3.raw(将请求头转换成纯文本)
+		autoresponder(替换响应内容) --> 1.选中左边抓到的包 --> add rule(即第一行，将动态数据去掉)或者(直接拉到内容填充区)-->  第二行选择 Find a file...然后选择本地修改后的js文件 --> save，然后清缓存重新请求 
+		composer(修改发送请求) --> 1. 选中左边抓到的包，直接拉到内容填充区(可以进行接口测试，不经过js)
+		filter(过滤) --> 进行多维度过滤(域名或者系统进程级别的...) --> execute（内容区右上角） # 对已抓到的包但是过滤出指定内容
+	投屏：
+		手机投屏到电脑：https://www.bilibili.com/video/BV1xD4y127wU?p=22
+		
 charles：手机端抓包
 	charles软件: 
 		proxy -- proxy setting -- 设置代理端口
@@ -42,10 +49,6 @@ charles：手机端抓包
 			   设置 -- 通用 -- 描述文件 -- 安装
 			   设置 -- 通用 -- 关于本机 -- 证书设置信任
 	
-
-
-
-
 
 
 TCPDUMP:  or/and/not    网卡+ip+协议+port
