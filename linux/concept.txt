@@ -1,4 +1,69 @@
 
+硬编码（英语：Hard Code或Hard Coding）是指在软件实现上，将输出或输入的相关参数直接以常量的方式撰写在源代码中
+ramdisk内存盘：是一种基于内存的虚拟磁盘技术
+RAM（random access memory）即随机存储内存，这种存储器在断电时将丢失其存储内容，故主要用于存储短时间使用的程序。 
+ROM（Read-Only Memory）即只读内存，是一种只能读出事先所存数据的固态半导体存储器
+cpu实模式："实"体现在其内存地址是真实的物理内存地址(系统启动时候)
+cpu保护模式：物理内存地址不能直接被程序访问，程序内部的地址（虚拟地址）要由操作系统转化为物理地址去访问，程序对此一无所知(操作系统运行起来以后)
+MBR是主引导记录，位于磁盘的第一个扇区，和分区无关，和操作系统无关
+BRID(boot record ID)，它固定为0x55AA，用于标识该存储设备的MBR是否是合理有效的MBR
+mbr(512)：
+	boot loader(446)：
+	分区表(64)： 0x80(1)(则表示该分区为激活的分区(操作系统所在分区)，且只允许有一个激活的分区) + 分区信息
+	brid(2)：0x55AA，标识该存储设备的MBR是合理有效的MBR，如果bios读取MBR发现最后两个字节不是0x55AA，就会读取下一个启动设备(例如u盘)
+磁盘分区的启动扇区中也放了boot loader(不是分区表)；
+不同操作系统是装在不同分区中的，boot loader不能被覆盖
+	但是如果是采用grub管理的话
+	使用grub管理启动，则MBR中的boot loader是由grub程序安装的，此外还会安装其他的boot loader
+	如果使用的是传统的grub，则安装的boot loader为stage1、stage1_5和stage2
+	如果使用的是grub2，则安装的是boot.img和core.img
+grub2程序安装grub后，会在/boot/grub2/i386-pc/目录下生成boot.img和core.img文件，另外还有一些模块文件，其中包括文件系统类的模块
+
+安装完操作系统时生成的中间过渡文件，会收集到当前操作系统的根文件系统是什么类型的文件系统
+	init ramdisk/initrd(5): 镜像文件系统，是在内存中划分一片区域模拟磁盘分区，在该文件中包含了找到根文件系统的脚本和驱动,内核也必须要带有对应文件系统的驱动, 由kernel_init挂载真正的根文件系统并从虚根切换到实根
+	initramfs(6,7): 一个镜像压缩文件
+
+系统启动过程：
+	通电，cpu运行起来执行第一段指令是由cpu寄存器cs/ip上的地址指向的代码(BIOS中) 	# Bios ROM是固化的芯片,主板上一个ROM芯片上的程序，里面本来就有程序,上电就执行，
+	bios是按下开机键后第一个运行的程序，它会读取CMOS中的信息(硬件自检等)
+	bios一定会读取MBR中的记录
+	#MBR的boot loader初始化软硬件环境
+	#执行分区的启动扇区中的boot loader
+	boot.img段的boot loader只有一个作用，就是跳转到core.img对应的boot loader的第一个扇区(硬盘启动是diskboot.img) #core.img包含了diskboot.img和grub内核kernel.img
+	kernel.img加载文件系统模块,加载了模块后，kernel.img就能识别/boot分区的文件系统，也就能找到grub的配置文件/boot/grub2/grub.cfg，有了grub.cfg就能显示启动菜单
+	kernel.img会根据菜单选择项，从grub.cfg中的配置加载对应的操作系统内核(/boot目录下vmlinuz开头的文件) 并向操作系统内核传递启动时参数  #grep menuentry /boot/grub2/grub.cfg
+	加载完操作系统内核后grub2就将控制权交给操作系统内核。
+	加载内核及初始化内核环境
+	#救援模式就是刚加载完内核，init进程接收到控制权但没有进行任何操作系统初始化过程
+	启动内核线程加载initramfs，完成根的挂载(其他的在初始化用户空间的时候挂载)
+	初始化用户空间: 读取运行级别；初始化系统类的环境；根据运行级别初始化用户类的环境；执行rc.local文件完成用户自定义开机要执行的命令；加载终端
+	
+
+消耗资源对比：完全虚拟化(由虚拟化软件分配资源) > 半虚拟化(部分资源由宿主操作系统分配) > 硬件虚拟化(宿主机系统也是虚拟化软件)
+
+Virtual Machine Manager (VMM)/hypervisor：一种运行在物理服务器和操作系统之间的中间层软件，可以允许多个操作系统和应用共享一套基础物理硬件
+VT(Virtualization Technology)是一种虚拟化技术，单CPU模拟多CPU并行，允许应用程序都可以在相互独立的空间内运行而互不影响,因此一个平台同时运行多个操作系统
+不支持VT虚拟化技术的处理器，也可以使用VMware虚拟机软件，但无法调用VT虚拟化技术，实际使用中受到功能限制，比如32位操作系统只能安装32位虚拟机，无法安装64位虚拟机，同时虚拟机性能明显比较低，偏卡顿的那种
+intel虚拟技术的实现需要同时具有处理器、芯片组、BIOS、VMM(hypervisor)软件的支持 
+ 
+ 
+X.509：是一bai种非常通用的证du书格式
+	DER - Distinguished Encoding Rules,打开看是二进制格式，window平台，常用PFX，PFX里边包含证书和私钥
+	PEM - Privacy Enhanced Mail,打开看文本格式，linux平台，常用crt(公钥)和key(私钥)俩文件
+CSR - Certificate Signing Request,即证书签名请求,这个并不是证书,而是向权威证书颁发机构获得签名证书的申请
+jks是JAVA的keytools证书工具支持的证书私钥格式   
+
+
+DAS：本地
+NAS：文件系统
+SAN：块
+
+QPS：querys/sec 每秒的响应请求数
+TPS: 每秒能处理的事务数，从客户端发出请求到收到响应的时间
+对于一个页面的一次访问，形成一个TPS；但一次页面请求，可能产生多次对服务器的请求，服务器对这些请求，就可计入“QPS”之中。如，访问一个页面会请求服务器2次，一次访问，产生一个“T”，产生2个“Q”
+RT，响应时间(tps)
+系统的吞吐量（承压能力）与request对CPU的消耗、外部接口、IO等等紧密关联（静态和动态...）
+
 https://www.hhcycj.com/post/item/331.html
 如何使用变量的指针找到整个变量空间？
 	通过变量指针找到变量的第一个字节

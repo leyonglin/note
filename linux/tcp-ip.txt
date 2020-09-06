@@ -364,8 +364,8 @@
 
   tcp三次握手的时候会使用随机的seq，但在连接完成则双方的seq和ack都为1(因为syn占1字节)
   http请求的tcp-flags是push和ack，tcp连接过程中会tcp会定期发送http请求(没内容，一个字节长度)
-  seq：我，如果seq是1:x，说明我当前序号是1，下一个序号是x(序号表示还没内容)
-  ack：你，如果ack为1，说明你的序号是1(序号表示还没内容)
+  seq：我发送，如果seq是1:x，说明我当前序号是1，下一个序号是x(序号表示还没内容)
+  ack：你发送，如果ack为1，说明你的序号是1(序号表示还没内容)
   tcp retransmission：重传
    Retransmission TimeOut：即重传超时时间，是动态的
    往返时间（RTT，全称：Round Trip Time

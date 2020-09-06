@@ -1,4 +1,9 @@
 
+ mysql：存储，不確定要根据某个条件下进行查询
+ redis: 缓存，点赞的功能,并发量也会特别大，但是它的数据量不会特别大，数据结构复杂 ， 单线程请求(一致性)
+ mongodb: 存储，確定要key条件下进行查询 评论表的数据后期会非常大（海量的数据，集群部署简单），最后在数据量非常大的情况下还要求比较复杂的查询
+ Memcached：缓存，不进行操作，不需要持久化，数据结构简单，多核优势
+
  DDL（Data Definition Language）数据库定义语言: DDL不需要commit. CREATE ALTER DROP TRUNCATE COMMENT RENAME
  DML（Data Manipulation Language）数据操纵语言: 需要commit. SELECT INSERT UPDATE DELETE MERGE CALL EXPLAIN PLAN LOCK TABLE
 	在二进制日志中会记录事务的开始BEGIN和提交COMMIT
