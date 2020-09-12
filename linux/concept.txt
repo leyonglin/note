@@ -5,7 +5,7 @@ RAM（random access memory）即随机存储内存，这种存储器在断电时
 ROM（Read-Only Memory）即只读内存，是一种只能读出事先所存数据的固态半导体存储器
 cpu实模式："实"体现在其内存地址是真实的物理内存地址(系统启动时候)
 cpu保护模式：物理内存地址不能直接被程序访问，程序内部的地址（虚拟地址）要由操作系统转化为物理地址去访问，程序对此一无所知(操作系统运行起来以后)
-MBR是主引导记录，位于磁盘的第一个扇区，和分区无关，和操作系统无关
+MBR: 主引导记录，位于磁盘的第一个扇区，和分区无关，和操作系统无关
 BRID(boot record ID)，它固定为0x55AA，用于标识该存储设备的MBR是否是合理有效的MBR
 mbr(512)：
 	boot loader(446)：
@@ -47,15 +47,16 @@ VT(Virtualization Technology)是一种虚拟化技术，单CPU模拟多CPU并行
 intel虚拟技术的实现需要同时具有处理器、芯片组、BIOS、VMM(hypervisor)软件的支持 
  
  
-X.509：是一bai种非常通用的证du书格式
+X.509：是一种非常通用的证书格式
 	DER - Distinguished Encoding Rules,打开看是二进制格式，window平台，常用PFX，PFX里边包含证书和私钥
 	PEM - Privacy Enhanced Mail,打开看文本格式，linux平台，常用crt(公钥)和key(私钥)俩文件
 CSR - Certificate Signing Request,即证书签名请求,这个并不是证书,而是向权威证书颁发机构获得签名证书的申请
+CA是证书的签发机构
 jks是JAVA的keytools证书工具支持的证书私钥格式   
 
 
-DAS：本地
-NAS：文件系统
+DAS：本地,通过scsi连接
+NAS：文件系统，即插即用
 SAN：块
 
 QPS：querys/sec 每秒的响应请求数
