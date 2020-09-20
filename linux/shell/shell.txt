@@ -479,7 +479,7 @@ SED：sed [选项] [pattern内置命令字符] [文件]
 -i.bak: 备份再修改
 
 function(内置命令字符) 
-·{;} #针对同一行，顺序执行命令
+{;} #针对同一行，顺序执行命令
 查：
 	p   ：列印，亦即将某个选择的数据印出。通常 p 会与参数 sed -n 一起运行
 	n   : 不处理匹配行直接跳到下一行
@@ -754,7 +754,15 @@ shell是命令解释器，bash是shell的一种
 
 
 
-help
+help         #列出所有内置命令
+type -a cmd  #查看命令类型
+help cd      #内置命令帮助
+which --help #普通命令帮助
+
+man -k 关键字(普通命令)
+man 命令
+info 命令
+
 pwd  exec  exit logout unset printf source unalias 
 let 表达式  #计算
 set 用来显示本地变量 -v -x -n -e -h(将执行命令记录到hash中，默认打开)  -B(大括号拓展,默认打开) -C(防止重定向覆盖已存在文件)
@@ -957,7 +965,8 @@ ls : --almost-all，可以缩写为--alm；如果想要指定--author，可以�
 
 bash进程：会分配0、1、2三个文件描述符，默认都对应终端文件
           为终端文件分配一个文件描述符（交互）
-		  
+
+文件描述符和文件关系："&fd" == "/path/filename"		  
 exec 3<1.txt        #只读
 	echo "aaa" >&3  #报错
 	read -u 3 && echo $REPLY
